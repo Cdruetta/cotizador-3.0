@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Cliente{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>¡Atención!</strong> Esta acción no se puede deshacer.
+                </div>
+                
+                <p>¿Está seguro que desea eliminar el cliente <strong>{{ cliente.nombre }}</strong>?</p>
+                
+                {% if cliente.cotizacion_set.exists %}
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-circle"></i>
+                    Este cliente tiene <strong>{{ cliente.cotizacion_set.count }}</strong> cotización(es) asociada(s).
+                    Al eliminar el cliente, también se eliminarán todas sus cotizaciones.
+                </div>
+                {% endif %}
+
+                <form method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Sí, Eliminar
+                    </button>
+                    <a href="{% url 'cliente_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

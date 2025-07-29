@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar Cotización{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>¡Atención!</strong> Esta acción no se puede deshacer.
+                </div>
+                
+                <p>¿Está seguro que desea eliminar la cotización <strong>{{ cotizacion.numero }}</strong>?</p>
+                
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h6>Detalles de la cotización:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Cliente:</strong> {{ cotizacion.cliente.nombre }}</li>
+                            <li><strong>Tipo:</strong> {{ cotizacion.get_tipo_documento_display }}</li>
+                            <li><strong>Fecha:</strong> {{ cotizacion.fecha|date:"d/m/Y" }}</li>
+                            <li><strong>Total:</strong> ${{ cotizacion.total|floatformat:2 }}</li>
+                            <li><strong>Items:</strong> {{ cotizacion.items.count }}</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <form method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Sí, Eliminar
+                    </button>
+                    <a href="{% url 'cotizacion_list' %}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
