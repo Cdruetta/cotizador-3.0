@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: django-app
+    env: python3
+    buildCommand: ./build.sh
+    startCommand: gunicorn myproject.wsgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: proyecto.settings
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+
