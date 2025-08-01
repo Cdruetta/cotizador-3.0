@@ -2,7 +2,7 @@ asgiref==3.9.1
 Django==4.2.7
 gunicorn==21.2.0
 packaging==25.0
-Pillow==9.5.0       # bajé la versión para mejorar compatibilidad con Python 3.13
+Pillow==10.1.0 --only-binary=:all:
 psycopg2-binary==2.9.9
 python-decouple==3.8
 redis==5.0.1
