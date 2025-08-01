@@ -1,16 +1,12 @@
 import os
 from pathlib import Path
+import dj_database_url
 from django.contrib.messages import constants as messages
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Usar SECRET_KEY de variable de entorno, si no está usar valor por defecto (cambiar en producción)
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-production')
-
-# DEBUG según variable de entorno, por defecto False (producción)
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-
-# Permitimos todos los hosts (podés cambiar por tu dominio después)
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
@@ -25,7 +21,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # ✅ Requerido para servir archivos estáticos
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # para archivos estáticos
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -54,11 +50,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'proyecto.wsgi.application'
 
+# Base de datos
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+        ssl_require=True  # Render requiere SSL para PostgreSQL
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -77,7 +75,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  # ✅ Para producción
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Archivos multimedia
 MEDIA_URL = '/media/'
