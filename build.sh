@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-# Instalar dependencias, migraciones y colectar estáticos
+
+# Instalar dependencias
+pip install --upgrade pip
 pip install -r requirements.txt
-python manage.py migrate
+
+# Aplicar migraciones
+python manage.py migrate --noinput
+
+# Recolectar archivos estáticos
 python manage.py collectstatic --noinput
