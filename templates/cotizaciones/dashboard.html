@@ -28,64 +28,75 @@
         <!-- Stats Cards -->
         <div class="row mb-4">
             <div class="col-md-3">
-                <div class="card stats-card bg-primary text-white">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h4>{{ total_clientes }}</h4>
-                                <p class="mb-0">Clientes</p>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="bi bi-people" style="font-size: 2rem;"></i>
+                <a href="{% url 'cliente_list' %}" class="text-decoration-none">
+                    <div class="card stats-card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4>{{ total_clientes }}</h4>
+                                    <p class="mb-0">Clientes</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-people" style="font-size: 2rem;"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
+
             <div class="col-md-3">
-                <div class="card stats-card bg-success text-white">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h4>{{ total_proveedores }}</h4>
-                                <p class="mb-0">Proveedores</p>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="bi bi-truck" style="font-size: 2rem;"></i>
+                <a href="{% url 'proveedor_list' %}" class="text-decoration-none">
+                    <div class="card stats-card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4>{{ total_proveedores }}</h4>
+                                    <p class="mb-0">Proveedores</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-truck" style="font-size: 2rem;"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
+
             <div class="col-md-3">
-                <div class="card stats-card bg-warning text-dark">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h4>{{ total_productos }}</h4>
-                                <p class="mb-0">Productos</p>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="bi bi-box" style="font-size: 2rem;"></i>
+                <a href="{% url 'producto_list' %}" class="text-decoration-none">
+                    <div class="card stats-card bg-warning text-dark">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4>{{ total_productos }}</h4>
+                                    <p class="mb-0">Productos</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-box" style="font-size: 2rem;"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
+
             <div class="col-md-3">
-                <div class="card stats-card bg-info text-white">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h4>{{ total_cotizaciones }}</h4>
-                                <p class="mb-0">Cotizaciones</p>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="bi bi-file-text" style="font-size: 2rem;"></i>
+                <a href="{% url 'cotizacion_list' %}" class="text-decoration-none">
+                    <div class="card stats-card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4>{{ total_cotizaciones }}</h4>
+                                    <p class="mb-0">Cotizaciones</p>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-file-text" style="font-size: 2rem;"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
 
