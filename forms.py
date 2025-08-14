@@ -60,7 +60,7 @@ class ProductoForm(forms.ModelForm):
 class CotizacionForm(forms.ModelForm):
     class Meta:
         model = Cotizacion
-        fields = ['numero', 'cliente', 'tipo_documento', 'observaciones']
+        fields = [ 'cliente', 'tipo_documento', 'observaciones']
         widgets = {
             'numero': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
             'cliente': forms.Select(attrs={'class': 'form-select'}),
