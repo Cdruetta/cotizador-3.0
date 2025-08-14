@@ -75,7 +75,7 @@ class Cotizacion(models.Model):
         ('recibo', 'Recibo'),
     ]
 
-    numero = models.CharField(max_length=20, unique=True, verbose_name="Número", blank=True, editable=False)
+    numero = models.CharField(max_length=20, unique=True, verbose_name="Número", blank=True, null=True, editable=False)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, verbose_name="Cliente")
     tipo_documento = models.CharField(
         max_length=20, 
@@ -100,21 +100,20 @@ class Cotizacion(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.numero:
-            # Prefijos por tipo de documento
             prefijos = {
                 'presupuesto': 'P-',
                 'recibo': 'R-'
             }
             prefijo = prefijos.get(self.tipo_documento, '')
 
-            # Buscar la última cotización del mismo tipo
+            # Obtener la última cotización del mismo tipo
             ultima = Cotizacion.objects.filter(tipo_documento=self.tipo_documento).order_by('-id').first()
             if ultima and ultima.numero.replace(prefijo, '').isdigit():
                 nuevo_num = int(ultima.numero.replace(prefijo, '')) + 1
             else:
                 nuevo_num = 1
 
-            # Formatear con ceros a la izquierda (4 dígitos)
+            # Generar el número con ceros a la izquierda
             self.numero = f"{prefijo}{str(nuevo_num).zfill(4)}"
 
         super().save(*args, **kwargs)
