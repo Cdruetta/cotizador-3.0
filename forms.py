@@ -60,12 +60,19 @@ class ProductoForm(forms.ModelForm):
 class CotizacionForm(forms.ModelForm):
     class Meta:
         model = Cotizacion
-        fields = ['cliente', 'tipo_documento', 'observaciones']
+        fields = ['numero', 'cliente', 'tipo_documento', 'observaciones']
         widgets = {
+            'numero': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
             'cliente': forms.Select(attrs={'class': 'form-select'}),
             'tipo_documento': forms.Select(attrs={'class': 'form-select'}),
             'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+
+    def clean_numero(self):
+        numero = self.cleaned_data.get('numero')
+        if len(numero) < 3:
+            raise forms.ValidationError("El número debe tener al menos 3 caracteres.")
+        return numero
 
 class CotizacionItemForm(forms.ModelForm):
     class Meta:

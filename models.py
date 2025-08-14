@@ -23,7 +23,6 @@ class Cliente(models.Model):
     def __str__(self):
         return self.nombre
 
-
 class Proveedor(models.Model):
     nombre = models.CharField(max_length=200, verbose_name="Nombre")
     direccion = models.CharField(max_length=300, blank=True, verbose_name="Dirección")
@@ -40,7 +39,6 @@ class Proveedor(models.Model):
 
     def __str__(self):
         return self.nombre
-
 
 class Producto(models.Model):
     nombre = models.CharField(max_length=200, verbose_name="Nombre")
@@ -68,14 +66,13 @@ class Producto(models.Model):
     def __str__(self):
         return self.nombre
 
-
 class Cotizacion(models.Model):
     TIPO_DOCUMENTO_CHOICES = [
         ('presupuesto', 'Presupuesto'),
         ('recibo', 'Recibo'),
     ]
 
-    numero = models.CharField(max_length=20, unique=True, verbose_name="Número", blank=True, null=True, editable=False)
+    numero = models.CharField(max_length=20, unique=True, verbose_name="Número")
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, verbose_name="Cliente")
     tipo_documento = models.CharField(
         max_length=20, 
@@ -98,32 +95,11 @@ class Cotizacion(models.Model):
     def __str__(self):
         return f"{self.numero} - {self.cliente.nombre}"
 
-    def save(self, *args, **kwargs):
-        if not self.numero:
-            prefijos = {
-                'presupuesto': 'P-',
-                'recibo': 'R-'
-            }
-            prefijo = prefijos.get(self.tipo_documento, '')
-
-            # Obtener la última cotización del mismo tipo
-            ultima = Cotizacion.objects.filter(tipo_documento=self.tipo_documento).order_by('-id').first()
-            if ultima and ultima.numero.replace(prefijo, '').isdigit():
-                nuevo_num = int(ultima.numero.replace(prefijo, '')) + 1
-            else:
-                nuevo_num = 1
-
-            # Generar el número con ceros a la izquierda
-            self.numero = f"{prefijo}{str(nuevo_num).zfill(4)}"
-
-        super().save(*args, **kwargs)
-
     def calcular_total(self):
         total = sum(item.subtotal for item in self.items.all())
         self.total = total
-        super().save()
+        self.save()
         return total
-
 
 class CotizacionItem(models.Model):
     cotizacion = models.ForeignKey(
