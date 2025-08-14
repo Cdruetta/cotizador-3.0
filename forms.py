@@ -62,7 +62,6 @@ class CotizacionForm(forms.ModelForm):
         model = Cotizacion
         fields = [ 'cliente', 'tipo_documento', 'observaciones']
         widgets = {
-            'numero': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
             'cliente': forms.Select(attrs={'class': 'form-select'}),
             'tipo_documento': forms.Select(attrs={'class': 'form-select'}),
             'observaciones': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),

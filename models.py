@@ -75,7 +75,7 @@ class Cotizacion(models.Model):
         ('recibo', 'Recibo'),
     ]
 
-    numero = models.CharField(max_length=20, unique=True, verbose_name="Número", blank=True)
+    numero = models.CharField(max_length=20, unique=True, verbose_name="Número", blank=True, editable=False)
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, verbose_name="Cliente")
     tipo_documento = models.CharField(
         max_length=20, 
