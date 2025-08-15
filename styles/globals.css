@@ -173,4 +173,41 @@ body {
     color: white;
 }
 
+body.light-mode {
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+body.dark-mode {
+    background-color: #212529;
+    color: #f8f9fa;
+}
+
+/* Navbar */
+.navbar.light-mode {
+    background-color: #ffffff !important;
+}
+.navbar.dark-mode {
+    background-color: #343a40 !important;
+}
+
+/* Cards */
+.card.light-mode {
+    background-color: #ffffff;
+    color: #212529;
+}
+.card.dark-mode {
+    background-color: #2b2b2b;
+    color: #f8f9fa;
+}
+
+/* Tables */
+.table.light-mode {
+    background-color: #ffffff;
+    color: #212529;
+}
+.table.dark-mode {
+    background-color: #2b2b2b;
+    color: #f8f9fa;
+}
 

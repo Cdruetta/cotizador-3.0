@@ -7,12 +7,11 @@
     <title>{% block title %}GCinsumos - Cotizaciones{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    {% comment %} Archivo CSS global, solo si existe {% endcomment %}
     <link href="{% static 'styles/globales.css' %}" rel="stylesheet">
 </head>
-<body>
+<body id="body" class="light-mode">
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-light" id="navbar">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'dashboard' %}">
                 <img src="{% static 'images/logo.png' %}" alt="Logo" height="30">
@@ -70,8 +69,8 @@
                     </li>
                 </ul>
 
-                <!-- Botón Admin y usuario -->
-                <ul class="navbar-nav">
+                <!-- Botón Admin, Usuario y Toggle Dark/Light -->
+                <ul class="navbar-nav ms-auto align-items-center">
                     {% if user.is_staff %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'admin:index' %}">
@@ -87,19 +86,21 @@
                             <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar Sesión</a></li>
                         </ul>
                     </li>
+                    <!-- Botón Dark/Light -->
+                    <li class="nav-item">
+                        <button class="btn btn-outline-secondary ms-2" id="theme-toggle">
+                            <i class="bi bi-moon-fill"></i>
+                        </button>
+                    </li>
                 </ul>
 
                 {% else %}
                 <ul class="navbar-nav ms-auto">
                     {% if 'login' in urls %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a></li>
                     {% endif %}
                     {% if 'register' in urls %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}">Registrarse</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Registrarse</a></li>
                     {% endif %}
                 </ul>
                 {% endif %}
@@ -125,6 +126,47 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Dark/Light Mode -->
+    <script>
+    const toggleBtn = document.getElementById('theme-toggle');
+    const body = document.getElementById('body');
+    const navbar = document.getElementById('navbar');
+
+    // Carga tema guardado
+    if (localStorage.getItem('theme') === 'dark') {
+        body.classList.replace('light-mode','dark-mode');
+        navbar.classList.replace('navbar-light','navbar-dark');
+        navbar.classList.add('dark-mode');
+        toggleBtn.innerHTML = '<i class="bi bi-sun-fill"></i>';
+    }
+
+    toggleBtn.addEventListener('click', () => {
+        if (body.classList.contains('light-mode')) {
+            body.classList.replace('light-mode','dark-mode');
+            navbar.classList.replace('navbar-light','navbar-dark');
+            navbar.classList.add('dark-mode');
+            toggleBtn.innerHTML = '<i class="bi bi-sun-fill"></i>';
+            localStorage.setItem('theme','dark');
+        } else {
+            body.classList.replace('dark-mode','light-mode');
+            navbar.classList.replace('navbar-dark','navbar-light');
+            navbar.classList.remove('dark-mode');
+            toggleBtn.innerHTML = '<i class="bi bi-moon-fill"></i>';
+            localStorage.setItem('theme','light');
+        }
+        // Cards y tablas
+        document.querySelectorAll('.card').forEach(el => {
+            el.classList.toggle('dark-mode');
+            el.classList.toggle('light-mode');
+        });
+        document.querySelectorAll('.table').forEach(el => {
+            el.classList.toggle('dark-mode');
+            el.classList.toggle('light-mode');
+        });
+    });
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>
