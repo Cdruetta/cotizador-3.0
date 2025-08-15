@@ -3,7 +3,7 @@
 # ========================
 __pycache__/
 *.py[cod]
-*$py.class
+*.class
 *.so
 .Python
 *.manifest
@@ -37,7 +37,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-
 # ========================
 # Node.js / Next.js
 # ========================
@@ -55,7 +54,6 @@ package-lock.json
 .env.development.local
 .env.test.local
 .env.production.local
-
 # ========================
 # Scripts / temporales
 # ========================
@@ -64,7 +62,6 @@ scripts/*.sh
 *.tmp
 django-cotizaciones.zip
 estructura.txt
-
 # ========================
 # IDEs
 # ========================
@@ -73,7 +70,6 @@ estructura.txt
 *.swp
 *.swo
 *~
-
 # ========================
 # OS
 # ========================
