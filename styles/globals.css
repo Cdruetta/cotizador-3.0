@@ -173,32 +173,4 @@ body {
     color: white;
 }
 
-/* Logo */
-.logo-dashboard {
-    height: 80px;
-    width: 80px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 2px solid white;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-
-/* Icono PC */
-.icon-pc {
-    font-size: 3rem;
-}
-
-/* Iconos de estadísticas */
-.stats-icon {
-    font-size: 2rem;
-}
-
-/* Tarjetas estadísticas */
-.stats-card {
-    border-radius: 10px;
-    transition: transform 0.2s ease-in-out;
-}
-.stats-card:hover {
-    transform: scale(1.05);
-}
 
