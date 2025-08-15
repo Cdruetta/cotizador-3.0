@@ -266,3 +266,29 @@ body.dark-mode a {
     background-color: #3a3a3a;
 }
 
+/* globales.css */
+body.dark-mode {
+    background-color: #121212;
+    color: #eee;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+    background-color: #1e1e1e;
+    color: #eee;
+    border: 1px solid #333;
+}
+
+body.dark-mode .card {
+    background-color: #1c1c1c;
+    color: #eee;
+}
+
+body.dark-mode .table {
+    color: #eee;
+}
+
+body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #1a1a1a;
+}
