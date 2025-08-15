@@ -88,3 +88,88 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* 🎨 Paleta */
+:root {
+    --color-bg: #F8FAFC;
+    --color-card: #FFFFFF;
+    --color-text: #1E293B;
+    --color-text-sec: #64748B;
+    --color-primary: #2563EB;
+    --color-primary-dark: #1E40AF;
+    --color-accent: #10B981;
+    --color-warning: #F59E0B;
+    --color-error: #EF4444;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+}
+
+.navbar {
+    background-color: var(--color-primary) !important;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: #fff !important;
+}
+
+.nav-link {
+    color: #fff !important;
+}
+
+.nav-link:hover {
+    color: var(--color-accent) !important;
+}
+
+.sidebar {
+    background-color: var(--color-card);
+    border-right: 1px solid #e2e8f0;
+}
+
+.company-header {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.stats-card {
+    background-color: var(--color-card);
+    border: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+}
+
+.alert-success {
+    background-color: var(--color-accent);
+    color: white;
+}
+
+.alert-warning {
+    background-color: var(--color-warning);
+    color: white;
+}
+
+.alert-danger {
+    background-color: var(--color-error);
+    color: white;
+}
+
