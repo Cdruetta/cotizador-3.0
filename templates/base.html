@@ -25,7 +25,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 {% if user.is_authenticated %}
                 <ul class="navbar-nav me-auto">
-                    {% comment %} Clientes {% endcomment %}
+                    <!-- Clientes -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                             <i class="bi bi-people"></i> Clientes
@@ -35,7 +35,8 @@
                             <li><a class="dropdown-item" href="{% url 'cliente_create' %}">Nuevo Cliente</a></li>
                         </ul>
                     </li>
-                    {% comment %} Proveedores {% endcomment %}
+
+                    <!-- Proveedores -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                             <i class="bi bi-truck"></i> Proveedores
@@ -45,7 +46,8 @@
                             <li><a class="dropdown-item" href="{% url 'proveedor_create' %}">Nuevo Proveedor</a></li>
                         </ul>
                     </li>
-                    {% comment %} Productos {% endcomment %}
+
+                    <!-- Productos -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                             <i class="bi bi-box"></i> Productos
@@ -55,7 +57,8 @@
                             <li><a class="dropdown-item" href="{% url 'producto_create' %}">Nuevo Producto</a></li>
                         </ul>
                     </li>
-                    {% comment %} Cotizaciones {% endcomment %}
+
+                    <!-- Cotizaciones -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                             <i class="bi bi-file-text"></i> Cotizaciones
@@ -67,7 +70,15 @@
                     </li>
                 </ul>
 
+                <!-- Botón Admin y usuario -->
                 <ul class="navbar-nav">
+                    {% if user.is_staff %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin:index' %}">
+                            <i class="bi bi-speedometer2"></i> Admin
+                        </a>
+                    </li>
+                    {% endif %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle"></i> {{ user.get_full_name|default:user.username }}
@@ -77,6 +88,7 @@
                         </ul>
                     </li>
                 </ul>
+
                 {% else %}
                 <ul class="navbar-nav ms-auto">
                     {% if 'login' in urls %}
