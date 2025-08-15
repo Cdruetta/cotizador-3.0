@@ -1,31 +1,13 @@
-# === Python / Django ===
+# ========================
+# Python / Django
+# ========================
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
 *.manifest
 *.spec
-pip-log.txt
-pip-delete-this-directory.txt
 htmlcov/
 .tox/
 .nox/
@@ -45,19 +27,9 @@ local_settings.py
 production_settings.py
 db.sqlite3
 db.sqlite3-journal
-instance/
-.webassets-cache
-.scrapy
-docs/_build/
-target/
-.ipynb_checkpoints
-profile_default/
-ipython_config.py
-.python-version
-__pypackages__/
-celerybeat-schedule
-celerybeat.pid
-*.sage.py
+media/
+staticfiles/
+static_root/
 .env
 .venv/
 env/
@@ -65,32 +37,10 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-.spyderproject
-.spyproject
-.ropeproject
-/site
-.mypy_cache/
-.dmypy.json
-dmypy.json
-.pyre/
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-media/
-staticfiles/
-static_root/
-logs/
 
-# === Node.js / Next.js ===
+# ========================
+# Node.js / Next.js
+# ========================
 node_modules/
 .next/
 out/
@@ -106,7 +56,31 @@ package-lock.json
 .env.test.local
 .env.production.local
 
-# === Archivos temporales o grandes que no deben versionarse ===
+# ========================
+# Scripts / temporales
+# ========================
+scripts/*.bat
+scripts/*.sh
+*.tmp
 django-cotizaciones.zip
 estructura.txt
-*.tmp
+
+# ========================
+# IDEs
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ========================
+# OS
+# ========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
