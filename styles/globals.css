@@ -292,3 +292,54 @@ body.dark-mode .table {
 body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) {
     background-color: #1a1a1a;
 }
+/* Social menu */
+.social-menu {
+  position: fixed;
+  bottom: 50px;
+  right: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 999;
+}
+
+.social-menu .toggle {
+  background: #333;
+  color: #fff;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.social-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  display: none; /* Oculto por defecto */
+}
+
+.social-menu ul li {
+  width: 45px;
+  height: 45px;
+  background-color: var(--clr);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.social-menu ul li a {
+  color: #fff;
+  font-size: 18px;
+}
+
+.social-menu.active ul {
+  display: flex;
+}
