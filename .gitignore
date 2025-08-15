@@ -58,7 +58,7 @@ package-lock.json
 # Scripts / temporales
 # ========================
 scripts/*.bat
-scripts/*.sh
+
 *.tmp
 django-cotizaciones.zip
 estructura.txt
