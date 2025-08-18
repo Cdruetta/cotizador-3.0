@@ -136,53 +136,54 @@
         </div>
 
         <!-- Recent Quotations -->
-        {% if cotizaciones_recientes %}
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Cotizaciones Recientes</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Número</th>
-                                        <th>Cliente</th>
-                                        <th>Tipo</th>
-                                        <th>Fecha</th>
-                                        <th>Total</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for cotizacion in cotizaciones_recientes %}
-                                    <tr>
-                                        <td>{{ cotizacion.numero }}</td>
-                                        <td>{{ cotizacion.cliente.nombre }}</td>
-                                        <td>
-                                            <span class="badge bg-{% if cotizacion.tipo_documento == 'presupuesto' %}primary{% else %}success{% endif %}">
-                                                {{ cotizacion.get_tipo_documento_display }}
-                                            </span>
-                                        </td>
-                                        <td>{{ cotizacion.fecha|date:"d/m/Y" }}</td>
-                                        <td>${{ cotizacion.total|floatformat:2 }}</td>
-                                        <td>
-                                            <a href="{% url 'cotizacion_detail' cotizacion.pk %}" class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+{% if cotizaciones_recientes %}
+<div class="row">
+    <div class="col-12">
+        <div class="card cotizaciones-recientes">
+            <div class="card-header">
+                <h5 class="mb-0">Cotizaciones Recientes</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Cliente</th>
+                                <th>Tipo</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cotizacion in cotizaciones_recientes %}
+                            <tr>
+                                <td>{{ cotizacion.numero }}</td>
+                                <td>{{ cotizacion.cliente.nombre }}</td>
+                                <td>
+                                    <span class="badge bg-{% if cotizacion.tipo_documento == 'presupuesto' %}primary{% else %}success{% endif %}">
+                                        {{ cotizacion.get_tipo_documento_display }}
+                                    </span>
+                                </td>
+                                <td>{{ cotizacion.fecha|date:"d/m/Y" }}</td>
+                                <td>${{ cotizacion.total|floatformat:2 }}</td>
+                                <td>
+                                    <a href="{% url 'cotizacion_detail' cotizacion.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-        {% endif %}
+    </div>
+</div>
+{% endif %}
+
     </div>
 </div>
 {% endblock %}
