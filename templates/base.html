@@ -85,23 +85,29 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{% url 'home' %}">⚡ GCinsumos</a>
+            <a class="navbar-brand fw-bold" href="{% url 'dashboard' %}">⚡ GCinsumos</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'clientes_list' %}">Clientes</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'productos_list' %}">Productos</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'cotizaciones_list' %}">Cotizaciones</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'proveedores_list' %}">Proveedores</a></li>
-                    {% if user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Cerrar sesión</a></li>
-                    {% else %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Iniciar sesión</a></li>
-                    {% endif %}
+                {% if user.is_authenticated %}
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'cliente_list' %}">Clientes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'proveedor_list' %}">Proveedores</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'producto_list' %}">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'cotizacion_list' %}">Cotizaciones</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'user_list' %}">Usuarios</a></li>
                 </ul>
+
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                </ul>
+                {% else %}
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Iniciar sesión</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Registrarse</a></li>
+                </ul>
+                {% endif %}
             </div>
         </div>
     </nav>
