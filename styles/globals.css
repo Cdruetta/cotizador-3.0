@@ -24,14 +24,44 @@ body {
 .navbar-brand, .nav-link { color: #fff !important; }
 .nav-link:hover { color: var(--color-warning) !important; }
 
-/* Cards */
-.card {
-    background-color: var(--color-card);
-    color: var(--color-text);
-    border: none;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+/* Card de cotizaciones recientes */
+.card.cotizaciones-recientes {
+    background-color: #2a2a2a; /* gris oscuro */
+    color: #f1f1f1;           /* texto claro */
+    border: 1px solid #ff6b00; /* opcional: borde naranja para resaltar */
 }
-.card:hover { transform: translateY(-5px); }
+
+/* Tabla dentro de cotizaciones recientes */
+.card.cotizaciones-recientes .table {
+    background-color: #2a2a2a; /* mismo gris oscuro */
+    color: #f1f1f1;           /* texto claro */
+}
+
+.card.cotizaciones-recientes .table thead {
+    background-color: #ff6b00; /* naranja fuerte */
+    color: #fff;
+}
+
+.card.cotizaciones-recientes .table tbody tr {
+    background-color: #2a2a2a; /* filas gris oscuro */
+}
+
+.card.cotizaciones-recientes .table tbody tr:nth-child(odd) {
+    background-color: #333333; /* filas alternadas un poco más claras */
+}
+
+.card.cotizaciones-recientes .table tbody tr:hover {
+    background-color: #3a3a3a; /* hover más oscuro */
+}
+
+/* Badges */
+.badge.bg-primary {
+    background-color: #ff6b00; /* naranja Tech Solar */
+    color: #fff;
+}
+.badge.bg-success {
+    background-color: #1dd75b; /* verde éxito */
+}
 
 /* Tablas */
 .table {
@@ -55,12 +85,6 @@ body {
     background-color: var(--color-primary-dark);
     border-color: var(--color-primary-dark);
 }
-
-/* Badges */
-.badge.bg-primary { background-color: var(--color-primary); }
-.badge.bg-success { background-color: var(--color-accent); }
-.badge.bg-warning { background-color: var(--color-warning); }
-.badge.bg-danger { background-color: var(--color-error); }
 
 /* Inputs y formularios */
 input, select, textarea {
