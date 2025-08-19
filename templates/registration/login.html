@@ -4,16 +4,56 @@
 {% block title %}Iniciar Sesión{% endblock %}
 
 {% block content %}
+<style>
+    /* Fondo con imagen y animación */
+    body {
+        background: url("https://images.unsplash.com/photo-1521791136064-7986c2920216") no-repeat center center fixed;
+        background-size: cover;
+        animation: fadeBackground 15s ease-in-out infinite alternate;
+    }
+
+    @keyframes fadeBackground {
+        from { filter: brightness(80%); }
+        to { filter: brightness(100%); }
+    }
+
+    /* Tarjeta animada */
+    .login-card {
+        animation: floatCard 3s ease-in-out infinite;
+        border-radius: 15px;
+    }
+
+    @keyframes floatCard {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+
+    /* Efecto hover en el botón */
+    .btn-primary {
+        transition: all 0.3s ease-in-out;
+    }
+
+    .btn-primary:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Fondo transparente en card */
+    .card-body {
+        background: rgba(255, 255, 255, 0.85);
+        border-radius: 15px;
+    }
+</style>
+
 <div class="container">
-    <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="row justify-content-center align-items-center" style="min-height: 90vh;">
         <div class="col-md-6 col-lg-4">
-            <!-- Tarjeta con animación -->
-            <div class="card shadow-lg border-0 animate__animated animate__fadeInDown" style="border-radius: 15px;">
-                <div class="card-header bg-gradient-primary text-white text-center" style="border-radius: 15px 15px 0 0;">
+            <div class="card shadow-lg border-0 login-card">
+                <div class="card-header bg-primary text-white text-center rounded-top">
                     <h4 class="mb-0"><i class="bi bi-person-circle me-2"></i>Iniciar Sesión</h4>
                 </div>
                 <div class="card-body">
-                    <form method="post" novalidate class="animate__animated animate__fadeInUp">
+                    <form method="post" novalidate>
                         {% csrf_token %}
 
                         <!-- Usuario -->
@@ -36,13 +76,13 @@
 
                         <!-- Botón -->
                         <div class="d-grid mb-2">
-                            <button type="submit" class="btn btn-primary btn-animated">
+                            <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
                             </button>
                         </div>
                     </form>
 
-                    <div class="text-center mt-3 animate__animated animate__fadeIn">
+                    <div class="text-center mt-3">
                         <p class="mb-1">¿No tienes cuenta? <a href="{% url 'register' %}">Regístrate aquí</a></p>
                     </div>
                 </div>
@@ -50,33 +90,4 @@
         </div>
     </div>
 </div>
-
-<!-- Animaciones y estilos -->
-<style>
-    /* Gradiente bonito para el header */
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #007bff, #0056b3);
-    }
-
-    /* Animación hover en el botón */
-    .btn-animated {
-        transition: all 0.3s ease-in-out;
-    }
-    .btn-animated:hover {
-        transform: scale(1.05);
-        box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
-    }
-
-    /* Fade-in suave para inputs */
-    input.form-control {
-        transition: 0.3s;
-    }
-    input.form-control:focus {
-        box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
-        transform: translateY(-2px);
-    }
-</style>
-
-<!-- Animate.css para animaciones (CDN) -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 {% endblock %}
