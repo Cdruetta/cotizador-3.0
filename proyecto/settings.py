@@ -58,6 +58,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                # 👇 Agregamos nuestro context processor
+                'cotizaciones.context_processors.info_extra',
             ],
         },
     },
