@@ -59,7 +59,7 @@ class UserCreateView(LoginRequiredMixin, CreateView):
 # Vistas para Clientes
 class ClienteListView(LoginRequiredMixin, ListView):
     model = Cliente
-    template_name = 'cotizaciones/cliente_list.html'
+    template_name = 'cotizaciones/cliente/list.html'
     context_object_name = 'clientes'
     paginate_by = 10
 
