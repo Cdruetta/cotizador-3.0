@@ -3,17 +3,19 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, RegexValidator
 from decimal import Decimal
 
+# Validador de teléfono: solo números, permite opcionalmente "+" inicial (internacional)
+telefono_validator = RegexValidator(
+    regex=r'^\+?\d{7,15}$',
+    message="Ingrese un teléfono válido con solo números (opcional '+' al inicio)."
+)
+
+# Validador de solo números (para otros usos si quieres)
 solo_numeros = RegexValidator(r'^\d+$', 'Solo se permiten números.')
 
 class Cliente(models.Model):
     nombre = models.CharField(max_length=200, verbose_name="Nombre")
     direccion = models.CharField(max_length=300, blank=True, verbose_name="Dirección")
-    telefono = models.CharField(
-        max_length=20,
-        blank=True,
-        verbose_name="Teléfono",
-        validators=[solo_numeros]
-    )
+    telefono = models.CharField(max_length=20, blank=True, validators=[telefono_validator], verbose_name="Teléfono")
     localidad = models.CharField(max_length=100, blank=True, verbose_name="Localidad")
     email = models.EmailField(blank=True, verbose_name="Email")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -31,12 +33,7 @@ class Cliente(models.Model):
 class Proveedor(models.Model):
     nombre = models.CharField(max_length=200, verbose_name="Nombre")
     direccion = models.CharField(max_length=300, blank=True, verbose_name="Dirección")
-    telefono = models.CharField(
-        max_length=20,
-        blank=True,
-        verbose_name="Teléfono",
-        validators=[solo_numeros]
-    )
+    telefono = models.CharField(max_length=20, blank=True, validators=[telefono_validator], verbose_name="Teléfono")
     email = models.EmailField(blank=True, verbose_name="Email")
     contacto = models.CharField(max_length=100, blank=True, verbose_name="Persona de Contacto")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -60,11 +57,7 @@ class Producto(models.Model):
         validators=[MinValueValidator(Decimal('0.01'))],
         verbose_name="Precio Unitario"
     )
-    proveedor = models.ForeignKey(
-        Proveedor,
-        on_delete=models.CASCADE,
-        verbose_name="Proveedor"
-    )
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, verbose_name="Proveedor")
     activo = models.BooleanField(default=True, verbose_name="Activo")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -140,11 +133,7 @@ class CotizacionItem(models.Model):
         validators=[MinValueValidator(Decimal('0.01'))],
         verbose_name="Precio Unitario"
     )
-    subtotal = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
-        verbose_name="Subtotal"
-    )
+    subtotal = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Subtotal")
 
     class Meta:
         verbose_name = "Item de Cotización"
