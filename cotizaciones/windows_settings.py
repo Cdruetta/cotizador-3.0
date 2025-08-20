@@ -1,5 +1,5 @@
 # Configuración específica para Windows
-from .settings import *
+from ..settings import *
 import os
 
 # Configuración de rutas para Windows
