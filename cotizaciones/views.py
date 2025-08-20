@@ -77,7 +77,7 @@ class ClienteListView(LoginRequiredMixin, ListView):
 class ClienteCreateView(LoginRequiredMixin, CreateView):
     model = Cliente
     form_class = ClienteForm
-    template_name = 'cotizaciones/cliente_form.html'
+    template_name = 'cotizaciones/cliente/form.html'
     success_url = reverse_lazy('cliente_list')
 
     def form_valid(self, form):
@@ -87,7 +87,7 @@ class ClienteCreateView(LoginRequiredMixin, CreateView):
 class ClienteUpdateView(LoginRequiredMixin, UpdateView):
     model = Cliente
     form_class = ClienteForm
-    template_name = 'cotizaciones/cliente_form.html'
+    template_name = 'cotizaciones/cliente/form.html'
     success_url = reverse_lazy('cliente_list')
 
     def form_valid(self, form):
@@ -96,7 +96,7 @@ class ClienteUpdateView(LoginRequiredMixin, UpdateView):
 
 class ClienteDeleteView(LoginRequiredMixin, DeleteView):
     model = Cliente
-    template_name = 'cotizaciones/cliente_confirm_delete.html'
+    template_name = 'cotizaciones/cliente/confirm_delete.html'
     success_url = reverse_lazy('cliente_list')
 
     def delete(self, request, *args, **kwargs):
@@ -105,13 +105,13 @@ class ClienteDeleteView(LoginRequiredMixin, DeleteView):
 
 class ClienteDetailView(LoginRequiredMixin, DetailView):
     model = Cliente
-    template_name = 'cotizaciones/cliente_detail.html'
+    template_name = 'cotizaciones/cliente/detail.html'
     context_object_name = 'cliente'
 
 # Vistas para Proveedores
 class ProveedorListView(LoginRequiredMixin, ListView):
     model = Proveedor
-    template_name = 'cotizaciones/proveedor_list.html'
+    template_name = 'cotizaciones/proveedor/list.html'
     context_object_name = 'proveedores'
     paginate_by = 10
 
@@ -128,7 +128,7 @@ class ProveedorListView(LoginRequiredMixin, ListView):
 class ProveedorCreateView(LoginRequiredMixin, CreateView):
     model = Proveedor
     form_class = ProveedorForm
-    template_name = 'cotizaciones/proveedor_form.html'
+    template_name = 'cotizaciones/proveedor/form.html'
     success_url = reverse_lazy('proveedor_list')
 
     def form_valid(self, form):
@@ -147,7 +147,7 @@ class ProveedorUpdateView(LoginRequiredMixin, UpdateView):
 
 class ProveedorDeleteView(LoginRequiredMixin, DeleteView):
     model = Proveedor
-    template_name = 'cotizaciones/proveedor_confirm_delete.html'
+    template_name = 'cotizaciones/proveedor/confirm_delete.html'
     success_url = reverse_lazy('proveedor_list')
 
     def delete(self, request, *args, **kwargs):
@@ -156,13 +156,13 @@ class ProveedorDeleteView(LoginRequiredMixin, DeleteView):
 
 class ProveedorDetailView(LoginRequiredMixin, DetailView):
     model = Proveedor
-    template_name = 'cotizaciones/proveedor_detail.html'
+    template_name = 'cotizaciones/proveedor/detail.html'
     context_object_name = 'proveedor'
 
 # Vistas para Productos
 class ProductoListView(LoginRequiredMixin, ListView):
     model = Producto
-    template_name = 'cotizaciones/producto_list.html'
+    template_name = 'cotizaciones/producto/list.html'
     context_object_name = 'productos'
     paginate_by = 10
 
@@ -180,7 +180,7 @@ class ProductoListView(LoginRequiredMixin, ListView):
 class ProductoCreateView(LoginRequiredMixin, CreateView):
     model = Producto
     form_class = ProductoForm
-    template_name = 'cotizaciones/producto_form.html'
+    template_name = 'cotizaciones/producto/form.html'
     success_url = reverse_lazy('producto_list')
 
     def form_valid(self, form):
@@ -190,7 +190,7 @@ class ProductoCreateView(LoginRequiredMixin, CreateView):
 class ProductoUpdateView(LoginRequiredMixin, UpdateView):
     model = Producto
     form_class = ProductoForm
-    template_name = 'cotizaciones/producto_form.html'
+    template_name = 'cotizaciones/producto/form.html'
     success_url = reverse_lazy('producto_list')
 
     def form_valid(self, form):
@@ -199,7 +199,7 @@ class ProductoUpdateView(LoginRequiredMixin, UpdateView):
 
 class ProductoDeleteView(LoginRequiredMixin, DeleteView):
     model = Producto
-    template_name = 'cotizaciones/producto_confirm_delete.html'
+    template_name = 'cotizaciones/producto/confirm_delete.html'
     success_url = reverse_lazy('producto_list')
 
     def delete(self, request, *args, **kwargs):
@@ -208,13 +208,13 @@ class ProductoDeleteView(LoginRequiredMixin, DeleteView):
 
 class ProductoDetailView(LoginRequiredMixin, DetailView):
     model = Producto
-    template_name = 'cotizaciones/producto_detail.html'
+    template_name = 'cotizaciones/producto/detail.html'
     context_object_name = 'producto'
 
 # Vistas para Cotizaciones
 class CotizacionListView(LoginRequiredMixin, ListView):
     model = Cotizacion
-    template_name = 'cotizaciones/cotizacion_list.html'
+    template_name = 'cotizaciones/cotizacion/list.html'
     context_object_name = 'cotizaciones'
     paginate_by = 10
 
@@ -231,7 +231,7 @@ class CotizacionListView(LoginRequiredMixin, ListView):
 class CotizacionCreateView(LoginRequiredMixin, CreateView):
     model = Cotizacion
     form_class = CotizacionForm
-    template_name = 'cotizaciones/cotizacion_form.html'
+    template_name = 'cotizaciones/cotizacion/form.html'
 
     def form_valid(self, form):
         form.instance.usuario = self.request.user
@@ -239,23 +239,23 @@ class CotizacionCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('cotizacion_detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy('cotizacion/detail', kwargs={'pk': self.object.pk})
 
 class CotizacionUpdateView(LoginRequiredMixin, UpdateView):
     model = Cotizacion
     form_class = CotizacionForm
-    template_name = 'cotizaciones/cotizacion_form.html'
+    template_name = 'cotizaciones/cotizacion/form.html'
 
     def form_valid(self, form):
         messages.success(self.request, 'Cotización actualizada exitosamente.')
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('cotizacion_detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy('cotizacion/detail', kwargs={'pk': self.object.pk})
 
 class CotizacionDeleteView(LoginRequiredMixin, DeleteView):
     model = Cotizacion
-    template_name = 'cotizaciones/cotizacion_confirm_delete.html'
+    template_name = 'cotizaciones/cotizacion/confirm_delete.html'
     success_url = reverse_lazy('cotizacion_list')
 
     def delete(self, request, *args, **kwargs):
