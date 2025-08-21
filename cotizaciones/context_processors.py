@@ -8,14 +8,13 @@ def info_extra(request):
         with urllib.request.urlopen("https://dolarapi.com/v1/dolares", timeout=5) as response:
             data = json.loads(response.read())
 
-        # Buscar oficial, blue y bolsa
         dolar = {
             "oficial": next(item["venta"] for item in data if item["casa"] == "oficial"),
             "blue": next(item["venta"] for item in data if item["casa"] == "blue"),
-            "bolsa": next(item["venta"] for item in data if item["casa"] == "bolsa"),
+            "mep": next(item["venta"] for item in data if item["casa"] == "mep"),  # 👈 antes estaba "bolsa"
         }
     except Exception as e:
-        print("Error dólar:", e)  # 🔎 para debug
+        print("Error dólar:", e)  # Debug en consola
         dolar = {"blue": "N/D", "oficial": "N/D", "mep": "N/D"}
 
     # --- Clima (Río Cuarto con Open-Meteo) ---
@@ -37,7 +36,7 @@ def info_extra(request):
                 "descripcion": codigos.get(clima_data["weathercode"], "Clima actual")
             }
     except Exception as e:
-        print("Error clima:", e)  # 🔎 debug
+        print("Error clima:", e)
         clima = {"temp": "N/D", "descripcion": "No disponible"}
 
     return {"dolar": dolar, "clima": clima}
