@@ -223,24 +223,44 @@ body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) { background-color: 
 <div class="container mt-4">{% block content %}{% endblock %}</div>
 
 
-<footer class="footer-modern">
-    <div class="footer-section">
-        <div class="footer-item">
-            <span class="footer-icon">📅</span>
-            <span class="footer-text">{% now "d/m/Y H:i" %}</span>
+<footer class="footer-corporate">
+    <div class="footer-wrapper">
+        <!-- Columna 1: Información -->
+        <div class="footer-column">
+            <h4>Sobre Nosotros</h4>
+            <p>Empresa líder en soluciones tecnológicas. Innovación y compromiso al servicio de nuestros clientes.</p>
         </div>
-        <div class="footer-item">
-            <span class="footer-icon">💵</span>
-            <span class="footer-text">Blue: {{ dolar.blue }} | Oficial: {{ dolar.oficial }}</span>
+
+        <!-- Columna 2: Datos útiles -->
+        <div class="footer-column">
+            <h4>Datos del día</h4>
+            <p>📅 {% now "d/m/Y H:i" %}</p>
+            <p>💵 Blue: {{ dolar.blue }} | Oficial: {{ dolar.oficial }}</p>
+            <p>🌤️ {{ clima.descripcion }} ({{ clima.temp }}°C)</p>
         </div>
-        <div class="footer-item">
-            <span class="footer-icon">🌤️</span>
-            <span class="footer-text">{{ clima.descripcion }} ({{ clima.temp }}°C)</span>
+
+        <!-- Columna 3: Contacto -->
+        <div class="footer-column">
+            <h4>Contacto</h4>
+            <p>✉️ cristian.e.druetta@gmail.com</p>
+            <p>📞 +54 9 358 4268 768</p>
+            <p>📍 Río Cuarto, Argentina</p>
         </div>
-        <div class="footer-item">
-            <span class="footer-icon">©</span>
-            <span class="footer-text">{% now "Y" %} - Tu Proyecto</span>
+
+        <!-- Columna 4: Redes Sociales -->
+        <!--<div class="footer-column">
+            <h4>Síguenos</h4>
+            <div class="social-icons">
+                <a href="#"><img src="/static/icons/facebook.svg" alt="Facebook"></a>
+                <a href="#"><img src="/static/icons/twitter.svg" alt="Twitter"></a>
+                <a href="#"><img src="/static/icons/instagram.svg" alt="Instagram"></a>
+                <a href="#"><img src="/static/icons/linkedin.svg" alt="LinkedIn"></a>
+            </div>
         </div>
+    </div>-->
+
+    <div class="footer-bottom">
+        &copy; {% now "Y" %} - Tu Empresa. Todos los derechos reservados.
     </div>
 </footer>
 
