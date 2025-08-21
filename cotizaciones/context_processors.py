@@ -1,5 +1,6 @@
 import json
 import urllib.request
+from datetime import datetime
 
 def info_extra(request):
     # --- Cotización del dólar ---
@@ -30,4 +31,9 @@ def info_extra(request):
     return {
         "dolar": dolar,
         "clima": clima
+    }
+
+def global_context(request):
+    return {
+        "fecha": datetime.now()
     }
