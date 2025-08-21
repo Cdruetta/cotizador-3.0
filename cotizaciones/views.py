@@ -7,7 +7,9 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.db.models import Q
+from django.db import connection
 from django.contrib.auth.models import User
+
 from .models import Cliente, Proveedor, Producto, Cotizacion, CotizacionItem
 from .forms import (
     ClienteForm, ProveedorForm, ProductoForm, CotizacionForm, 
@@ -15,19 +17,42 @@ from .forms import (
 )
 from .pdf_utils import generar_pdf_cotizacion
 
-# Vista principal
+# -------------------------------
+# Función para obtener uso DB
+# -------------------------------
+def get_db_usage_percent(max_size_mb=100):
+    """
+    Retorna el porcentaje y tamaño en MB de la DB actual.
+    max_size_mb: límite de la base de datos asignado por Render (ajustar según plan)
+    """
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT pg_database_size(current_database());")
+        size_bytes = cursor.fetchone()[0]
+        size_mb = size_bytes / (1024 * 1024)
+        percent = (size_mb / max_size_mb) * 100
+        return round(percent, 2), round(size_mb, 2)
+
+# -------------------------------
+# Vista principal (dashboard)
+# -------------------------------
 @login_required
 def dashboard(request):
+    db_percent, db_mb = get_db_usage_percent()  # obtenemos uso de la DB
+
     context = {
         'total_clientes': Cliente.objects.count(),
         'total_proveedores': Proveedor.objects.count(),
         'total_productos': Producto.objects.filter(activo=True).count(),
         'total_cotizaciones': Cotizacion.objects.count(),
         'cotizaciones_recientes': Cotizacion.objects.select_related('cliente')[:5],
+        'db_percent': db_percent,  # porcentaje de uso DB
+        'db_mb': db_mb,            # tamaño actual en MB
     }
     return render(request, 'cotizaciones/dashboard.html', context)
 
+# -------------------------------
 # Vistas para Usuarios
+# -------------------------------
 class UserListView(LoginRequiredMixin, ListView):
     model = User
     template_name = 'cotizaciones/user_list.html'
@@ -56,7 +81,9 @@ class UserCreateView(LoginRequiredMixin, CreateView):
         messages.success(self.request, 'Usuario creado exitosamente.')
         return super().form_valid(form)
 
+# -------------------------------
 # Vistas para Clientes
+# -------------------------------
 class ClienteListView(LoginRequiredMixin, ListView):
     model = Cliente
     template_name = 'cotizaciones/cliente/list.html'
@@ -108,7 +135,9 @@ class ClienteDetailView(LoginRequiredMixin, DetailView):
     template_name = 'cotizaciones/cliente/detail.html'
     context_object_name = 'cliente'
 
+# -------------------------------
 # Vistas para Proveedores
+# -------------------------------
 class ProveedorListView(LoginRequiredMixin, ListView):
     model = Proveedor
     template_name = 'cotizaciones/proveedor/list.html'
@@ -159,7 +188,9 @@ class ProveedorDetailView(LoginRequiredMixin, DetailView):
     template_name = 'cotizaciones/proveedor/detail.html'
     context_object_name = 'proveedor'
 
+# -------------------------------
 # Vistas para Productos
+# -------------------------------
 class ProductoListView(LoginRequiredMixin, ListView):
     model = Producto
     template_name = 'cotizaciones/producto/list.html'
@@ -211,7 +242,9 @@ class ProductoDetailView(LoginRequiredMixin, DetailView):
     template_name = 'cotizaciones/producto/detail.html'
     context_object_name = 'producto'
 
+# -------------------------------
 # Vistas para Cotizaciones
+# -------------------------------
 class CotizacionListView(LoginRequiredMixin, ListView):
     model = Cotizacion
     template_name = 'cotizaciones/cotizacion/list.html'
@@ -273,7 +306,9 @@ class CotizacionDetailView(LoginRequiredMixin, DetailView):
         context['item_form'] = CotizacionItemForm()
         return context
 
+# -------------------------------
 # Vista para registro de usuarios
+# -------------------------------
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -286,7 +321,9 @@ def register(request):
         form = CustomUserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
 
+# -------------------------------
 # API para obtener precio de producto
+# -------------------------------
 @login_required
 def get_producto_precio(request, producto_id):
     try:
@@ -299,7 +336,9 @@ def get_producto_precio(request, producto_id):
     except Producto.DoesNotExist:
         return JsonResponse({'error': 'Producto no encontrado'}, status=404)
 
+# -------------------------------
 # Vista para agregar item a cotización
+# -------------------------------
 @login_required
 def agregar_item_cotizacion(request, cotizacion_id):
     cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
@@ -316,7 +355,9 @@ def agregar_item_cotizacion(request, cotizacion_id):
     
     return redirect('cotizacion_detail', pk=cotizacion_id)
 
+# -------------------------------
 # Vista para eliminar item de cotización
+# -------------------------------
 @login_required
 def eliminar_item_cotizacion(request, item_id):
     item = get_object_or_404(CotizacionItem, id=item_id)
@@ -325,7 +366,9 @@ def eliminar_item_cotizacion(request, item_id):
     messages.success(request, 'Item eliminado exitosamente.')
     return redirect('cotizacion_detail', pk=cotizacion_id)
 
+# -------------------------------
 # Vista para generar PDF
+# -------------------------------
 @login_required
 def generar_pdf(request, cotizacion_id):
     cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
