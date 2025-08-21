@@ -190,20 +190,21 @@ body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) { background-color: 
     display: flex;
     justify-content: center; /* centrado horizontal */
     align-items: center;
-    flex-wrap: wrap; /* para móviles */
-    gap: 30px; /* espacio entre elementos */
+    flex-wrap: wrap; /* para que se acomoden en móviles */
+    gap: 25px; /* espacio entre elementos */
     border-top: 2px solid #1c1c1e;
     box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
+    text-align: center; /* por si el contenido se rompe en móviles */
 }
 
 .footer-custom span {
-    margin: 5px 10px;
     white-space: nowrap; /* evita que se rompa la línea */
 }
 
+/* Móvil */
 @media (max-width: 768px) {
     .footer-custom {
         flex-direction: column;
-        text-align: center;
+        gap: 10px;
     }
 }
