@@ -183,28 +183,24 @@ body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) { background-color: 
 
 /* Footer */
 .footer-custom {
-    background: linear-gradient(90deg, #ff6b00, #ffd60a);
-    color: #1c1c1e;
-    padding: 15px 30px;
-    font-weight: bold;
-    display: flex;
-    justify-content: center; /* centrado horizontal */
-    align-items: center;
-    flex-wrap: wrap; /* para que se acomoden en móviles */
-    gap: 25px; /* espacio entre elementos */
-    border-top: 2px solid #1c1c1e;
-    box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
-    text-align: center; /* por si el contenido se rompe en móviles */
+    background-color: #1f2937; /* gris oscuro */
+    color: #f3f4f6;           /* texto claro */
+    padding: 15px 20px;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    border-top: 2px solid #3b82f6; /* línea azul arriba */
 }
 
-.footer-custom span {
-    white-space: nowrap; /* evita que se rompa la línea */
+.footer-item {
+    margin: 5px 0; /* espacio entre elementos */
 }
 
-/* Móvil */
-@media (max-width: 768px) {
-    .footer-custom {
-        flex-direction: column;
-        gap: 10px;
-    }
+/* Opcional: efecto hover en los íconos o links */
+.footer-item span, .footer-item a {
+    transition: color 0.3s;
+}
+
+.footer-item:hover {
+    color: #3b82f6; /* azul al pasar el mouse */
 }
