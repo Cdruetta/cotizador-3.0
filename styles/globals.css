@@ -181,40 +181,33 @@ body.dark-mode .card { background-color: #1f1f1f; color: #e0e0e0; box-shadow: 0 
 body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) { background-color: #2a2a2a; }
 
 
+/* Footer */
 .footer-custom {
-    background-color: #1c1c1e;
-    color: #f1f1f1;
-    padding: 1rem 2rem;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    border-top: 3px solid #ff6b00;
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 0.9rem;
-    text-align: center;
-    box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
-    z-index: 999;
-}
-
-.footer-content {
+    background: linear-gradient(90deg, #ff6b00, #ffd60a);
+    color: #1c1c1e;
+    padding: 15px 30px;
+    font-weight: bold;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1.5rem;
+    justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap; /* para que se adapte en pantallas chicas */
+    border-top: 2px solid #1c1c1e;
+    box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
 }
 
-.footer-section {
-    margin: 0.2rem 1rem;
+.footer-custom .footer-section {
+    margin: 5px 10px;
 }
 
-/* Ajuste para móviles */
+.footer-custom .footer-copyright {
+    font-size: 0.9rem;
+    font-weight: normal;
+}
+
+/* Opcional: que se vea bien en móvil */
 @media (max-width: 768px) {
-    .footer-content {
+    .footer-custom {
         flex-direction: column;
-        gap: 0.8rem;
-    }
-    .footer-section {
-        font-size: 1rem; /* texto un poco más grande en móviles */
+        text-align: center;
     }
 }
