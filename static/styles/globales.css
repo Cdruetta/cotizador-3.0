@@ -143,6 +143,7 @@
     background-color: var(--color-bg);
     color: var(--color-text);
     display: flex;
+    flex-wrap: nowrap;
     justify-content: center;
     align-items: center;
     gap: 15px;
