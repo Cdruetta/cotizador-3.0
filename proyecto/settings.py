@@ -72,11 +72,17 @@ WSGI_APPLICATION = 'proyecto.wsgi.application'
 # Base de datos
 # --------------------------
 DATABASES = {
+    """
     'default': dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
         ssl_require=True  # Render requiere SSL para PostgreSQL
     )
+    """
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',  # Base de datos temporal en RAM
+    }
 }
 
 # --------------------------

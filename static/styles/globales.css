@@ -1,0 +1,178 @@
+/* =========================== */
+/* Tailwind Base y Utilities   */
+/* =========================== */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================== */
+/* Variables y estilos base Tech Solar */
+/* =========================== */
+@layer base {
+  :root {
+    --color-bg: #1c1c1e;
+    --color-card: #2a2a2a;
+    --color-text: #f1f1f1;
+    --color-text-sec: #ffd60a;
+    --color-primary: #ff6b00;
+    --color-primary-dark: #e65c00;
+    --color-accent: #1dd75b;
+    --color-warning: #ffd60a;
+    --color-error: #e63946;
+  }
+
+  html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-family: 'Segoe UI', sans-serif;
+      transition: all 0.3s ease;
+  }
+
+  main {
+      flex: 1 0 auto;
+  }
+
+  /* Aplicar border default a todos los elementos */
+  * {
+      box-sizing: border-box;
+  }
+
+  body {
+      background-color: var(--color-bg);
+      color: var(--color-text);
+  }
+}
+
+/* =========================== */
+/* Navbar */
+.navbar {
+    background: linear-gradient(90deg, #ff6b00, #ffd60a);
+    box-shadow: 0 4px 15px rgba(255, 107, 0, 0.4);
+}
+.navbar .nav-link, .navbar-brand {
+    color: #1c1c1e !important;
+    font-weight: bold;
+}
+.navbar .nav-link:hover {
+    color: #ffffff !important;
+    text-shadow: 0 0 5px #ffd60a, 0 0 10px #ff6b00;
+}
+
+/* =========================== */
+/* Cards */
+.card, .card.cotizaciones-recientes {
+    background-color: var(--color-card);
+    color: var(--color-text);
+    border: 1px solid var(--color-primary);
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(255, 107, 0, 0.3);
+    transition: transform .2s ease;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+.card-header {
+    background-color: var(--color-primary);
+    color: #1c1c1e;
+    font-weight: bold;
+}
+
+/* =========================== */
+/* Tablas */
+.table {
+    background-color: var(--color-card);
+    color: var(--color-text);
+    border-radius: 0.6rem;
+    overflow: hidden;
+}
+.table thead {
+    background-color: var(--color-primary);
+    color: #fff;
+}
+.table tbody tr:hover {
+    background-color: #3a3a3a;
+}
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #2a2a2e;
+}
+
+/* =========================== */
+/* Badges */
+.badge.bg-primary {
+    background-color: var(--color-primary);
+    color: #fff;
+}
+.badge.bg-success {
+    background-color: var(--color-accent);
+}
+
+/* =========================== */
+/* Botones */
+.btn-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+.btn-primary:hover {
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+}
+.btn-custom {
+    background: var(--color-primary);
+    color: #1c1c1e;
+    border-radius: 50px;
+    padding: 0.5rem 1.2rem;
+    transition: 0.3s;
+}
+.btn-custom:hover {
+    background: var(--color-warning);
+    color: #1c1c1e;
+    transform: scale(1.05);
+}
+
+/* =========================== */
+/* Inputs y Formularios */
+input, select, textarea {
+    background-color: var(--color-card);
+    color: var(--color-text);
+    border: 1px solid #444;
+}
+input::placeholder, textarea::placeholder {
+    color: #ccc;
+}
+
+/* =========================== */
+/* Alertas */
+.alert-success { background-color: var(--color-accent); color: #1c1c1e; border: none; }
+.alert-danger { background-color: var(--color-error); color: #f1f1f1; border: none; }
+
+/* =========================== */
+/* Dark Mode */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+body.dark-mode .navbar { background: linear-gradient(90deg, #333, #111); }
+body.dark-mode .card { background-color: #1f1f1f; color: #e0e0e0; box-shadow: 0 5px 15px rgba(255, 107, 0, 0.2); }
+body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) { background-color: #2a2a2a; }
+
+/* =========================== */
+/* Footer Tech Solar */
+footer.footer-inline {
+    background-color: var(--color-bg) !important;
+    color: var(--color-text) !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 15px !important;
+    padding: 10px 20px !important;
+    font-size: 0.9rem !important;
+    flex-shrink: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    position: relative !important;
+}
