@@ -182,29 +182,37 @@ body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) { background-color: 
 
 
 /* Footer */
-.footer-custom {
+.footer-modern {
     background: linear-gradient(90deg, #ff6b00, #ffd60a);
     color: #1c1c1e;
     padding: 15px 30px;
-    font-weight: bold;
     display: flex;
-    justify-content: center; /* centrado horizontal */
+    justify-content: center;
     align-items: center;
-    flex-wrap: wrap; /* para que se acomoden en móviles */
-    gap: 25px; /* espacio entre elementos */
+    flex-wrap: wrap;
+    gap: 40px; /* espacio entre bloques */
     border-top: 2px solid #1c1c1e;
     box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
-    text-align: center; /* por si el contenido se rompe en móviles */
+    font-weight: bold;
+    text-align: center;
+    font-family: 'Segoe UI', sans-serif;
 }
 
-.footer-custom span {
-    white-space: nowrap; /* evita que se rompa la línea */
+.footer-modern .footer-item {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* espacio entre icono y texto */
+}
+
+.footer-modern .footer-item i {
+    font-size: 1.2rem;
+    color: #1c1c1e;
 }
 
 /* Móvil */
 @media (max-width: 768px) {
-    .footer-custom {
+    .footer-modern {
         flex-direction: column;
-        gap: 10px;
+        gap: 15px;
     }
 }
