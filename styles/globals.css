@@ -188,23 +188,18 @@ body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) { background-color: 
     padding: 15px 30px;
     font-weight: bold;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around; /* distribución horizontal */
     align-items: center;
-    flex-wrap: wrap; /* para que se adapte en pantallas chicas */
+    flex-wrap: wrap; /* para móviles */
     border-top: 2px solid #1c1c1e;
     box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
 }
 
-.footer-custom .footer-section {
+.footer-custom span {
     margin: 5px 10px;
+    white-space: nowrap; /* evita que se rompa la línea */
 }
 
-.footer-custom .footer-copyright {
-    font-size: 0.9rem;
-    font-weight: normal;
-}
-
-/* Opcional: que se vea bien en móvil */
 @media (max-width: 768px) {
     .footer-custom {
         flex-direction: column;

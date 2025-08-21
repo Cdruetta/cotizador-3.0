@@ -224,20 +224,10 @@ body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) { background-color: 
 
 
 <footer class="footer-custom">
-    <div class="footer-content">
-        <div class="footer-section">
-        📅 {% now "d/m/Y H:i" %}
-        </div>
-        <div class="footer-section">
-        💵 Blue: {{ dolar.blue }} | Oficial: {{ dolar.oficial }}
-        </div>
-        <div class="footer-section">
-        🌤️ {{ clima.descripcion }} ({{ clima.temp }}°C)
-        </div>
-        <div class="footer-section footer-copyright">
-        &copy; {% now "Y" %} - Tu Proyecto
-        </div>
-    </div>
+    <span>📅 {% now "d/m/Y H:i" %}</span>
+    <span>💵 Blue: {{ dolar.blue }} | Oficial: {{ dolar.oficial }}</span>
+    <span>🌤️ {{ clima.descripcion }} ({{ clima.temp }}°C)</span>
+    <span>&copy; {% now "Y" %} - Tu Proyecto</span>
 </footer>
 
 
