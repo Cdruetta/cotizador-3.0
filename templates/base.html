@@ -235,28 +235,23 @@ body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) { background-color: 
 </ul>
 </div>
 -->
-<footer class="bg-dark text-light py-3 mt-5">
-    <div class="container d-flex justify-content-between align-items-center">
-        
-        <!-- Cotización del dólar -->
-        <div>
-        💵 <strong>Dólar Blue:</strong> {{ dolar.blue }} | 
-        <strong>Oficial:</strong> {{ dolar.oficial }}
+<footer class="footer-custom">
+    <div class="footer-content">
+        <div class="footer-section">
+        📅 {% now "d/m/Y H:i" %}
         </div>
-        
-        <!-- Clima -->
-        <div>
-        🌤️ <strong>{{ clima.descripcion }}</strong> 
-        ({{ clima.temp }}°C)
+        <div class="footer-section">
+        💵 Blue: {{ dolar.blue }} | Oficial: {{ dolar.oficial }}
         </div>
-        
-        <!-- Año dinámico -->
-        <div>
-            &copy; {{ fecha|date:"Y" }} - Tu Proyecto
+        <div class="footer-section">
+        🌤️ {{ clima.descripcion }} ({{ clima.temp }}°C)
         </div>
-        
+        <div class="footer-section footer-copyright">
+        &copy; {% now "Y" %} - Tu Proyecto
+        </div>
     </div>
 </footer>
+>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
