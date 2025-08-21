@@ -188,9 +188,10 @@ body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) { background-color: 
     padding: 15px 30px;
     font-weight: bold;
     display: flex;
-    justify-content: space-around; /* distribución horizontal */
+    justify-content: center; /* centrado horizontal */
     align-items: center;
     flex-wrap: wrap; /* para móviles */
+    gap: 30px; /* espacio entre elementos */
     border-top: 2px solid #1c1c1e;
     box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
 }
