@@ -12,7 +12,7 @@ def info_extra(request):
         dolar = {
             "oficial": next(item["venta"] for item in data if item["casa"] == "oficial"),
             "blue": next(item["venta"] for item in data if item["casa"] == "blue"),
-            "mep": next(item["venta"] for item in data if item["casa"] == "bolsa"),
+            "bolsa": next(item["venta"] for item in data if item["casa"] == "bolsa"),
         }
     except Exception as e:
         print("Error dólar:", e)  # 🔎 para debug
