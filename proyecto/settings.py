@@ -9,8 +9,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Configuración básica
 # --------------------------
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-production')
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'  # Temporal para debug, cambiar a False en producción
-ALLOWED_HOSTS = ['cotizador-gcinsumos.onrender.com']  # Dominios permitidos
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+ALLOWED_HOSTS = ['*']
+"""DEBUG = os.environ.get('DEBUG', 'False') == 'True'  # Temporal para debug, cambiar a False en producción
+ALLOWED_HOSTS = ['cotizador-gcinsumos.onrender.com']  # Dominios permitidos"""
 
 # CSRF para Render
 CSRF_TRUSTED_ORIGINS = ["https://cotizador-gcinsumos.onrender.com"]
