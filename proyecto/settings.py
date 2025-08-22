@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Configuración básica
 # --------------------------
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-production')
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'  # Temporal para debug, cambiar a False en producción
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'  # Temporal para debug, cambiar a False en producción
 ALLOWED_HOSTS = ['cotizador-gcinsumos.onrender.com']  # Dominios permitidos
 
 # CSRF para Render
@@ -74,8 +74,9 @@ WSGI_APPLICATION = 'proyecto.wsgi.application'
 
 DATABASES = {
     "default": dj_database_url.parse(
-        "postgresql://cotizador_db_3jx4_user:XgqGEhPeG2SwsVOSue34ZnmqtDY3hccv@dpg-d25okifdiees73c575j0-a.oregon-postgres.render.com/cotizador_db_3jx4",
+        os.environ.get("DATABASE_URL"),  # <- Render pone automáticamente esta variable
         conn_max_age=600,
+        ssl_require=True  # importante para conexión segura
     )
 }
 
