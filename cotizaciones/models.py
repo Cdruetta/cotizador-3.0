@@ -1,24 +1,19 @@
 from django.db import models
+from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
-from django.core.validators import MinValueValidator, RegexValidator
-from decimal import Decimal
 from django.urls import reverse
+from decimal import Decimal
 
-# Validador de teléfono: solo números, permite opcionalmente "+" inicial (internacional)
-telefono_validator = RegexValidator(
-    regex=r'^\+?\d{7,15}$',
-    message="Ingrese un teléfono válido con solo números (opcional '+' al inicio)."
-)
 
-# Validador de solo números (para otros usos si quieres)
-solo_numeros = RegexValidator(r'^\d+$', 'Solo se permiten números.')
-
+# ==========================
+# CLIENTES
+# ==========================
 class Cliente(models.Model):
-    nombre = models.CharField(max_length=200, verbose_name="Nombre")
-    direccion = models.CharField(max_length=300, blank=True, verbose_name="Dirección")
-    telefono = models.CharField(max_length=20, blank=True, validators=[telefono_validator], verbose_name="Teléfono")
-    localidad = models.CharField(max_length=100, blank=True, verbose_name="Localidad")
-    email = models.EmailField(blank=True, verbose_name="Email")
+    nombre = models.CharField(max_length=255, verbose_name="Nombre")
+    email = models.EmailField(blank=True, null=True, verbose_name="Email")
+    telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
+    direccion = models.TextField(blank=True, null=True, verbose_name="Dirección")
+    localidad = models.CharField(max_length=100, blank=True, null=True, verbose_name="Localidad")  # <-- agregado
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -31,12 +26,15 @@ class Cliente(models.Model):
         return self.nombre
 
 
+# ==========================
+# PROVEEDORES
+# ==========================
 class Proveedor(models.Model):
-    nombre = models.CharField(max_length=200, verbose_name="Nombre")
-    direccion = models.CharField(max_length=300, blank=True, verbose_name="Dirección")
-    telefono = models.CharField(max_length=20, blank=True, validators=[telefono_validator], verbose_name="Teléfono")
-    email = models.EmailField(blank=True, verbose_name="Email")
-    contacto = models.CharField(max_length=100, blank=True, verbose_name="Persona de Contacto")
+    nombre = models.CharField(max_length=255, verbose_name="Nombre")
+    email = models.EmailField(blank=True, null=True, verbose_name="Email")
+    telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
+    direccion = models.TextField(blank=True, null=True, verbose_name="Dirección")
+    contacto = models.CharField(max_length=100, blank=True, null=True, verbose_name="Persona de Contacto")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -49,16 +47,27 @@ class Proveedor(models.Model):
         return self.nombre
 
 
+# ==========================
+# PRODUCTOS
+# ==========================
 class Producto(models.Model):
-    nombre = models.CharField(max_length=200, verbose_name="Nombre")
-    descripcion = models.TextField(blank=True, verbose_name="Descripción")
+    nombre = models.CharField(max_length=255, verbose_name="Nombre")
+    descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción")
+    precio = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name="Precio"
+    )
     precio_unitario = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        validators=[MinValueValidator(Decimal('0.01'))],
-        verbose_name="Precio Unitario"
+        validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name="Precio Unitario",
+        default=0
     )
-    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, verbose_name="Proveedor")
+    stock = models.PositiveIntegerField(default=0, verbose_name="Stock")
+    proveedor = models.ForeignKey('Proveedor', on_delete=models.CASCADE, verbose_name="Proveedor")
     activo = models.BooleanField(default=True, verbose_name="Activo")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -71,14 +80,22 @@ class Producto(models.Model):
     def __str__(self):
         return self.nombre
 
-
+# ==========================
+# COTIZACIONES
+# ==========================
 class Cotizacion(models.Model):
     TIPO_DOCUMENTO_CHOICES = [
         ('presupuesto', 'Presupuesto'),
         ('recibo', 'Recibo'),
     ]
 
-    numero = models.CharField(max_length=20, unique=True, verbose_name="Número")
+    numero = models.CharField(
+        max_length=20,
+        unique=True,
+        blank=True,
+        null=True,
+        verbose_name="Número"
+    )
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, verbose_name="Cliente")
     tipo_documento = models.CharField(
         max_length=20,
@@ -107,47 +124,59 @@ class Cotizacion(models.Model):
     def __str__(self):
         return f"{self.numero} - {self.cliente.nombre}"
 
+    def save(self, *args, **kwargs):
+        """
+        Genera el número de cotización automáticamente basado en el ID.
+        Ejemplo: COT-1, COT-2, etc.
+        """
+        super().save(*args, **kwargs)  # primero guarda para tener el ID
+        if not self.numero:
+            self.numero = f"COT-{self.id}"
+            super().save(update_fields=['numero'])
+
     def calcular_total(self):
         total = sum(item.subtotal for item in self.items.all())
         self.total = total
-        self.save()
+        self.save(update_fields=['total'])
         return total
 
-    # ✅ Método agregado para que CreateView pueda redirigir al detalle
     def get_absolute_url(self):
         return reverse("cotizacion_detail", kwargs={"pk": self.pk})
 
 
+# ==========================
+# ITEMS DE COTIZACION
+# ==========================
 class CotizacionItem(models.Model):
     cotizacion = models.ForeignKey(
         Cotizacion,
         on_delete=models.CASCADE,
-        related_name='items',
+        related_name="items",
         verbose_name="Cotización"
     )
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, verbose_name="Producto")
-    cantidad = models.DecimalField(
-        max_digits=8,
-        decimal_places=2,
-        validators=[MinValueValidator(Decimal('0.01'))],
-        verbose_name="Cantidad"
-    )
+    cantidad = models.PositiveIntegerField(default=1, verbose_name="Cantidad")
     precio_unitario = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        validators=[MinValueValidator(Decimal('0.01'))],
+        validators=[MinValueValidator(Decimal('0.00'))],
         verbose_name="Precio Unitario"
     )
-    subtotal = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Subtotal")
+    subtotal = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        verbose_name="Subtotal"
+    )
 
     class Meta:
         verbose_name = "Item de Cotización"
         verbose_name_plural = "Items de Cotización"
 
+    def __str__(self):
+        return f"{self.producto.nombre} x {self.cantidad}"
+
     def save(self, *args, **kwargs):
         self.subtotal = self.cantidad * self.precio_unitario
         super().save(*args, **kwargs)
         self.cotizacion.calcular_total()
-
-    def __str__(self):
-        return f"{self.producto.nombre} - {self.cantidad}"
