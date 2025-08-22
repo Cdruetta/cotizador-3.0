@@ -191,23 +191,16 @@ class ProveedorDetailView(LoginRequiredMixin, DetailView):
 # -------------------------------
 # Vistas para Productos
 # -------------------------------
-class ProductoListView(LoginRequiredMixin, ListView):
+class ProductoCreateView(CreateView):
+    model = Producto
+    form_class = ProductoForm
+    template_name = 'cotizaciones/producto/form.html' 
+    success_url = reverse_lazy('producto_list') 
+
+class ProductoListView(ListView):
     model = Producto
     template_name = 'cotizaciones/producto/list.html'
     context_object_name = 'productos'
-    paginate_by = 10
-
-    def get_queryset(self):
-        queryset = Producto.objects.select_related('proveedor')
-        search = self.request.GET.get('search')
-        if search:
-            queryset = queryset.filter(
-                Q(nombre__icontains=search) | 
-                Q(descripcion__icontains=search) |
-                Q(proveedor__nombre__icontains=search)
-            )
-        return queryset
-
 class ProductoCreateView(LoginRequiredMixin, CreateView):
     model = Producto
     form_class = ProductoForm

@@ -42,21 +42,21 @@ class ProveedorForm(forms.ModelForm):
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
-        fields = ['nombre', 'descripcion', 'precio_unitario', 'proveedor', 'activo', 'stock']
+        fields = ['nombre', 'descripcion', 'precio_unitario', 'proveedor', 'activo']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'precio_unitario': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0.01', 'required': True}),
+            'precio_unitario': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0.01'}),
             'proveedor': forms.Select(attrs={'class': 'form-select'}),
             'activo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'stock': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
         }
 
     def clean_precio_unitario(self):
         precio = self.cleaned_data.get('precio_unitario')
-        if precio is None or precio <= 0:
-            raise forms.ValidationError("El precio debe ser mayor a 0 y obligatorio.")
+        if precio <= 0:
+            raise forms.ValidationError("El precio debe ser mayor a 0.")
         return precio
+        
         
 class CotizacionForm(forms.ModelForm):
     class Meta:
