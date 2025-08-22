@@ -1,165 +1,376 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
-from django.conf import settings
-from .models import Cotizacion
-from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
-from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_LEFT
-from io import BytesIO
-import os
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login
+from django.contrib import messages
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.urls import reverse_lazy
+from django.http import JsonResponse
+from django.db.models import Q
+from django.db import connection
+from django.contrib.auth.models import User
 
-# -----------------------------
-# Dashboard
-# -----------------------------
+from .models import Cliente, Proveedor, Producto, Cotizacion, CotizacionItem
+from .forms import (
+    ClienteForm, ProveedorForm, ProductoForm, CotizacionForm, 
+    CotizacionItemForm, CustomUserCreationForm
+)
+from .pdf_utils import generar_pdf_cotizacion
+
+# -------------------------------
+# Función para obtener uso DB
+# -------------------------------
+def get_db_usage_percent(max_size_mb=100):
+    """
+    Retorna el porcentaje y tamaño en MB de la DB actual.
+    max_size_mb: límite de la base de datos asignado por Render (ajustar según plan)
+    """
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT pg_database_size(current_database());")
+        size_bytes = cursor.fetchone()[0]
+        size_mb = size_bytes / (1024 * 1024)
+        percent = (size_mb / max_size_mb) * 100
+        return round(percent, 2), round(size_mb, 2)
+
+# -------------------------------
+# Vista principal (dashboard)
+# -------------------------------
+@login_required
 def dashboard(request):
-    cotizaciones = Cotizacion.objects.all().order_by('-fecha')[:5]  # Últimas 5 cotizaciones
+    db_percent, db_mb = get_db_usage_percent()  # obtenemos uso de la DB
+
     context = {
-        'cotizaciones': cotizaciones
+        'total_clientes': Cliente.objects.count(),
+        'total_proveedores': Proveedor.objects.count(),
+        'total_productos': Producto.objects.filter(activo=True).count(),
+        'total_cotizaciones': Cotizacion.objects.count(),
+        'cotizaciones_recientes': Cotizacion.objects.select_related('cliente')[:5],
+        'db_percent': db_percent,  # porcentaje de uso DB
+        'db_mb': db_mb,            # tamaño actual en MB
     }
     return render(request, 'cotizaciones/dashboard.html', context)
 
-# -----------------------------
-# Listado de cotizaciones
-# -----------------------------
-def listado_cotizaciones(request):
-    cotizaciones = Cotizacion.objects.all().order_by('-fecha')
-    return render(request, 'cotizaciones/listado.html', {'cotizaciones': cotizaciones})
+# -------------------------------
+# Vistas para Usuarios
+# -------------------------------
+class UserListView(LoginRequiredMixin, ListView):
+    model = User
+    template_name = 'cotizaciones/user_list.html'
+    context_object_name = 'usuarios'
+    paginate_by = 10
 
-# -----------------------------
-# Detalle de cotización
-# -----------------------------
-def detalle_cotizacion(request, pk):
-    cotizacion = get_object_or_404(Cotizacion, pk=pk)
-    return render(request, 'cotizaciones/detalle.html', {'cotizacion': cotizacion})
+    def get_queryset(self):
+        queryset = User.objects.all()
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(username__icontains=search) |
+                Q(first_name__icontains=search) |
+                Q(last_name__icontains=search) |
+                Q(email__icontains=search)
+            )
+        return queryset
 
-# -----------------------------
-# Generar PDF de cotización
-# -----------------------------
-def generar_pdf_cotizacion(request, pk):
-    cotizacion = get_object_or_404(Cotizacion, pk=pk)
+class UserCreateView(LoginRequiredMixin, CreateView):
+    model = User
+    form_class = CustomUserCreationForm
+    template_name = 'cotizaciones/user_form.html'
+    success_url = reverse_lazy('user_list')
 
-    # HttpResponse con tipo PDF
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="cotizacion_{cotizacion.numero}.pdf"'
+    def form_valid(self, form):
+        messages.success(self.request, 'Usuario creado exitosamente.')
+        return super().form_valid(form)
 
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(
-        buffer,
-        pagesize=A4,
-        rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18
-    )
+# -------------------------------
+# Vistas para Clientes
+# -------------------------------
+class ClienteListView(LoginRequiredMixin, ListView):
+    model = Cliente
+    template_name = 'cotizaciones/cliente/list.html'
+    context_object_name = 'clientes'
+    paginate_by = 10
 
-    elements = []
-    styles = getSampleStyleSheet()
+    def get_queryset(self):
+        queryset = Cliente.objects.all()
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(nombre__icontains=search) | 
+                Q(telefono__icontains=search) |
+                Q(localidad__icontains=search)
+            )
+        return queryset
 
-    title_style = ParagraphStyle(
-        'CustomTitle', parent=styles['Heading1'], fontSize=18,
-        spaceAfter=30, alignment=TA_CENTER, textColor=colors.darkblue
-    )
-    header_style = ParagraphStyle(
-        'CustomHeader', parent=styles['Normal'], fontSize=12,
-        spaceAfter=12, alignment=TA_CENTER, textColor=colors.darkblue
-    )
-    normal_style = ParagraphStyle(
-        'CustomNormal', parent=styles['Normal'], fontSize=10, spaceAfter=6
-    )
+class ClienteCreateView(LoginRequiredMixin, CreateView):
+    model = Cliente
+    form_class = ClienteForm
+    template_name = 'cotizaciones/cliente/form.html'
+    success_url = reverse_lazy('cliente_list')
 
-    # Logo
-    logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
-    if os.path.exists(logo_path):
-        logo = Image(logo_path, width=2*inch, height=2*inch)
-        logo.hAlign = 'CENTER'
-        elements.append(logo)
-        elements.append(Spacer(1, 12))
+    def form_valid(self, form):
+        messages.success(self.request, 'Cliente creado exitosamente.')
+        return super().form_valid(form)
 
-    # Header empresa
-    company_data = [
-        [Paragraph('<b>SERVICIOS INFORMÁTICOS</b>', header_style)],
-        [Paragraph('Dilkendein 1278 - Tel: 358-4268768', normal_style)],
-    ]
-    company_table = Table(company_data, colWidths=[6*inch])
-    company_table.setStyle(TableStyle([
-        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-    ]))
-    elements.append(company_table)
-    elements.append(Spacer(1, 20))
+class ClienteUpdateView(LoginRequiredMixin, UpdateView):
+    model = Cliente
+    form_class = ClienteForm
+    template_name = 'cotizaciones/cliente/form.html'
+    success_url = reverse_lazy('cliente_list')
 
-    # Título
-    title = f"{cotizacion.get_tipo_documento_display().upper()} N° {cotizacion.numero}"
-    elements.append(Paragraph(title, title_style))
-    elements.append(Spacer(1, 20))
+    def form_valid(self, form):
+        messages.success(self.request, 'Cliente actualizado exitosamente.')
+        return super().form_valid(form)
 
-    # Info cliente
-    client_data = [
-        ['Cliente:', cotizacion.cliente.nombre],
-        ['Dirección:', cotizacion.cliente.direccion or 'No especificada'],
-        ['Teléfono:', cotizacion.cliente.telefono or '-'],
-        ['Localidad:', cotizacion.cliente.localidad or '-'],
-        ['Fecha:', cotizacion.fecha.strftime('%d/%m/%Y')],
-    ]
-    client_table = Table(client_data, colWidths=[1.5*inch, 4.5*inch])
-    client_table.setStyle(TableStyle([
-        ('ALIGN', (0,0), (0,-1), 'RIGHT'),
-        ('ALIGN', (1,0), (1,-1), 'LEFT'),
-        ('FONTNAME', (0,0), (0,-1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0,0), (-1,-1), 10),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
-        ('GRID', (0,0), (-1,-1), 1, colors.black),
-    ]))
-    elements.append(client_table)
-    elements.append(Spacer(1, 20))
+class ClienteDeleteView(LoginRequiredMixin, DeleteView):
+    model = Cliente
+    template_name = 'cotizaciones/cliente/confirm_delete.html'
+    success_url = reverse_lazy('cliente_list')
 
-    # Tabla de productos
-    if cotizacion.items.exists():
-        table_data = [['Producto','Proveedor','Cantidad','Precio Unit.','Total']]
-        for item in cotizacion.items.all():
-            table_data.append([
-                item.producto.nombre,
-                item.producto.proveedor.nombre,
-                str(item.cantidad),
-                f'${item.precio_unitario:,.2f}',
-                f'${item.subtotal:,.2f}'
-            ])
-        table_data.append(['', '', '', 'TOTAL:', f'${cotizacion.total:,.2f}'])
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Cliente eliminado exitosamente.')
+        return super().delete(request, *args, **kwargs)
 
-        items_table = Table(table_data, colWidths=[2*inch,1.5*inch,0.8*inch,1*inch,1*inch])
-        items_table.setStyle(TableStyle([
-            ('BACKGROUND',(0,0),(-1,0),colors.darkblue),
-            ('TEXTCOLOR',(0,0),(-1,0),colors.whitesmoke),
-            ('ALIGN',(0,0),(-1,-1),'CENTER'),
-            ('FONTNAME',(0,0),(-1,0),'Helvetica-Bold'),
-            ('FONTSIZE',(0,0),(-1,0),10),
-            ('FONTNAME',(0,1),(-1,-2),'Helvetica'),
-            ('FONTSIZE',(0,1),(-1,-2),9),
-            ('GRID',(0,0),(-1,-2),1,colors.black),
-            ('BACKGROUND',(0,-1),(-1,-1),colors.lightgrey),
-            ('FONTNAME',(0,-1),(-1,-1),'Helvetica-Bold'),
-            ('FONTSIZE',(0,-1),(-1,-1),11),
-            ('ALIGN',(3,-1),(-1,-1),'RIGHT'),
-        ]))
-        elements.append(items_table)
+class ClienteDetailView(LoginRequiredMixin, DetailView):
+    model = Cliente
+    template_name = 'cotizaciones/cliente/detail.html'
+    context_object_name = 'cliente'
 
-    # Observaciones
-    if cotizacion.observaciones:
-        elements.append(Spacer(1,20))
-        elements.append(Paragraph('<b>Observaciones:</b>', normal_style))
-        elements.append(Paragraph(cotizacion.observaciones, normal_style))
+# -------------------------------
+# Vistas para Proveedores
+# -------------------------------
+class ProveedorListView(LoginRequiredMixin, ListView):
+    model = Proveedor
+    template_name = 'cotizaciones/proveedor/list.html'
+    context_object_name = 'proveedores'
+    paginate_by = 10
 
-    # Footer
-    elements.append(Spacer(1,30))
-    footer_text = "Paso a paso se llega lejos - GCSoft-2025 🏆🥇"
-    elements.append(Paragraph(footer_text, ParagraphStyle(
-        'Footer', parent=styles['Normal'], fontSize=8,
-        alignment=TA_CENTER, textColor=colors.grey
-    )))
+    def get_queryset(self):
+        queryset = Proveedor.objects.all()
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(nombre__icontains=search) | 
+                Q(contacto__icontains=search)
+            )
+        return queryset
 
-    # Construir PDF
-    doc.build(elements)
-    pdf = buffer.getvalue()
-    buffer.close()
-    response.write(pdf)
-    return response
+class ProveedorCreateView(LoginRequiredMixin, CreateView):
+    model = Proveedor
+    form_class = ProveedorForm
+    template_name = 'cotizaciones/proveedor/form.html'
+    success_url = reverse_lazy('proveedor_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Proveedor creado exitosamente.')
+        return super().form_valid(form)
+
+class ProveedorUpdateView(LoginRequiredMixin, UpdateView):
+    model = Proveedor
+    form_class = ProveedorForm
+    template_name = 'cotizaciones/proveedor_form.html'
+    success_url = reverse_lazy('proveedor_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Proveedor actualizado exitosamente.')
+        return super().form_valid(form)
+
+class ProveedorDeleteView(LoginRequiredMixin, DeleteView):
+    model = Proveedor
+    template_name = 'cotizaciones/proveedor/confirm_delete.html'
+    success_url = reverse_lazy('proveedor_list')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Proveedor eliminado exitosamente.')
+        return super().delete(request, *args, **kwargs)
+
+class ProveedorDetailView(LoginRequiredMixin, DetailView):
+    model = Proveedor
+    template_name = 'cotizaciones/proveedor/detail.html'
+    context_object_name = 'proveedor'
+
+# -------------------------------
+# Vistas para Productos
+# -------------------------------
+class ProductoListView(LoginRequiredMixin, ListView):
+    model = Producto
+    template_name = 'cotizaciones/producto/list.html'
+    context_object_name = 'productos'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = Producto.objects.select_related('proveedor')
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(nombre__icontains=search) | 
+                Q(descripcion__icontains=search) |
+                Q(proveedor__nombre__icontains=search)
+            )
+        return queryset
+
+class ProductoCreateView(LoginRequiredMixin, CreateView):
+    model = Producto
+    form_class = ProductoForm
+    template_name = 'cotizaciones/producto/form.html'
+    success_url = reverse_lazy('producto_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Producto creado exitosamente.')
+        return super().form_valid(form)
+
+class ProductoUpdateView(LoginRequiredMixin, UpdateView):
+    model = Producto
+    form_class = ProductoForm
+    template_name = 'cotizaciones/producto/form.html'
+    success_url = reverse_lazy('producto_list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Producto actualizado exitosamente.')
+        return super().form_valid(form)
+
+class ProductoDeleteView(LoginRequiredMixin, DeleteView):
+    model = Producto
+    template_name = 'cotizaciones/producto/confirm_delete.html'
+    success_url = reverse_lazy('producto_list')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Producto eliminado exitosamente.')
+        return super().delete(request, *args, **kwargs)
+
+class ProductoDetailView(LoginRequiredMixin, DetailView):
+    model = Producto
+    template_name = 'cotizaciones/producto/detail.html'
+    context_object_name = 'producto'
+
+# -------------------------------
+# Vistas para Cotizaciones
+# -------------------------------
+class CotizacionListView(LoginRequiredMixin, ListView):
+    model = Cotizacion
+    template_name = 'cotizaciones/cotizacion/list.html'
+    context_object_name = 'cotizaciones'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = Cotizacion.objects.select_related('cliente', 'usuario')
+        search = self.request.GET.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(numero__icontains=search) | 
+                Q(cliente__nombre__icontains=search)
+            )
+        return queryset
+
+class CotizacionCreateView(LoginRequiredMixin, CreateView):
+    model = Cotizacion
+    form_class = CotizacionForm
+    template_name = 'cotizaciones/cotizacion/form.html'
+
+    def form_valid(self, form):
+        form.instance.usuario = self.request.user
+        messages.success(self.request, 'Cotización creada exitosamente.')
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('cotizacion_detail', kwargs={'pk': self.object.pk})
+
+
+class CotizacionUpdateView(LoginRequiredMixin, UpdateView):
+    model = Cotizacion
+    form_class = CotizacionForm
+    template_name = 'cotizaciones/cotizacion/form.html'
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Cotización actualizada exitosamente.')
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('cotizacion_detail', kwargs={'pk': self.object.pk})
+
+class CotizacionDeleteView(LoginRequiredMixin, DeleteView):
+    model = Cotizacion
+    template_name = 'cotizaciones/cotizacion/confirm_delete.html'
+    success_url = reverse_lazy('cotizacion_list')
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, 'Cotización eliminada exitosamente.')
+        return super().delete(request, *args, **kwargs)
+
+class CotizacionDetailView(LoginRequiredMixin, DetailView):
+    model = Cotizacion
+    template_name = 'cotizaciones/cotizacion/detail.html'
+    context_object_name = 'cotizacion'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['items'] = self.object.items.select_related('producto', 'producto__proveedor')
+        context['item_form'] = CotizacionItemForm()
+        return context
+
+# -------------------------------
+# Vista para registro de usuarios
+# -------------------------------
+def register(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, 'Cuenta creada exitosamente.')
+            return redirect('dashboard')
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})
+
+# -------------------------------
+# API para obtener precio de producto
+# -------------------------------
+@login_required
+def get_producto_precio(request, producto_id):
+    try:
+        producto = Producto.objects.get(id=producto_id)
+        return JsonResponse({
+            'precio': float(producto.precio_unitario),
+            'nombre': producto.nombre,
+            'proveedor': producto.proveedor.nombre
+        })
+    except Producto.DoesNotExist:
+        return JsonResponse({'error': 'Producto no encontrado'}, status=404)
+
+# -------------------------------
+# Vista para agregar item a cotización
+# -------------------------------
+@login_required
+def agregar_item_cotizacion(request, cotizacion_id):
+    cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
+    
+    if request.method == 'POST':
+        form = CotizacionItemForm(request.POST)
+        if form.is_valid():
+            item = form.save(commit=False)
+            item.cotizacion = cotizacion
+            item.save()
+            messages.success(request, 'Item agregado exitosamente.')
+        else:
+            messages.error(request, 'Error al agregar el item.')
+    
+    return redirect('cotizacion_detail', pk=cotizacion_id)
+
+# -------------------------------
+# Vista para eliminar item de cotización
+# -------------------------------
+@login_required
+def eliminar_item_cotizacion(request, item_id):
+    item = get_object_or_404(CotizacionItem, id=item_id)
+    cotizacion_id = item.cotizacion.id
+    item.delete()
+    messages.success(request, 'Item eliminado exitosamente.')
+    return redirect('cotizacion_detail', pk=cotizacion_id)
+
+# -------------------------------
+# Vista para generar PDF
+# -------------------------------
+@login_required
+def generar_pdf(request, cotizacion_id):
+    cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
+    return generar_pdf_cotizacion(cotizacion)
