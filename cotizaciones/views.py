@@ -272,7 +272,8 @@ class CotizacionCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('cotizacion/detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy('cotizacion_detail', kwargs={'pk': self.object.pk})
+
 
 class CotizacionUpdateView(LoginRequiredMixin, UpdateView):
     model = Cotizacion
@@ -284,7 +285,7 @@ class CotizacionUpdateView(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('cotizacion/detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy('cotizacion_detail', kwargs={'pk': self.object.pk})
 
 class CotizacionDeleteView(LoginRequiredMixin, DeleteView):
     model = Cotizacion

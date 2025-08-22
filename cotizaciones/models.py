@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, RegexValidator
 from decimal import Decimal
+from django.urls import reverse
 
 # Validador de teléfono: solo números, permite opcionalmente "+" inicial (internacional)
 telefono_validator = RegexValidator(
