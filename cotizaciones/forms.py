@@ -42,24 +42,21 @@ class ProveedorForm(forms.ModelForm):
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
-        # Usamos 'precio' que coincide con la columna NOT NULL en la DB
         fields = ['nombre', 'descripcion', 'precio', 'proveedor', 'activo']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
             'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'precio': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0.01', 'required': True}),
+            'precio': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0.01'}),
             'proveedor': forms.Select(attrs={'class': 'form-select'}),
             'activo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
     def clean_precio(self):
         precio = self.cleaned_data.get('precio')
-        if precio is None:
-            raise forms.ValidationError("El precio es obligatorio.")
-        if precio <= 0:
-            raise forms.ValidationError("El precio debe ser mayor a 0.")
+        if precio is None or precio <= 0:
+            raise forms.ValidationError("El precio debe ser mayor a 0 y obligatorio.")
         return precio
-
+        
 class CotizacionForm(forms.ModelForm):
     class Meta:
         model = Cotizacion
