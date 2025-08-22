@@ -157,7 +157,7 @@ class ProveedorListView(LoginRequiredMixin, ListView):
 class ProveedorCreateView(LoginRequiredMixin, CreateView):
     model = Proveedor
     form_class = ProveedorForm
-    template_name = 'cotizaciones/proveedor/form.html'
+    template_name = 'cotizaciones/templates/proveedor/form.html'
     success_url = reverse_lazy('proveedor_list')
 
     def form_valid(self, form):
