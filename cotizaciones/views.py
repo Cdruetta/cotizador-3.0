@@ -297,7 +297,7 @@ class CotizacionDeleteView(LoginRequiredMixin, DeleteView):
 
 class CotizacionDetailView(LoginRequiredMixin, DetailView):
     model = Cotizacion
-    template_name = 'cotizaciones/cotizacion_detail.html'
+    template_name = 'cotizaciones/cotizacion/detail.html'
     context_object_name = 'cotizacion'
 
     def get_context_data(self, **kwargs):
