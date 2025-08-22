@@ -50,25 +50,30 @@ class Proveedor(models.Model):
 # ==========================
 # PRODUCTOS
 # ==========================
-class ProductoForm(forms.ModelForm):
+class Producto(models.Model):
+    nombre = models.CharField(max_length=255, verbose_name="Nombre")
+    descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción")
+    
+    precio_unitario = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name="Precio Unitario",
+        default=0
+    )
+    stock = models.PositiveIntegerField(default=0, verbose_name="Stock")
+    proveedor = models.ForeignKey('Proveedor', on_delete=models.CASCADE, verbose_name="Proveedor")
+    activo = models.BooleanField(default=True, verbose_name="Activo")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     class Meta:
-        model = Producto
-        fields = ['nombre', 'descripcion', 'precio_unitario', 'proveedor', 'activo', 'stock']
-        widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
-            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'precio_unitario': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0.01', 'required': True}),
-            'proveedor': forms.Select(attrs={'class': 'form-select'}),
-            'activo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'stock': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
-        }
+        verbose_name = "Producto"
+        verbose_name_plural = "Productos"
+        ordering = ['nombre']
 
-    def clean_precio_unitario(self):
-        precio = self.cleaned_data.get('precio_unitario')
-        if precio is None or precio <= 0:
-            raise forms.ValidationError("El precio debe ser mayor a 0 y obligatorio.")
-        return precio
-
+    def __str__(self):
+        return self.nombre
 
 # ==========================
 # COTIZACIONES
