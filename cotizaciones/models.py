@@ -112,6 +112,10 @@ class Cotizacion(models.Model):
         self.save()
         return total
 
+    # ✅ Método agregado para que CreateView pueda redirigir al detalle
+    def get_absolute_url(self):
+        return reverse("cotizacion_detail", kwargs={"pk": self.pk})
+
 
 class CotizacionItem(models.Model):
     cotizacion = models.ForeignKey(
