@@ -240,7 +240,7 @@ class ProductoDetailView(LoginRequiredMixin, DetailView):
 # -------------------------------
 class CotizacionListView(LoginRequiredMixin, ListView):
     model = Cotizacion
-    template_name = 'cotizaciones/producto/list.html'
+    template_name = 'cotizaciones/cotizacion/list.html'
     context_object_name = 'cotizaciones'
     paginate_by = 10
 

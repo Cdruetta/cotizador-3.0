@@ -18,8 +18,8 @@
                 <form method="get" class="row g-3">
                     <div class="col-md-10">
                         <input type="text" name="search" class="form-control"
-                               placeholder="Buscar por número o cliente..."
-                               value="{{ request.GET.search }}">
+                            placeholder="Buscar por número o cliente..."
+                            value="{{ request.GET.search }}">
                     </div>
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-custom w-100">
@@ -54,7 +54,7 @@
                                 <td>{{ cotizacion.cliente.nombre }}</td>
                                 <td>
                                     <span class="badge"
-                                          style="background-color: {% if cotizacion.tipo_documento == 'presupuesto' %}#ff6b00{% else %}#1dd75b{% endif %}; color: #1c1c1e;">
+                                        style="background-color: {% if cotizacion.tipo_documento == 'presupuesto' %}#ff6b00{% else %}#1dd75b{% endif %}; color: #1c1c1e;">
                                         {{ cotizacion.get_tipo_documento_display }}
                                     </span>
                                 </td>
@@ -64,19 +64,19 @@
                                 <td>
                                     <div class="btn-group" role="group">
                                         <a href="{% url 'cotizacion_detail' cotizacion.pk %}" 
-                                           class="btn btn-sm btn-custom" title="Ver">
+                                            class="btn btn-sm btn-custom" title="Ver">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         <a href="{% url 'generar_pdf' cotizacion.pk %}" 
-                                           class="btn btn-sm btn-custom" title="PDF" target="_blank">
+                                            class="btn btn-sm btn-custom" title="PDF" target="_blank">
                                             <i class="bi bi-file-pdf"></i>
                                         </a>
                                         <a href="{% url 'cotizacion_update' cotizacion.pk %}" 
-                                           class="btn btn-sm btn-custom" title="Editar">
+                                            class="btn btn-sm btn-custom" title="Editar">
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                         <a href="{% url 'cotizacion_delete' cotizacion.pk %}" 
-                                           class="btn btn-sm btn-danger" title="Eliminar">
+                                            class="btn btn-sm btn-danger" title="Eliminar">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </div>
