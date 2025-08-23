@@ -29,6 +29,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
         {% if user.is_authenticated %}
         <ul class="navbar-nav me-auto">
+            <!-- Clientes -->
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                     <i class="bi bi-people"></i> Clientes
@@ -38,6 +39,7 @@
                     <li><a class="dropdown-item" href="{% url 'cliente_create' %}">Nuevo Cliente</a></li>
                 </ul>
             </li>
+            <!-- Proveedores -->
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                     <i class="bi bi-truck"></i> Proveedores
@@ -47,6 +49,7 @@
                     <li><a class="dropdown-item" href="{% url 'proveedor_create' %}">Nuevo Proveedor</a></li>
                 </ul>
             </li>
+            <!-- Productos -->
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                     <i class="bi bi-box"></i> Productos
@@ -56,6 +59,7 @@
                     <li><a class="dropdown-item" href="{% url 'producto_create' %}">Nuevo Producto</a></li>
                 </ul>
             </li>
+            <!-- Cotizaciones -->
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                     <i class="bi bi-file-text"></i> Cotizaciones
@@ -101,13 +105,13 @@
     </div>
 </nav>
 
-<!-- Contenido -->
-<div class="container mt-4">{% block content %}{% endblock %}</div>
-
-<!-- Toast Container -->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080">
+<!-- Toast Container (arriba al centro) -->
+<div class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 1080">
     <div id="toast-container"></div>
 </div>
+
+<!-- Contenido -->
+<div class="container mt-4">{% block content %}{% endblock %}</div>
 
 <!-- Footer -->
 <footer class="footer-inline">
@@ -129,14 +133,7 @@
         icon.classList.toggle('bi-sun');
     });
 
-    // Social Menu
-    const socialToggle = document.querySelector('.social-menu .toggle');
-    const socialMenu = document.querySelector('.social-menu');
-    socialToggle?.addEventListener('click', () => {
-        socialMenu?.classList.toggle('active');
-    });
-
-    // Mostrar mensajes de Django con Toast
+    // Toasts Django
     document.addEventListener('DOMContentLoaded', () => {
         {% if messages %}
             {% for message in messages %}
