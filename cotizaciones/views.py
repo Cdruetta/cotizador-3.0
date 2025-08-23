@@ -140,7 +140,7 @@ class ClienteDetailView(LoginRequiredMixin, DetailView):
 # -------------------------------
 class ProveedorListView(LoginRequiredMixin, ListView):
     model = Proveedor
-    template_name = 'cotizaciones/proveedor/form.html'
+    template_name = 'cotizaciones/proveedor/list.html'
     context_object_name = 'proveedores'
     paginate_by = 10
 

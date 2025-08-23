@@ -18,8 +18,8 @@
                 <form method="get" class="row g-3">
                     <div class="col-md-10">
                         <input type="text" name="search" class="form-control" 
-                               placeholder="Buscar por nombre o contacto..." 
-                               value="{{ request.GET.search }}">
+                            placeholder="Buscar por nombre o contacto..." 
+                            value="{{ request.GET.search }}">
                     </div>
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-outline-primary w-100">
@@ -64,15 +64,15 @@
                                 <td>
                                     <div class="btn-group" role="group">
                                         <a href="{% url 'proveedor_detail' proveedor.pk %}" 
-                                           class="btn btn-sm btn-outline-info" title="Ver">
+                                            class="btn btn-sm btn-outline-info" title="Ver">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                         <a href="{% url 'proveedor_update' proveedor.pk %}" 
-                                           class="btn btn-sm btn-outline-warning" title="Editar">
+                                            class="btn btn-sm btn-outline-warning" title="Editar">
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                         <a href="{% url 'proveedor_delete' proveedor.pk %}" 
-                                           class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                            class="btn btn-sm btn-outline-danger" title="Eliminar">
                                             <i class="bi bi-trash"></i>
                                         </a>
                                     </div>
