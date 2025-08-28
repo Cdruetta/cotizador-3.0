@@ -5,6 +5,7 @@
 
 {% block content %}
 <div class="container-fluid mt-4">
+
     <!-- Company Header -->
     <div class="card mb-4 shadow-sm border-0 rounded-4 p-3" style="background: linear-gradient(90deg, #1e3c72, #2a5298); color: #fff;">
         <div class="row align-items-center">
@@ -22,56 +23,41 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="row g-3 mb-4">
+    <div class="row g-4 mb-4">
+        {% comment %} Card tipo SaaS: icono grande arriba, número animado, gradiente {% endcomment %}
         <div class="col-md-3">
             <a href="{% url 'cliente_list' %}" class="text-decoration-none">
-                <div class="card shadow-sm border-0 rounded-4 text-white" style="background: linear-gradient(135deg, #667eea, #764ba2);">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h4 class="fw-bold">{{ total_clientes }}</h4>
-                            <p class="mb-0">Clientes</p>
-                        </div>
-                        <i class="bi bi-people-fill" style="font-size: 2rem;"></i>
-                    </div>
+                <div class="card shadow-sm border-0 rounded-4 text-center card-gradient p-3">
+                    <i class="bi bi-people-fill mb-2" style="font-size: 3rem;"></i>
+                    <h4 class="fw-bold mb-1">{{ total_clientes }}</h4>
+                    <p class="mb-0">Clientes</p>
                 </div>
             </a>
         </div>
         <div class="col-md-3">
             <a href="{% url 'proveedor_list' %}" class="text-decoration-none">
-                <div class="card shadow-sm border-0 rounded-4 text-white" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h4 class="fw-bold">{{ total_proveedores }}</h4>
-                            <p class="mb-0">Proveedores</p>
-                        </div>
-                        <i class="bi bi-truck" style="font-size: 2rem;"></i>
-                    </div>
+                <div class="card shadow-sm border-0 rounded-4 text-center card-gradient p-3" style="background: linear-gradient(135deg, #43e97b, #38f9d7); color: #fff;">
+                    <i class="bi bi-truck mb-2" style="font-size: 3rem;"></i>
+                    <h4 class="fw-bold mb-1">{{ total_proveedores }}</h4>
+                    <p class="mb-0">Proveedores</p>
                 </div>
             </a>
         </div>
         <div class="col-md-3">
             <a href="{% url 'producto_list' %}" class="text-decoration-none">
-                <div class="card shadow-sm border-0 rounded-4 text-dark" style="background: linear-gradient(135deg, #fbc2eb, #a6c1ee);">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h4 class="fw-bold">{{ total_productos }}</h4>
-                            <p class="mb-0">Productos</p>
-                        </div>
-                        <i class="bi bi-box-seam" style="font-size: 2rem;"></i>
-                    </div>
+                <div class="card shadow-sm border-0 rounded-4 text-center card-gradient p-3" style="background: linear-gradient(135deg, #fbc2eb, #a6c1ee); color: #000;">
+                    <i class="bi bi-box-seam mb-2" style="font-size: 3rem;"></i>
+                    <h4 class="fw-bold mb-1">{{ total_productos }}</h4>
+                    <p class="mb-0">Productos</p>
                 </div>
             </a>
         </div>
         <div class="col-md-3">
             <a href="{% url 'cotizacion_list' %}" class="text-decoration-none">
-                <div class="card shadow-sm border-0 rounded-4 text-white" style="background: linear-gradient(135deg, #ff6a00, #ee0979);">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h4 class="fw-bold">{{ total_cotizaciones }}</h4>
-                            <p class="mb-0">Cotizaciones</p>
-                        </div>
-                        <i class="bi bi-file-text-fill" style="font-size: 2rem;"></i>
-                    </div>
+                <div class="card shadow-sm border-0 rounded-4 text-center card-gradient p-3" style="background: linear-gradient(135deg, #ff6a00, #ee0979); color: #fff;">
+                    <i class="bi bi-file-text-fill mb-2" style="font-size: 3rem;"></i>
+                    <h4 class="fw-bold mb-1">{{ total_cotizaciones }}</h4>
+                    <p class="mb-0">Cotizaciones</p>
                 </div>
             </a>
         </div>
@@ -153,5 +139,28 @@
         </div>
     </div>
     {% endif %}
+
 </div>
+
+<style>
+/* Cards Gradiente */
+.card-gradient {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.card-gradient:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* Animación número */
+.card h4 {
+    animation: countUp 0.8s ease-out;
+}
+@keyframes countUp {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+</style>
 {% endblock %}
