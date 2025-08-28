@@ -6,8 +6,7 @@ from django.contrib import messages
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.urls import reverse_lazy
 from django.http import JsonResponse
-from django.db.models import Q, Sum, Count
-from django.db.models.functions import TruncMonth
+from django.db.models import Q
 from django.db import connection
 from django.contrib.auth.models import User
 
@@ -38,22 +37,7 @@ def get_db_usage_percent(max_size_mb=100):
 # -------------------------------
 @login_required
 def dashboard(request):
-    db_percent, db_mb = get_db_usage_percent()
-
-    # Ventas por mes
-    ventas_mes_qs = (
-        Cotizacion.objects.annotate(mes=TruncMonth('fecha'))
-        .values('mes')
-        .annotate(total=Sum('total'))
-        .order_by('mes')
-    )
-    meses = [v['mes'].strftime('%b %Y') for v in ventas_mes_qs]
-    totales = [float(v['total'] or 0) for v in ventas_mes_qs]
-
-    # Cotizaciones por estado
-    estados_qs = Cotizacion.objects.values('estado').annotate(cantidad=Count('id'))
-    estados_labels = [e['estado'] for e in estados_qs]
-    estados_data = [e['cantidad'] for e in estados_qs]
+    db_percent, db_mb = get_db_usage_percent()  # obtenemos uso de la DB
 
     context = {
         'total_clientes': Cliente.objects.count(),
@@ -61,13 +45,8 @@ def dashboard(request):
         'total_productos': Producto.objects.filter(activo=True).count(),
         'total_cotizaciones': Cotizacion.objects.count(),
         'cotizaciones_recientes': Cotizacion.objects.select_related('cliente')[:5],
-        'db_percent': db_percent,
-        'db_mb': db_mb,
-        # Datos para gráficos
-        'meses': meses,
-        'totales': totales,
-        'estados_labels': estados_labels,
-        'estados_data': estados_data,
+        'db_percent': db_percent,  # porcentaje de uso DB
+        'db_mb': db_mb,            # tamaño actual en MB
     }
     return render(request, 'cotizaciones/dashboard.html', context)
 
