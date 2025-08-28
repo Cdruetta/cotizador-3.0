@@ -24,7 +24,6 @@
 
     <!-- Stats Cards -->
     <div class="row g-4 mb-4">
-        {% comment %} Card tipo SaaS: icono grande arriba, número animado, gradiente {% endcomment %}
         <div class="col-md-3">
             <a href="{% url 'cliente_list' %}" class="text-decoration-none">
                 <div class="card shadow-sm border-0 rounded-4 text-center card-gradient p-3">
@@ -69,6 +68,22 @@
         <p class="mb-2">{{ db_mb }} MB usados ({{ db_percent }}%)</p>
         <div class="progress rounded-4" style="height: 15px;">
             <div class="progress-bar" role="progressbar" style="width: {{ db_percent }}%; background: {% if db_percent < 60 %}#28a745{% elif db_percent < 85 %}#ffc107{% else %}#dc3545{% endif %};" aria-valuenow="{{ db_percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
+
+    <!-- Dashboard Charts -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 p-3">
+                <h5 class="fw-bold mb-3">Ventas por Mes</h5>
+                <canvas id="ventasMesChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 p-3">
+                <h5 class="fw-bold mb-3">Cotizaciones por Estado</h5>
+                <canvas id="cotizacionesEstadoChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -141,4 +156,44 @@
     {% endif %}
 
 </div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Ventas por mes
+    const ventasCtx = document.getElementById('ventasMesChart').getContext('2d');
+    new Chart(ventasCtx, {
+        type: 'line',
+        data: {
+            labels: {{ meses|safe }},
+            datasets: [{
+                label: 'Ventas por Mes',
+                data: {{ totales|safe }},
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // Cotizaciones por estado
+    const estadoCtx = document.getElementById('cotizacionesEstadoChart').getContext('2d');
+    new Chart(estadoCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ estados_labels|safe }},
+            datasets: [{
+                data: {{ estados_data|safe }},
+                backgroundColor: ['#36A2EB','#FF6384','#FFCE56','#4BC0C0','#9966FF'],
+            }]
+        },
+        options: { responsive: true }
+    });
+</script>
+
 {% endblock %}
