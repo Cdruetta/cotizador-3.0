@@ -7,7 +7,7 @@
 <title>{% block title %}GCinsumos - Cotizaciones{% endblock %}</title>
 
 <!-- CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 <link href="{% static 'styles/globales.css' %}" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -16,9 +16,9 @@
 <body class="{{ request.COOKIES.theme|default:'light' }}">
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg">
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="{% url 'dashboard' %}">
+        <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="{% url 'dashboard' %}">
             <img src="{% static 'images/logo.png' %}" alt="Logo" height="35" class="rounded-circle bg-white p-1">
             GCinsumos
         </a>
@@ -27,84 +27,85 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-        {% if user.is_authenticated %}
-        <ul class="navbar-nav me-auto">
-            <!-- Clientes -->
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                    <i class="bi bi-people"></i> Clientes
-                </a>
-                <ul class="dropdown-menu shadow">
-                    <li><a class="dropdown-item" href="{% url 'cliente_list' %}">Ver Clientes</a></li>
-                    <li><a class="dropdown-item" href="{% url 'cliente_create' %}">Nuevo Cliente</a></li>
-                </ul>
-            </li>
-            <!-- Proveedores -->
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                    <i class="bi bi-truck"></i> Proveedores
-                </a>
-                <ul class="dropdown-menu shadow">
-                    <li><a class="dropdown-item" href="{% url 'proveedor_list' %}">Ver Proveedores</a></li>
-                    <li><a class="dropdown-item" href="{% url 'proveedor_create' %}">Nuevo Proveedor</a></li>
-                </ul>
-            </li>
-            <!-- Productos -->
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                    <i class="bi bi-box"></i> Productos
-                </a>
-                <ul class="dropdown-menu shadow">
-                    <li><a class="dropdown-item" href="{% url 'producto_list' %}">Ver Productos</a></li>
-                    <li><a class="dropdown-item" href="{% url 'producto_create' %}">Nuevo Producto</a></li>
-                </ul>
-            </li>
-            <!-- Cotizaciones -->
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                    <i class="bi bi-file-text"></i> Cotizaciones
-                </a>
-                <ul class="dropdown-menu shadow">
-                    <li><a class="dropdown-item" href="{% url 'cotizacion_list' %}">Ver Cotizaciones</a></li>
-                    <li><a class="dropdown-item" href="{% url 'cotizacion_create' %}">Nueva Cotización</a></li>
-                </ul>
-            </li>
-        </ul>
+            {% if user.is_authenticated %}
+            <ul class="navbar-nav me-auto">
+                <!-- Clientes -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-people"></i> Clientes
+                    </a>
+                    <ul class="dropdown-menu shadow">
+                        <li><a class="dropdown-item" href="{% url 'cliente_list' %}">Ver Clientes</a></li>
+                        <li><a class="dropdown-item" href="{% url 'cliente_create' %}">Nuevo Cliente</a></li>
+                    </ul>
+                </li>
+                <!-- Proveedores -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-truck"></i> Proveedores
+                    </a>
+                    <ul class="dropdown-menu shadow">
+                        <li><a class="dropdown-item" href="{% url 'proveedor_list' %}">Ver Proveedores</a></li>
+                        <li><a class="dropdown-item" href="{% url 'proveedor_create' %}">Nuevo Proveedor</a></li>
+                    </ul>
+                </li>
+                <!-- Productos -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-box"></i> Productos
+                    </a>
+                    <ul class="dropdown-menu shadow">
+                        <li><a class="dropdown-item" href="{% url 'producto_list' %}">Ver Productos</a></li>
+                        <li><a class="dropdown-item" href="{% url 'producto_create' %}">Nuevo Producto</a></li>
+                    </ul>
+                </li>
+                <!-- Cotizaciones -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-file-text"></i> Cotizaciones
+                    </a>
+                    <ul class="dropdown-menu shadow">
+                        <li><a class="dropdown-item" href="{% url 'cotizacion_list' %}">Ver Cotizaciones</a></li>
+                        <li><a class="dropdown-item" href="{% url 'cotizacion_create' %}">Nueva Cotización</a></li>
+                    </ul>
+                </li>
+            </ul>
 
-        <ul class="navbar-nav">
-            {% if user.is_staff %}
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'admin:index' %}">
-                    <i class="bi bi-speedometer2"></i> Admin
-                </a>
-            </li>
+            <ul class="navbar-nav">
+                {% if user.is_staff %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'admin:index' %}"><i class="bi bi-speedometer2"></i> Admin</a>
+                </li>
+                {% endif %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i> {{ user.get_full_name|default:user.username }}
+                    </a>
+                    <ul class="dropdown-menu shadow">
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar Sesión</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <button id="darkModeToggle" class="btn btn-outline-dark ms-2">🌙</button>
+                </li>
+            </ul>
+
+            {% else %}
+            <ul class="navbar-nav ms-auto">
+                {% if 'login' in urls %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a></li>
+                {% endif %}
+                {% if 'register' in urls %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Registrarse</a></li>
+                {% endif %}
+            </ul>
             {% endif %}
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                    <i class="bi bi-person-circle"></i> {{ user.get_full_name|default:user.username }}
-                </a>
-                <ul class="dropdown-menu shadow">
-                    <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar Sesión</a></li>
-                </ul>
-            </li>
-            
-        </ul>
-        {% else %}
-        <ul class="navbar-nav ms-auto">
-            {% if 'login' in urls %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a></li>
-            {% endif %}
-            {% if 'register' in urls %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Registrarse</a></li>
-            {% endif %}
-        </ul>
-        {% endif %}
         </div>
     </div>
 </nav>
 
-<!-- Toast Container (arriba centrado) -->
-<div class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 1080;">
+<!-- Toast Container -->
+<div class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index:1080;">
     <div id="toast-container"></div>
 </div>
 
@@ -112,13 +113,23 @@
 <div class="container mt-4">{% block content %}{% endblock %}</div>
 
 <!-- Footer -->
-<footer class="footer-inline">
+<footer class="footer-inline mt-4">
     <span>📅 {% now "d/m/Y H:i" %}</span>
     <span>💵 Blue: {{ dolar.blue }} | Oficial: {{ dolar.oficial }}</span>
     <span>🌤️ {{ clima.descripcion }} ({{ clima.temp }}°C)</span>
     <span>© {% now "Y" %} - GCinsumos - 💻 Soft Division</span>
 </footer>
 
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Dark Mode toggle seguro
+    const darkToggle = document.getElementById('darkModeToggle');
+    if(darkToggle){
+        darkToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+        });
+    }
 
     // Toasts de Django
     document.addEventListener('DOMContentLoaded', () => {
@@ -142,6 +153,5 @@
 </script>
 
 {% block extra_js %}{% endblock %}
-
 </body>
 </html>
