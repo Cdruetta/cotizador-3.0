@@ -187,3 +187,23 @@ body.dark-mode { background-color: #121212; color: #e0e0e0; }
 body.dark-mode .navbar { background: linear-gradient(90deg, #333, #111); }
 body.dark-mode .card { background-color: #1f1f1f; color: #e0e0e0; box-shadow: 0 5px 15px rgba(255, 107, 0, 0.2); }
 body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) { background-color: #2a2a2a; }
+
+/* Cards Gradiente */
+.card-gradient {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.card-gradient:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* Animación número */
+.card h4 {
+    animation: countUp 0.8s ease-out;
+}
+@keyframes countUp {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
