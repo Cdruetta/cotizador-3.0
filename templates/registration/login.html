@@ -5,52 +5,92 @@
 
 {% block content %}
 <style>
-    /* Fondo con imagen y animación */
-    body {
-        background: url("https://images.unsplash.com/photo-1521791136064-7986c2920216") no-repeat center center fixed;
-        background-size: cover;
-        animation: fadeBackground 15s ease-in-out infinite alternate;
-    }
+/* ============================ */
+/* Fondo estático con imagen o color */
+/* ============================ */
+body {
+    min-height: 100vh;
+    background: url("https://images.unsplash.com/photo-1521791136064-7986c2920216") no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Inter', sans-serif;
+}
 
-    @keyframes fadeBackground {
-        from { filter: brightness(80%); }
-        to { filter: brightness(100%); }
-    }
+/* ============================ */
+/* Tarjeta de login elegante */
+/* ============================ */
+.login-card {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    transform: translateY(0);
+    transition: all 0.3s ease-in-out;
+}
 
-    /* Tarjeta animada */
-    .login-card {
-        animation: floatCard 3s ease-in-out infinite;
-        border-radius: 15px;
-    }
+.login-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+}
 
-    @keyframes floatCard {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-8px); }
-    }
+/* ============================ */
+/* Encabezado */
+.card-header {
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 15px 15px 0 0;
+    color: white;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.25rem;
+}
 
-    /* Efecto hover en el botón */
-    .btn-primary {
-        transition: all 0.3s ease-in-out;
-    }
+/* ============================ */
+/* Formularios */
+.form-label {
+    font-weight: 500;
+}
 
-    .btn-primary:hover {
-        transform: scale(1.05);
-        box-shadow: 0 8px 15px rgba(0,0,0,0.2);
-    }
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102,126,234,0.25);
+}
 
-    /* Fondo transparente en card */
-    .card-body {
-        background: rgba(255, 255, 255, 0.85);
-        border-radius: 15px;
-    }
+/* Botón principal */
+.btn-primary {
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-primary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+/* Texto secundario */
+.text-center a {
+    color: #764ba2;
+    font-weight: 500;
+    text-decoration: underline;
+}
+
+.text-center a:hover {
+    color: #667eea;
+    text-decoration: none;
+}
 </style>
 
 <div class="container">
     <div class="row justify-content-center align-items-center" style="min-height: 90vh;">
         <div class="col-md-6 col-lg-4">
-            <div class="card shadow-lg border-0 login-card">
-                <div class="card-header bg-primary text-white text-center rounded-top">
-                    <h4 class="mb-0"><i class="bi bi-person-circle me-2"></i>Iniciar Sesión</h4>
+            <div class="card login-card">
+                <div class="card-header">
+                    <i class="bi bi-person-circle me-2"></i>Iniciar Sesión
                 </div>
                 <div class="card-body">
                     <form method="post" novalidate>
