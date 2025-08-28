@@ -10,7 +10,7 @@
 /* ============================ */
 body {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea, #764ba2); /* degradado profesional */
+    background: linear-gradient(135deg, #576088ff, #675f6eff); /* degradado profesional */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -21,7 +21,7 @@ body {
 /* Tarjeta de login elegante */
 .login-card {
     backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(180, 180, 180, 0.95);
     border-radius: 20px;
     padding: 2rem;
     box-shadow: 0 15px 35px rgba(0,0,0,0.3);
@@ -72,18 +72,20 @@ body {
 
 /* ============================ */
 /* Texto secundario */
-.text-center {
+text-center {
     margin-top: 1rem;
+    white-space: nowrap;
 }
 
 .text-center a {
-    color: #764ba2;
+    color: #1220d8ff;
     font-weight: 500;
     text-decoration: underline;
+    white-space: nowrap;
 }
 
 .text-center a:hover {
-    color: #667eea;
+    color: #ff2323ff;
     text-decoration: none;
 }
 </style>
@@ -125,8 +127,9 @@ body {
                         </div>
                     </form>
 
-                    <div class="text-center mt-3">
-                        <p class="mb-1">¿No tienes cuenta? <a href="{% url 'register' %}">Regístrate aquí</a></p>
+                    <div class="text-center">
+                        <span>¿No tienes cuenta?</span>
+                        <a href="{% url 'register' %}">Regístrate aquí</a>
                     </div>
                 </div>
             </div>
