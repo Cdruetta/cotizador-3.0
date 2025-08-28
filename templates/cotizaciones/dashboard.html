@@ -1,183 +1,157 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}GCinsumos {% endblock %}
+{% block title %}GCinsumos - Dashboard{% endblock %}
 
 {% block content %}
-<div class="row mt-4">
-    <div class="col-12">
-        <!-- Company Header -->
-        <div class="company-header text-center mb-4">
-            <div class="row align-items-center">
-                <div class="col-md-2">
-                    <div class="d-inline-flex align-items-center justify-content-center">
-                        <img src="{% static 'images/logo.png' %}" alt="Logo" class="rounded-circle border border-white shadow" style="height: 80px; width: 80px; object-fit: cover;">
-                    </div>
-                </div>
-                <div class="col-md-8">
-                    <h2 class="mb-1">GC insumos - soft Division</h2>
-                    <p class="mb-0">Dilkendein 1278 - Tel: 358-4268768</p>
-                </div>
-                <div class="col-md-2">
-                    <i class="bi bi-pc-display" style="font-size: 3rem;"></i>
-                </div>
+<div class="container-fluid mt-4">
+    <!-- Company Header -->
+    <div class="card mb-4 shadow-sm border-0 rounded-4 p-3" style="background: linear-gradient(90deg, #1e3c72, #2a5298); color: #fff;">
+        <div class="row align-items-center">
+            <div class="col-md-2 text-center">
+                <img src="{% static 'images/logo.png' %}" alt="Logo" class="rounded-circle border border-white shadow-sm" style="height: 80px; width: 80px; object-fit: cover;">
+            </div>
+            <div class="col-md-8 text-center text-md-start">
+                <h2 class="mb-1 fw-bold">GC insumos - Soft Division</h2>
+                <p class="mb-0">Dilkendein 1278 | Tel: 358-4268768</p>
+            </div>
+            <div class="col-md-2 text-center">
+                <i class="bi bi-pc-display" style="font-size: 3rem;"></i>
             </div>
         </div>
-
-        <!-- Stats Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <a href="{% url 'cliente_list' %}" class="text-decoration-none">
-                    <div class="card stats-card bg-primary text-white">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <h4>{{ total_clientes }}</h4>
-                                <p class="mb-0">Clientes</p>
-                            </div>
-                            <i class="bi bi-people" style="font-size: 2rem;"></i>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-3">
-                <a href="{% url 'proveedor_list' %}" class="text-decoration-none">
-                    <div class="card stats-card bg-success text-white">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <h4>{{ total_proveedores }}</h4>
-                                <p class="mb-0">Proveedores</p>
-                            </div>
-                            <i class="bi bi-truck" style="font-size: 2rem;"></i>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-3">
-                <a href="{% url 'producto_list' %}" class="text-decoration-none">
-                    <div class="card stats-card bg-warning text-dark">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <h4>{{ total_productos }}</h4>
-                                <p class="mb-0">Productos</p>
-                            </div>
-                            <i class="bi bi-box" style="font-size: 2rem;"></i>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-3">
-                <a href="{% url 'cotizacion_list' %}" class="text-decoration-none">
-                    <div class="card stats-card bg-info text-white">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <h4>{{ total_cotizaciones }}</h4>
-                                <p class="mb-0">Cotizaciones</p>
-                            </div>
-                            <i class="bi bi-file-text" style="font-size: 2rem;"></i>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-
-        <!-- Database Usage Card -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card bg-dark text-white shadow-sm">
-                    <div class="card-body">
-                        <p class="mb-1">Base de datos: {{ db_mb }} MB usados ({{ db_percent }}%)</p>
-                        <div style="background: #2a2a2a; border-radius: 5px; width: 100%; height: 12px; overflow: hidden;">
-                            <div style="background: #ff6b00; height: 100%; width: {{ db_percent }}%; transition: width 0.5s;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-header">
-                        <h5 class="mb-0">Acciones Rápidas</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3 mb-2">
-                                <a href="{% url 'cliente_create' %}" class="btn btn-warning w-100">
-                                    <i class="bi bi-plus-circle"></i> Nuevo Cliente
-                                </a>
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <a href="{% url 'proveedor_create' %}" class="btn btn-warning w-100">
-                                    <i class="bi bi-plus-circle"></i> Nuevo Proveedor
-                                </a>
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <a href="{% url 'producto_create' %}" class="btn btn-warning w-100">
-                                    <i class="bi bi-plus-circle"></i> Nuevo Producto
-                                </a>
-                            </div>
-                            <div class="col-md-3 mb-2">
-                                <a href="{% url 'cotizacion_create' %}" class="btn btn-success w-100">
-                                    <i class="bi bi-file-plus"></i> Nueva Cotización
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Quotations -->
-        {% if cotizaciones_recientes %}
-        <div class="row">
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-header">
-                        <h5 class="mb-0">Cotizaciones Recientes</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Número</th>
-                                        <th>Cliente</th>
-                                        <th>Tipo</th>
-                                        <th>Fecha</th>
-                                        <th>Total</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for cotizacion in cotizaciones_recientes %}
-                                    <tr>
-                                        <td>{{ cotizacion.numero }}</td>
-                                        <td>{{ cotizacion.cliente.nombre }}</td>
-                                        <td>
-                                            <span class="badge bg-{% if cotizacion.tipo_documento == 'presupuesto' %}primary{% else %}success{% endif %}">
-                                                {{ cotizacion.get_tipo_documento_display }}
-                                            </span>
-                                        </td>
-                                        <td>{{ cotizacion.fecha|date:"d/m/Y" }}</td>
-                                        <td>${{ cotizacion.total|floatformat:2 }}</td>
-                                        <td>
-                                            <a href="{% url 'cotizacion_detail' cotizacion.pk %}" class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
     </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <a href="{% url 'cliente_list' %}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 rounded-4 text-white" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="fw-bold">{{ total_clientes }}</h4>
+                            <p class="mb-0">Clientes</p>
+                        </div>
+                        <i class="bi bi-people-fill" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'proveedor_list' %}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 rounded-4 text-white" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="fw-bold">{{ total_proveedores }}</h4>
+                            <p class="mb-0">Proveedores</p>
+                        </div>
+                        <i class="bi bi-truck" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'producto_list' %}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 rounded-4 text-dark" style="background: linear-gradient(135deg, #fbc2eb, #a6c1ee);">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="fw-bold">{{ total_productos }}</h4>
+                            <p class="mb-0">Productos</p>
+                        </div>
+                        <i class="bi bi-box-seam" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'cotizacion_list' %}" class="text-decoration-none">
+                <div class="card shadow-sm border-0 rounded-4 text-white" style="background: linear-gradient(135deg, #ff6a00, #ee0979);">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="fw-bold">{{ total_cotizaciones }}</h4>
+                            <p class="mb-0">Cotizaciones</p>
+                        </div>
+                        <i class="bi bi-file-text-fill" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Database Usage -->
+    <div class="card shadow-sm mb-4 border-0 rounded-4 p-3">
+        <h5 class="fw-bold mb-2">Uso de Base de Datos</h5>
+        <p class="mb-2">{{ db_mb }} MB usados ({{ db_percent }}%)</p>
+        <div class="progress rounded-4" style="height: 15px;">
+            <div class="progress-bar" role="progressbar" style="width: {{ db_percent }}%; background: {% if db_percent < 60 %}#28a745{% elif db_percent < 85 %}#ffc107{% else %}#dc3545{% endif %};" aria-valuenow="{{ db_percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card shadow-sm mb-4 border-0 rounded-4 p-3">
+        <h5 class="fw-bold mb-3">Acciones Rápidas</h5>
+        <div class="row g-3">
+            <div class="col-md-3">
+                <a href="{% url 'cliente_create' %}" class="btn btn-outline-primary w-100 py-2 fw-bold">
+                    <i class="bi bi-person-plus-fill me-2"></i> Nuevo Cliente
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{% url 'proveedor_create' %}" class="btn btn-outline-success w-100 py-2 fw-bold">
+                    <i class="bi bi-truck me-2"></i> Nuevo Proveedor
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{% url 'producto_create' %}" class="btn btn-outline-warning w-100 py-2 fw-bold">
+                    <i class="bi bi-box-seam me-2"></i> Nuevo Producto
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="{% url 'cotizacion_create' %}" class="btn btn-outline-danger w-100 py-2 fw-bold">
+                    <i class="bi bi-file-plus me-2"></i> Nueva Cotización
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Quotations -->
+    {% if cotizaciones_recientes %}
+    <div class="card shadow-sm border-0 rounded-4 p-3">
+        <h5 class="fw-bold mb-3">Cotizaciones Recientes</h5>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Número</th>
+                        <th>Cliente</th>
+                        <th>Tipo</th>
+                        <th>Fecha</th>
+                        <th>Total</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cotizacion in cotizaciones_recientes %}
+                    <tr>
+                        <td>{{ cotizacion.numero }}</td>
+                        <td>{{ cotizacion.cliente.nombre }}</td>
+                        <td>
+                            <span class="badge rounded-pill bg-{% if cotizacion.tipo_documento == 'presupuesto' %}primary{% else %}success{% endif %}">
+                                {{ cotizacion.get_tipo_documento_display }}
+                            </span>
+                        </td>
+                        <td>{{ cotizacion.fecha|date:"d/m/Y" }}</td>
+                        <td>${{ cotizacion.total|floatformat:2 }}</td>
+                        <td>
+                            <a href="{% url 'cotizacion_detail' cotizacion.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
