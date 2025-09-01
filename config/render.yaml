@@ -1,14 +1,10 @@
 services:
   - type: web
-    name: django-app
-    env: python3
-    buildCommand: ./build.sh
-    startCommand: gunicorn myproject.wsgi:application
-    envVars:
-      - key: DJANGO_SETTINGS_MODULE
-        value: proyecto.settings
-      - key: SECRET_KEY
-        generateValue: true
-      - key: DEBUG
-        value: "False"
-
+    name: cotizador-3-0
+    runtime: python
+    buildCommand: "pip install -r requirements.txt && python manage.py migrate && python manage.py collectstatic --noinput"
+    startCommand: "gunicorn cotizador_3_0.wsgi"
+    disk:
+      name: django-disk
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1

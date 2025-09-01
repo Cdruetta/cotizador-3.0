@@ -73,13 +73,13 @@ WSGI_APPLICATION = 'proyecto.wsgi.application'
 # --------------------------
 # Base de datos
 # --------------------------
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 DATABASES = {
-    "default": dj_database_url.parse(
-        os.environ.get("DATABASE_URL") or
-        "postgresql://cotizador_db_3jx4_user:XgqGEhPeG2SwsVOSue34ZnmqtDY3hccv@dpg-d25okifdiees73c575j0-a.oregon-postgres.render.com/cotizador_db_3jx4",
-        conn_max_age=600,
-    )
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join("/opt/render/project/src/data", "db.sqlite3"),
+    }
 }
 
 # --------------------------
