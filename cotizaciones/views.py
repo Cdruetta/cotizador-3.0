@@ -7,8 +7,10 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView, D
 from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.db.models import Q
-from django.db import connection
+from django.db import connection, OperationalError
+from django.conf import settings
 from django.contrib.auth.models import User
+import os
 
 from .models import Cliente, Proveedor, Producto, Cotizacion, CotizacionItem
 from .forms import (
@@ -20,17 +22,41 @@ from .pdf_utils import generar_pdf_cotizacion
 # -------------------------------
 # Función para obtener uso DB
 # -------------------------------
-def get_db_usage_percent(max_size_mb=100):
+def get_db_usage_percent():
     """
     Retorna el porcentaje y tamaño en MB de la DB actual.
-    max_size_mb: límite de la base de datos asignado por Render (ajustar según plan)
+    Detecta automáticamente el tipo de DB y límite según Render Free.
     """
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT pg_database_size(current_database());")
-        size_bytes = cursor.fetchone()[0]
-        size_mb = size_bytes / (1024 * 1024)
-        percent = (size_mb / max_size_mb) * 100
-        return round(percent, 2), round(size_mb, 2)
+    # Definir límite según tipo de DB y plan de Render
+    # SQLite local: 100 MB por defecto
+    # PostgreSQL Free Render: 100 MB
+    max_size_mb = 100
+    
+    engine = settings.DATABASES['default']['ENGINE']
+    
+    if 'sqlite3' in engine:
+        # SQLite
+        db_path = settings.DATABASES['default']['NAME']
+        if os.path.exists(db_path):
+            db_size_bytes = os.path.getsize(db_path)
+            db_mb = db_size_bytes / (1024 * 1024)
+            percent = (db_mb / max_size_mb) * 100
+            return round(percent, 2), round(db_mb, 2)
+        else:
+            return 0.0, 0.0
+    elif 'postgresql' in engine:
+        # PostgreSQL
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT pg_database_size(current_database());")
+                size_bytes = cursor.fetchone()[0]
+                size_mb = size_bytes / (1024 * 1024)
+                percent = (size_mb / max_size_mb) * 100
+                return round(percent, 2), round(size_mb, 2)
+        except OperationalError:
+            return 0.0, 0.0
+    else:
+        return 0.0, 0.0
 
 # -------------------------------
 # Vista principal (dashboard)
@@ -45,8 +71,8 @@ def dashboard(request):
         'total_productos': Producto.objects.filter(activo=True).count(),
         'total_cotizaciones': Cotizacion.objects.count(),
         'cotizaciones_recientes': Cotizacion.objects.select_related('cliente')[:5],
-        'db_percent': db_percent,  # porcentaje de uso DB
-        'db_mb': db_mb,            # tamaño actual en MB
+        'db_percent': db_percent,
+        'db_mb': db_mb,
     }
     return render(request, 'cotizaciones/dashboard.html', context)
 
@@ -185,22 +211,12 @@ class ProveedorDeleteView(LoginRequiredMixin, DeleteView):
 
 class ProveedorDetailView(LoginRequiredMixin, DetailView):
     model = Proveedor
-    template_name = 'templates/cotizaciones/proveedor/detail.html'
+    template_name = 'cotizaciones/proveedor/detail.html'
     context_object_name = 'proveedor'
 
 # -------------------------------
 # Vistas para Productos
 # -------------------------------
-class ProductoCreateView(CreateView):
-    model = Producto
-    form_class = ProductoForm
-    template_name = 'cotizaciones/producto/form.html' 
-    success_url = reverse_lazy('producto_list') 
-
-class ProductoListView(ListView):
-    model = Producto
-    template_name = 'cotizaciones/producto/list.html'
-    context_object_name = 'productos'
 class ProductoCreateView(LoginRequiredMixin, CreateView):
     model = Producto
     form_class = ProductoForm
@@ -210,6 +226,11 @@ class ProductoCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         messages.success(self.request, 'Producto creado exitosamente.')
         return super().form_valid(form)
+
+class ProductoListView(LoginRequiredMixin, ListView):
+    model = Producto
+    template_name = 'cotizaciones/producto/list.html'
+    context_object_name = 'productos'
 
 class ProductoUpdateView(LoginRequiredMixin, UpdateView):
     model = Producto
@@ -266,7 +287,6 @@ class CotizacionCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy('cotizacion_detail', kwargs={'pk': self.object.pk})
-
 
 class CotizacionUpdateView(LoginRequiredMixin, UpdateView):
     model = Cotizacion

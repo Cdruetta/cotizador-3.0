@@ -2,21 +2,39 @@ import os
 from pathlib import Path
 import dj_database_url
 from django.contrib.messages import constants as messages
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --------------------------
 # Configuración básica
 # --------------------------
+import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# SECRET_KEY
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-production')
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = ['*']
-"""DEBUG = os.environ.get('DEBUG', 'False') == 'True'  # Temporal para debug, cambiar a False en producción
-ALLOWED_HOSTS = ['cotizador-gcinsumos.onrender.com']  # Dominios permitidos"""
 
-# CSRF para Render
-CSRF_TRUSTED_ORIGINS = ["https://cotizador-gcinsumos.onrender.com"]
+# DEBUG: solo True mientras testeás, poner False en producción
+DEBUG = False
 
+# Dominios permitidos
+ALLOWED_HOSTS = ['gcsof.duckdns.org', '127.0.0.1']
+
+# CSRF para tu dominio con SSL
+CSRF_TRUSTED_ORIGINS = ["https://gcsof.duckdns.org"]
+
+# --------------------------
+# Base de datos (SQLite)
+# --------------------------
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 # --------------------------
 # Aplicaciones instaladas
 # --------------------------
@@ -73,15 +91,17 @@ WSGI_APPLICATION = 'proyecto.wsgi.application'
 # --------------------------
 # Base de datos
 # --------------------------
+
+load_dotenv()  # carga las variables del .env
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join("/opt/render/project/src/data", "db.sqlite3"),
+        "NAME": os.getenv("DJANGO_DB_PATH", os.path.join(BASE_DIR, "data", "db.sqlite3")),
     }
 }
-
 # --------------------------
 # Validadores de contraseña
 # --------------------------
