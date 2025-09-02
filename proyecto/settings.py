@@ -78,12 +78,13 @@ WSGI_APPLICATION = 'proyecto.wsgi.application'
 load_dotenv()  # carga las variables del .env
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "sqlite:///" + str(BASE_DIR / "db.sqlite3")  # fallback a SQLite
+)
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.getenv("DJANGO_DB_PATH", os.path.join(BASE_DIR, "data", "db.sqlite3")),
-    }
+    "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)
 }
 # --------------------------
 # Validadores de contraseña
