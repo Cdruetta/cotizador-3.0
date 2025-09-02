@@ -149,8 +149,17 @@ load_dotenv()
 # --------------------------
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-production')
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
-ALLOWED_HOSTS = ['*']  # En producción, reemplazar con tu dominio real
-CSRF_TRUSTED_ORIGINS = ["https://cotizador-gcinsumos.onrender.com"]
+ALLOWED_HOSTS = [
+    'gcsof.duckdns.org',
+    'tu-app.onrender.com',  # si estás usando el dominio de Render
+    'localhost',
+    '127.0.0.1'
+]  
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://cotizador-gcinsumos.onrender.com", 
+    "https://gcsof.duckdns.org"
+]
 
 # --------------------------
 # Aplicaciones instaladas
