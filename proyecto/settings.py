@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-import dj_database_url
 from django.contrib.messages import constants as messages
 from dotenv import load_dotenv
 
@@ -12,10 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-production')
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = ['*']
-"""DEBUG = os.environ.get('DEBUG', 'False') == 'True'  # Temporal para debug, cambiar a False en producción
-ALLOWED_HOSTS = ['cotizador-gcinsumos.onrender.com']  # Dominios permitidos"""
 
-# CSRF para Render
 CSRF_TRUSTED_ORIGINS = ["https://cotizador-gcinsumos.onrender.com"]
 
 # --------------------------
@@ -36,7 +32,7 @@ INSTALLED_APPS = [
 # --------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # para archivos estáticos
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -61,8 +57,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-
-                # 👇 Agregamos nuestro context processor
                 'cotizaciones.context_processors.info_extra',
             ],
         },
@@ -74,18 +68,16 @@ WSGI_APPLICATION = 'proyecto.wsgi.application'
 # --------------------------
 # Base de datos
 # --------------------------
+load_dotenv()
 
-load_dotenv()  # carga las variables del .env
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "sqlite:///" + str(BASE_DIR / "db.sqlite3")  # fallback a SQLite
-)
-
+RENDER_DATA_DIR = os.environ.get('RENDER_DATA_DIR', BASE_DIR)
 DATABASES = {
-    "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": Path(RENDER_DATA_DIR) / "db.sqlite3",
+    }
 }
+
 # --------------------------
 # Validadores de contraseña
 # --------------------------
