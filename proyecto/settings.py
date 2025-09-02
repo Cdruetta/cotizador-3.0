@@ -2,8 +2,13 @@ import os
 from pathlib import Path
 from django.contrib.messages import constants as messages
 from dotenv import load_dotenv
+import dj_database_url
 
+# --------------------------
+# Carga de variables de entorno
+# --------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv()
 
 # --------------------------
 # Configuración básica
@@ -11,7 +16,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-production')
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = ['*']
-
 CSRF_TRUSTED_ORIGINS = ["https://cotizador-gcinsumos.onrender.com"]
 
 # --------------------------
@@ -66,21 +70,15 @@ TEMPLATES = [
 WSGI_APPLICATION = 'proyecto.wsgi.application'
 
 # --------------------------
-# Base de datos
+# Base de datos (Railway + Render)
 # --------------------------
-load_dotenv() 
+DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    "postgresql://postgres:dEdklnigRETeZrpUrppxCWqNnGQnUqab@shuttle.proxy.rlwy.net:23030/ferrocarril"
+)
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get("POSTGRES_DB", "railway"),
-        "USER": os.environ.get("PGUSER", "postgres"),
-        "PASSWORD": os.environ.get("PGPASSWORD", "dEdklnigRETeZrpUrppxCWqNnGQnUqab"),
-        "HOST": os.environ.get("PGHOST", "postgres.railway.internal"),
-        "PORT": os.environ.get("PGPORT", "5432"),
-        "OPTIONS": {
-            "sslmode": "require", 
-        },
-    }
+    "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
 }
 
 # --------------------------
