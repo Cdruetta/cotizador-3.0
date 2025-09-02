@@ -68,13 +68,18 @@ WSGI_APPLICATION = 'proyecto.wsgi.application'
 # --------------------------
 # Base de datos
 # --------------------------
-load_dotenv()
-
-RENDER_DATA_DIR = os.environ.get('RENDER_DATA_DIR', BASE_DIR)
+load_dotenv() 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": Path(RENDER_DATA_DIR) / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("POSTGRES_DB", "railway"),
+        "USER": os.environ.get("PGUSER", "postgres"),
+        "PASSWORD": os.environ.get("PGPASSWORD", "dEdklnigRETeZrpUrppxCWqNnGQnUqab"),
+        "HOST": os.environ.get("PGHOST", "postgres.railway.internal"),
+        "PORT": os.environ.get("PGPORT", "5432"),
+        "OPTIONS": {
+            "sslmode": "require", 
+        },
     }
 }
 
