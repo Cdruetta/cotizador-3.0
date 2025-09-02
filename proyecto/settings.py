@@ -151,8 +151,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this-in-produc
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = [
     'gcsof.duckdns.org',
-    'tu-app.onrender.com',  # si estás usando el dominio de Render
-    'localhost',
+    'cotizador-gcinsumos.onrender.com',  
     '127.0.0.1'
 ]  
 
