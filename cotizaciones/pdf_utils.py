@@ -63,8 +63,8 @@ def generar_pdf_cotizacion(cotizacion):
     elements.append(company_table)
     elements.append(Spacer(1, 20))
 
-    # Título del documento
-    title = f"{cotizacion.get_tipo_documento_display().upper()} N° {cotizacion.numero}"
+    # Título del documento (el número ya incluye el tipo y el formato)
+    title = f"{cotizacion.numero}"
     elements.append(Paragraph(title, title_style))
 
     # Datos del cliente

@@ -52,6 +52,7 @@ urlpatterns = [
     path('cotizaciones/<int:pk>/editar/', views.CotizacionUpdateView.as_view(), name='cotizacion_update'),
     path('cotizaciones/<int:pk>/eliminar/', views.CotizacionDeleteView.as_view(), name='cotizacion_delete'),
     path('cotizaciones/<int:cotizacion_id>/pdf/', views.generar_pdf, name='generar_pdf'),
+    path('cotizaciones/<int:cotizacion_id>/completar/', views.marcar_cotizacion_completada, name='marcar_cotizacion_completada'),
     
     # API
     path('api/producto/<int:producto_id>/precio/', views.get_producto_precio, name='get_producto_precio'),

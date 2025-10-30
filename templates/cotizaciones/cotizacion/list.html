@@ -42,6 +42,7 @@
                             <th>Cliente</th>
                             <th>Tipo</th>
                             <th>Fecha</th>
+                            <th>Estado</th>
                             <th>Total</th>
                             <th>Usuario</th>
                             <th class="text-center">Acciones</th>
@@ -58,6 +59,13 @@
                                 </span>
                             </td>
                             <td>{{ cotizacion.fecha|date:"d/m/Y" }}</td>
+                            <td>
+                                {% if cotizacion.completada %}
+                                <span class="badge bg-success"><i class="bi bi-check2"></i> Completada</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Pendiente</span>
+                                {% endif %}
+                            </td>
                             <td class="fw-bold">${{ cotizacion.total|floatformat:2 }}</td>
                             <td>{{ cotizacion.usuario.get_full_name|default:cotizacion.usuario.username }}</td>
                             <td class="text-center">
@@ -65,6 +73,14 @@
                                     <a href="{% url 'cotizacion_detail' cotizacion.pk %}" class="btn btn-sm btn-outline-primary" title="Ver"><i class="bi bi-eye"></i></a>
                                     <a href="{% url 'generar_pdf' cotizacion.pk %}" class="btn btn-sm btn-outline-danger" title="PDF" target="_blank"><i class="bi bi-file-pdf"></i></a>
                                     <a href="{% url 'cotizacion_update' cotizacion.pk %}" class="btn btn-sm btn-outline-warning" title="Editar"><i class="bi bi-pencil"></i></a>
+                                    {% if not cotizacion.completada %}
+                                    <form method="post" action="{% url 'marcar_cotizacion_completada' cotizacion.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Marcar como completada">
+                                            <i class="bi bi-check2-circle"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
                                     <a href="{% url 'cotizacion_delete' cotizacion.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar"><i class="bi bi-trash"></i></a>
                                 </div>
                             </td>

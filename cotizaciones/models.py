@@ -108,6 +108,7 @@ class Cotizacion(models.Model):
         verbose_name="Total"
     )
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Usuario")
+    completada = models.BooleanField(default=False, verbose_name="Completada", db_column="completado")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -122,11 +123,19 @@ class Cotizacion(models.Model):
     def save(self, *args, **kwargs):
         """
         Genera el número de cotización automáticamente basado en el ID.
-        Ejemplo: COT-1, COT-2, etc.
+        Prefijo según tipo_documento: COT- (presupuesto) o REC- (recibo).
         """
         super().save(*args, **kwargs)  # primero guarda para tener el ID
+        # Formato solicitado: "Cotizacion N° <id>" o "Recibo N° <id>"
+        desired_prefix = 'Cotizacion N°' if self.tipo_documento == 'presupuesto' else 'Recibo N°'
+        desired_value = f"{desired_prefix} {self.id}"
+
         if not self.numero:
-            self.numero = f"COT-{self.id}"
+            self.numero = desired_value
+            super().save(update_fields=['numero'])
+        elif self.numero != desired_value:
+            # Si cambia el tipo_documento, mantén el formato correcto
+            self.numero = desired_value
             super().save(update_fields=['numero'])
 
     def calcular_total(self):

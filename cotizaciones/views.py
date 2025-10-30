@@ -387,3 +387,19 @@ def eliminar_item_cotizacion(request, item_id):
 def generar_pdf(request, cotizacion_id):
     cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
     return generar_pdf_cotizacion(cotizacion)
+
+# -------------------------------
+# Marcar cotización como completada
+# -------------------------------
+@login_required
+def marcar_cotizacion_completada(request, cotizacion_id):
+    if request.method != 'POST':
+        return redirect('cotizacion_detail', pk=cotizacion_id)
+    cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
+    if not cotizacion.completada:
+        cotizacion.completada = True
+        cotizacion.save(update_fields=['completada'])
+        messages.success(request, 'Cotización marcada como completada.')
+    else:
+        messages.info(request, 'La cotización ya estaba completada.')
+    return redirect('cotizacion_detail', pk=cotizacion_id)
