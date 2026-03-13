@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block title %}Usuarios · GCinsumos{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h4 class="fw-bold mb-0" style="color:#1e3c72"><i class="bi bi-people-fill me-2"></i>Usuarios</h4>
+    <small class="text-muted">Gestión de usuarios del sistema</small>
+  </div>
+  {% if user.is_staff %}
+  <a href="{% url 'user_create' %}" class="btn btn-primary btn-sm">
+    <i class="bi bi-person-plus me-1"></i>Nuevo Usuario
+  </a>
+  {% endif %}
+</div>
+
+<!-- Filtro -->
+<div class="filter-card">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-md-8">
+      <input type="text" name="search" class="form-control form-control-sm"
+             placeholder="Buscar por nombre, usuario o email..."
+             value="{{ request.GET.search }}">
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary btn-sm w-100">
+        <i class="bi bi-search me-1"></i>Buscar
+      </button>
+    </div>
+    <div class="col-md-2">
+      <a href="{% url 'user_list' %}" class="btn btn-outline-secondary btn-sm w-100">
+        <i class="bi bi-x-circle me-1"></i>Limpiar
+      </a>
+    </div>
+  </form>
+</div>
+
+<!-- Tabla -->
+<div class="table-card">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Usuario</th>
+        <th>Nombre completo</th>
+        <th>Email</th>
+        <th>Rol</th>
+        <th>Estado</th>
+        <th class="text-end">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in usuarios %}
+      <tr>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1e3c72,#2a5298);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;font-weight:700">
+              {{ u.username|first|upper }}
+            </div>
+            <span class="fw-semibold small">{{ u.username }}</span>
+          </div>
+        </td>
+        <td class="small">{{ u.get_full_name|default:"—" }}</td>
+        <td class="small text-muted">{{ u.email|default:"—" }}</td>
+        <td>
+          {% if u.is_superuser %}
+            <span class="badge" style="background:#fde8ff;color:#7b1fa2">Superusuario</span>
+          {% elif u.is_staff %}
+            <span class="badge" style="background:#e8f4fd;color:#1a6fb3">Staff</span>
+          {% else %}
+            <span class="badge" style="background:#f0f4f8;color:#666">Usuario</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if u.is_active %}
+            <span class="badge badge-completada">Activo</span>
+          {% else %}
+            <span class="badge badge-pendiente">Inactivo</span>
+          {% endif %}
+        </td>
+        <td class="text-end">
+          {% if user.is_staff %}
+          <a href="{% url 'admin:auth_user_change' u.pk %}" target="_blank"
+             class="btn btn-outline-secondary btn-sm" title="Editar en admin">
+            <i class="bi bi-pencil"></i>
+          </a>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="text-center text-muted py-4">
+          <i class="bi bi-people" style="font-size:2rem;opacity:.3"></i>
+          <p class="mt-2 mb-0">No se encontraron usuarios</p>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Paginación -->
+  {% if is_paginated %}
+  <div class="d-flex justify-content-center py-3">
+    <nav>
+      <ul class="pagination pagination-sm mb-0">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+            <i class="bi bi-chevron-left"></i>
+          </a>
+        </li>
+        {% endif %}
+        <li class="page-item active">
+          <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        </li>
+        {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">
+            <i class="bi bi-chevron-right"></i>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+</div>
+
+<p class="text-muted small mt-3">
+  <i class="bi bi-info-circle me-1"></i>
+  Para editar roles y permisos usá el <a href="{% url 'admin:auth_user_changelist' %}" target="_blank">Panel Admin</a>.
+</p>
+{% endblock %}

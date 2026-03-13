@@ -1,101 +1,113 @@
 {% extends 'base.html' %}
-
 {% block title %}Productos{% endblock %}
 
 {% block content %}
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="bi bi-box"></i> Productos</h2>
-            <a href="{% url 'producto_create' %}" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Nuevo Producto
-            </a>
-        </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold mb-0" style="color:#1e3c72"><i class="bi bi-box-seam me-2"></i>Productos</h4>
+    <small class="text-muted">Catálogo de productos activos</small>
+  </div>
+  <a href="{% url 'producto_create' %}" class="btn btn-primary btn-sm px-3">
+    <i class="bi bi-plus-circle me-1"></i> Nuevo
+  </a>
+</div>
 
-        <!-- Search -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <form method="get" class="row g-3">
-                    <div class="col-md-10">
-                        <input type="text" name="search" class="form-control" 
-                               placeholder="Buscar por nombre, descripción o proveedor..." 
-                               value="{{ request.GET.search }}">
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-outline-primary w-100">
-                            <i class="bi bi-search"></i> Buscar
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Productos Table -->
-        <div class="card">
-            <div class="card-body">
-                {% if productos %}
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Producto</th>
-                                <th>Proveedor</th>
-                                <th>Precio</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for producto in productos %}
-                            <tr>
-                                <td>
-                                    <strong>{{ producto.nombre }}</strong>
-                                    {% if producto.descripcion %}
-                                    <br><small class="text-muted">{{ producto.descripcion|truncatechars:50 }}</small>
-                                    {% endif %}
-                                </td>
-                                <td>{{ producto.proveedor.nombre }}</td>
-                                <td><strong>${{ producto.precio_unitario|floatformat:2 }}</strong></td>
-                                <td>
-                                    {% if producto.activo %}
-                                        <span class="badge bg-success">Activo</span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">Inactivo</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{% url 'producto_detail' producto.pk %}" 
-                                           class="btn btn-sm btn-outline-info" title="Ver">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a href="{% url 'producto_update' producto.pk %}" 
-                                           class="btn btn-sm btn-outline-warning" title="Editar">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a href="{% url 'producto_delete' producto.pk %}" 
-                                           class="btn btn-sm btn-outline-danger" title="Eliminar">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="text-center py-5">
-                    <i class="bi bi-box" style="font-size: 4rem; color: #ccc;"></i>
-                    <h4 class="mt-3">No hay productos registrados</h4>
-                    <p class="text-muted">Comienza agregando tu primer producto</p>
-                    <a href="{% url 'producto_create' %}" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> Crear Producto
-                    </a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
+<!-- Filtros -->
+<div class="filter-card">
+  <form method="get">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label small fw-semibold mb-1">Buscar</label>
+        {{ filter_form.search }}
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold mb-1">Proveedor</label>
+        {{ filter_form.proveedor }}
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold mb-1">Estado</label>
+        {{ filter_form.activo }}
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold mb-1">Precio máx.</label>
+        {{ filter_form.precio_max }}
+      </div>
+      <div class="col-md-1 d-grid">
+        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel"></i></button>
+      </div>
     </div>
+    {% if request.GET %}
+    <div class="mt-2">
+      <a href="{% url 'producto_list' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-x-circle me-1"></i>Limpiar
+      </a>
+    </div>
+    {% endif %}
+  </form>
+</div>
+
+<div class="card table-card">
+  {% if productos %}
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead>
+        <tr><th>Nombre</th><th>Proveedor</th><th>Precio</th><th>Stock</th><th>Estado</th><th class="text-center">Acciones</th></tr>
+      </thead>
+      <tbody>
+        {% for p in productos %}
+        <tr>
+          <td class="fw-semibold">{{ p.nombre }}</td>
+          <td class="text-muted small">{{ p.proveedor.nombre }}</td>
+          <td class="fw-bold">${{ p.precio_unitario|floatformat:2 }}</td>
+          <td>
+            <span class="badge {% if p.stock == 0 %}bg-danger{% elif p.stock < 5 %}bg-warning text-dark{% else %}bg-light text-dark{% endif %} rounded-pill">
+              {{ p.stock }}
+            </span>
+          </td>
+          <td>
+            {% if p.activo %}
+            <span class="badge rounded-pill" style="background:#e8fdf0;color:#1a7f4b">Activo</span>
+            {% else %}
+            <span class="badge rounded-pill bg-secondary">Inactivo</span>
+            {% endif %}
+          </td>
+          <td class="text-center">
+            <div class="btn-group btn-group-sm">
+              <a href="{% url 'producto_detail' p.pk %}" class="btn btn-outline-primary" title="Ver"><i class="bi bi-eye"></i></a>
+              <a href="{% url 'producto_update' p.pk %}" class="btn btn-outline-warning" title="Editar"><i class="bi bi-pencil"></i></a>
+              <a href="{% url 'producto_delete' p.pk %}" class="btn btn-outline-danger" title="Eliminar"><i class="bi bi-trash"></i></a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+  <div class="card-footer bg-white">
+    <nav>
+      <ul class="pagination pagination-sm justify-content-center mb-0">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">‹</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">›</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-box-seam" style="font-size:4rem;color:#c5d3e8"></i>
+    <h5 class="mt-3 text-muted">No hay productos</h5>
+    <a href="{% url 'producto_create' %}" class="btn btn-primary mt-2">
+      <i class="bi bi-plus-circle me-1"></i> Cargar primer producto
+    </a>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

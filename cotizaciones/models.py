@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User
 from django.urls import reverse
 from decimal import Decimal
@@ -13,7 +13,7 @@ class Cliente(models.Model):
     email = models.EmailField(blank=True, null=True, verbose_name="Email")
     telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
     direccion = models.TextField(blank=True, null=True, verbose_name="Dirección")
-    localidad = models.CharField(max_length=100, blank=True, null=True, verbose_name="Localidad")  # <-- agregado
+    localidad = models.CharField(max_length=100, blank=True, null=True, verbose_name="Localidad")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -53,7 +53,6 @@ class Proveedor(models.Model):
 class Producto(models.Model):
     nombre = models.CharField(max_length=255, verbose_name="Nombre")
     descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción")
-    
     precio_unitario = models.DecimalField(
         max_digits=10,
         decimal_places=2,
@@ -74,6 +73,7 @@ class Producto(models.Model):
 
     def __str__(self):
         return self.nombre
+
 
 # ==========================
 # COTIZACIONES
@@ -100,6 +100,28 @@ class Cotizacion(models.Model):
     )
     fecha = models.DateField(auto_now_add=True, verbose_name="Fecha")
     observaciones = models.TextField(blank=True, verbose_name="Observaciones")
+
+    # --- DESCUENTO (nuevo) ---
+    descuento_porcentaje = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        validators=[MinValueValidator(Decimal('0.00')), MaxValueValidator(Decimal('100.00'))],
+        verbose_name="Descuento (%)"
+    )
+
+    subtotal_bruto = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        verbose_name="Subtotal (sin descuento)"
+    )
+    monto_descuento = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0,
+        verbose_name="Monto Descuento"
+    )
     total = models.DecimalField(
         max_digits=12,
         decimal_places=2,
@@ -109,6 +131,7 @@ class Cotizacion(models.Model):
     )
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Usuario")
     completada = models.BooleanField(default=False, verbose_name="Completada", db_column="completado")
+    email_enviado = models.BooleanField(default=False, verbose_name="Email enviado")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -121,28 +144,22 @@ class Cotizacion(models.Model):
         return f"{self.numero} - {self.cliente.nombre}"
 
     def save(self, *args, **kwargs):
-        """
-        Genera el número de cotización automáticamente basado en el ID.
-        Prefijo según tipo_documento: COT- (presupuesto) o REC- (recibo).
-        """
-        super().save(*args, **kwargs)  # primero guarda para tener el ID
-        # Formato solicitado: "Cotizacion N° <id>" o "Recibo N° <id>"
+        super().save(*args, **kwargs)
         desired_prefix = 'Cotizacion N°' if self.tipo_documento == 'presupuesto' else 'Recibo N°'
         desired_value = f"{desired_prefix} {self.id}"
-
-        if not self.numero:
-            self.numero = desired_value
-            super().save(update_fields=['numero'])
-        elif self.numero != desired_value:
-            # Si cambia el tipo_documento, mantén el formato correcto
+        if not self.numero or self.numero != desired_value:
             self.numero = desired_value
             super().save(update_fields=['numero'])
 
     def calcular_total(self):
-        total = sum(item.subtotal for item in self.items.all())
-        self.total = total
-        self.save(update_fields=['total'])
-        return total
+        """Recalcula subtotal, descuento y total."""
+        subtotal = sum(item.subtotal for item in self.items.all())
+        self.subtotal_bruto = subtotal
+        descuento = (subtotal * self.descuento_porcentaje / Decimal('100')).quantize(Decimal('0.01'))
+        self.monto_descuento = descuento
+        self.total = subtotal - descuento
+        self.save(update_fields=['subtotal_bruto', 'monto_descuento', 'total'])
+        return self.total
 
     def get_absolute_url(self):
         return reverse("cotizacion_detail", kwargs={"pk": self.pk})
@@ -184,3 +201,28 @@ class CotizacionItem(models.Model):
         self.subtotal = self.cantidad * self.precio_unitario
         super().save(*args, **kwargs)
         self.cotizacion.calcular_total()
+
+# ==========================
+# CONFIGURACION DEL SISTEMA
+# ==========================
+class Configuracion(models.Model):
+    ciudad_nombre = models.CharField(max_length=100, default='Río Cuarto', verbose_name='Ciudad')
+    latitud = models.DecimalField(max_digits=9, decimal_places=6, default=-33.130000, verbose_name='Latitud')
+    longitud = models.DecimalField(max_digits=9, decimal_places=6, default=-64.350000, verbose_name='Longitud')
+    empresa_nombre = models.CharField(max_length=100, default='GCinsumos', verbose_name='Nombre empresa')
+    empresa_direccion = models.CharField(max_length=200, default='', verbose_name='Dirección')
+    empresa_telefono = models.CharField(max_length=30, default='', verbose_name='Teléfono')
+    empresa_email = models.EmailField(blank=True, default='', verbose_name='Email empresa')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Configuración'
+        verbose_name_plural = 'Configuración'
+
+    def __str__(self):
+        return f'Configuración del sistema ({self.ciudad_nombre})'
+
+    @classmethod
+    def get(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj

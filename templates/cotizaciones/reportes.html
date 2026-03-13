@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% block title %}Reportes · GCinsumos{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold mb-0" style="color:#1e3c72"><i class="bi bi-bar-chart-line me-2"></i>Reportes</h4>
+    <small class="text-muted">Estadísticas y análisis del negocio</small>
+  </div>
+</div>
+
+<!-- KPIs -->
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card stat-card" style="background:linear-gradient(135deg,#1e3c72,#2a5298);color:#fff">
+      <div class="card-body">
+        <div class="small opacity-75 mb-1">Total Facturado (completadas)</div>
+        <div class="fs-2 fw-bold">${{ total_facturado|floatformat:0 }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card stat-card" style="background:linear-gradient(135deg,#11998e,#38ef7d);color:#fff">
+      <div class="card-body">
+        <div class="small opacity-75 mb-1">Monto total cotizado</div>
+        <div class="fs-2 fw-bold">${{ promedio_cotizacion|floatformat:0 }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <!-- Ventas por mes -->
+  <div class="col-md-8">
+    <div class="card stat-card h-100">
+      <div class="card-header bg-white fw-semibold small py-2 px-3">
+        <i class="bi bi-graph-up me-2 text-primary"></i>Ventas mensuales (últimos 6 meses)
+      </div>
+      <div class="card-body">
+        <canvas id="chartVentas" height="110"></canvas>
+      </div>
+    </div>
+  </div>
+  <!-- Estado -->
+  <div class="col-md-4">
+    <div class="card stat-card h-100">
+      <div class="card-header bg-white fw-semibold small py-2 px-3">
+        <i class="bi bi-pie-chart me-2 text-success"></i>Estado de cotizaciones
+      </div>
+      <div class="card-body d-flex align-items-center justify-content-center">
+        <canvas id="chartEstado" height="160"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- Top clientes -->
+  <div class="col-md-6">
+    <div class="card stat-card">
+      <div class="card-header bg-white fw-semibold small py-2 px-3">
+        <i class="bi bi-trophy me-2 text-warning"></i>Top 5 Clientes
+      </div>
+      <div class="card-body">
+        <canvas id="chartClientes" height="160"></canvas>
+      </div>
+    </div>
+  </div>
+  <!-- Top productos -->
+  <div class="col-md-6">
+    <div class="card stat-card">
+      <div class="card-header bg-white fw-semibold small py-2 px-3">
+        <i class="bi bi-box-seam me-2 text-info"></i>Top 5 Productos más cotizados
+      </div>
+      <div class="card-body">
+        <canvas id="chartProductos" height="160"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const ventasData   = {{ ventas_mes_json|safe }};
+const clientesData = {{ top_clientes_json|safe }};
+const productosData= {{ top_productos_json|safe }};
+const estadoData   = {{ estado_json|safe }};
+
+const COLORS = ['#1e3c72','#2a5298','#4f8ef7','#7fb3f5','#b3d1fb'];
+const GREEN  = '#11998e';
+const ORANGE = '#f7941d';
+
+// Ventas por mes
+new Chart(document.getElementById('chartVentas'), {
+  type: 'bar',
+  data: {
+    labels: ventasData.map(v => v.mes),
+    datasets: [{
+      label: 'Total ($)',
+      data: ventasData.map(v => v.total),
+      backgroundColor: COLORS[1],
+      borderRadius: 6,
+    }, {
+      label: 'Cantidad',
+      data: ventasData.map(v => v.cantidad),
+      type: 'line',
+      borderColor: ORANGE,
+      backgroundColor: 'transparent',
+      tension: .4,
+      yAxisID: 'y2',
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { labels: { font: { size: 11 } } } },
+    scales: {
+      y:  { beginAtZero: true, ticks: { font: { size: 10 } } },
+      y2: { position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, ticks: { font: { size: 10 } } }
+    }
+  }
+});
+
+// Estado
+new Chart(document.getElementById('chartEstado'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Completadas', 'Pendientes'],
+    datasets: [{ data: [estadoData.completadas, estadoData.pendientes],
+      backgroundColor: [GREEN, ORANGE], borderWidth: 0 }]
+  },
+  options: {
+    responsive: true,
+    cutout: '65%',
+    plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } }
+  }
+});
+
+// Top clientes
+new Chart(document.getElementById('chartClientes'), {
+  type: 'bar',
+  data: {
+    labels: clientesData.map(c => c.nombre.length > 18 ? c.nombre.slice(0,18)+'…' : c.nombre),
+    datasets: [{
+      label: 'Total facturado ($)',
+      data: clientesData.map(c => c.total),
+      backgroundColor: COLORS,
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: { x: { beginAtZero: true, ticks: { font: { size: 10 } } } }
+  }
+});
+
+// Top productos
+new Chart(document.getElementById('chartProductos'), {
+  type: 'bar',
+  data: {
+    labels: productosData.map(p => p.nombre.length > 18 ? p.nombre.slice(0,18)+'…' : p.nombre),
+    datasets: [{
+      label: 'Veces cotizado',
+      data: productosData.map(p => p.veces),
+      backgroundColor: COLORS.map((c,i) => i % 2 === 0 ? GREEN : '#7fb3f5'),
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: { x: { beginAtZero: true, ticks: { font: { size: 10 } } } }
+  }
+});
+</script>
+{% endblock %}

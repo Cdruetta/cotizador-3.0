@@ -1,120 +1,133 @@
 {% extends 'base.html' %}
-{% load static %}
-
 {% block title %}Cotizaciones{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-5">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary"><i class="bi bi-file-text me-2"></i> Cotizaciones</h2>
-        <a href="{% url 'cotizacion_create' %}" class="btn btn-primary shadow-sm">
-            <i class="bi bi-plus-circle me-1"></i> Nueva Cotización
-        </a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold mb-0" style="color:#1e3c72"><i class="bi bi-file-text me-2"></i>Cotizaciones</h4>
+    <small class="text-muted">Administrá tus presupuestos y recibos</small>
+  </div>
+  <a href="{% url 'cotizacion_create' %}" class="btn btn-primary btn-sm px-3">
+    <i class="bi bi-plus-circle me-1"></i> Nueva
+  </a>
+</div>
+
+<!-- Filtros -->
+<div class="filter-card">
+  <form method="get" id="filterForm">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold mb-1">Buscar</label>
+        {{ filter_form.search }}
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold mb-1">Tipo</label>
+        {{ filter_form.tipo_documento }}
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold mb-1">Estado</label>
+        {{ filter_form.estado }}
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold mb-1">Desde</label>
+        {{ filter_form.fecha_desde }}
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold mb-1">Hasta</label>
+        {{ filter_form.fecha_hasta }}
+      </div>
+      <div class="col-md-1 d-grid">
+        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel"></i></button>
+      </div>
     </div>
-
-    <!-- Search Card -->
-    <div class="card mb-4 shadow-sm border-0">
-        <div class="card-body">
-            <form method="get" class="row g-3 align-items-center">
-                <div class="col-md-10 position-relative">
-                    <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-                    <input type="text" name="search" class="form-control ps-5" placeholder="Buscar por número o cliente..." value="{{ request.GET.search }}">
-                </div>
-                <div class="col-md-2 d-grid">
-                    <button type="submit" class="btn btn-primary">
-                        Buscar
-                    </button>
-                </div>
-            </form>
-        </div>
+    {% if request.GET %}
+    <div class="mt-2">
+      <a href="{% url 'cotizacion_list' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-x-circle me-1"></i>Limpiar filtros
+      </a>
     </div>
+    {% endif %}
+  </form>
+</div>
 
-    <!-- Cotizaciones Table -->
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            {% if cotizaciones %}
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Número</th>
-                            <th>Cliente</th>
-                            <th>Tipo</th>
-                            <th>Fecha</th>
-                            <th>Estado</th>
-                            <th>Total</th>
-                            <th>Usuario</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for cotizacion in cotizaciones %}
-                        <tr>
-                            <td class="fw-semibold">{{ cotizacion.numero }}</td>
-                            <td>{{ cotizacion.cliente.nombre }}</td>
-                            <td>
-                                <span class="badge text-dark" style="background-color: {% if cotizacion.tipo_documento == 'presupuesto' %}#ffc107{% else %}#198754{% endif %};">
-                                    {{ cotizacion.get_tipo_documento_display }}
-                                </span>
-                            </td>
-                            <td>{{ cotizacion.fecha|date:"d/m/Y" }}</td>
-                            <td>
-                                {% if cotizacion.completada %}
-                                <span class="badge bg-success"><i class="bi bi-check2"></i> Completada</span>
-                                {% else %}
-                                <span class="badge bg-secondary">Pendiente</span>
-                                {% endif %}
-                            </td>
-                            <td class="fw-bold">${{ cotizacion.total|floatformat:2 }}</td>
-                            <td>{{ cotizacion.usuario.get_full_name|default:cotizacion.usuario.username }}</td>
-                            <td class="text-center">
-                                <div class="btn-group" role="group">
-                                    <a href="{% url 'cotizacion_detail' cotizacion.pk %}" class="btn btn-sm btn-outline-primary" title="Ver"><i class="bi bi-eye"></i></a>
-                                    <a href="{% url 'generar_pdf' cotizacion.pk %}" class="btn btn-sm btn-outline-danger" title="PDF" target="_blank"><i class="bi bi-file-pdf"></i></a>
-                                    <a href="{% url 'cotizacion_update' cotizacion.pk %}" class="btn btn-sm btn-outline-warning" title="Editar"><i class="bi bi-pencil"></i></a>
-                                    {% if not cotizacion.completada %}
-                                    <form method="post" action="{% url 'marcar_cotizacion_completada' cotizacion.pk %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Marcar como completada">
-                                            <i class="bi bi-check2-circle"></i>
-                                        </button>
-                                    </form>
-                                    {% endif %}
-                                    <a href="{% url 'cotizacion_delete' cotizacion.pk %}" class="btn btn-sm btn-outline-danger" title="Eliminar"><i class="bi bi-trash"></i></a>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            {% if is_paginated %}
-            <nav aria-label="Page navigation" class="my-3">
-                <ul class="pagination justify-content-center">
-                    {% if page_obj.has_previous %}
-                    <li class="page-item"><a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Primera</a></li>
-                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Anterior</a></li>
-                    {% endif %}
-                    <li class="page-item active"><span class="page-link">{{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
-                    {% if page_obj.has_next %}
-                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Siguiente</a></li>
-                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">Última</a></li>
-                    {% endif %}
-                </ul>
-            </nav>
-            {% endif %}
+<div class="card table-card">
+  {% if cotizaciones %}
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th>Número</th><th>Cliente</th><th>Tipo</th><th>Fecha</th>
+          <th>Descuento</th><th>Total</th><th>Estado</th><th>Usuario</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in cotizaciones %}
+        <tr>
+          <td class="fw-semibold small">{{ c.numero }}</td>
+          <td>{{ c.cliente.nombre }}</td>
+          <td><span class="badge rounded-pill badge-{{ c.tipo_documento }}">{{ c.get_tipo_documento_display }}</span></td>
+          <td class="small text-muted">{{ c.fecha|date:"d/m/Y" }}</td>
+          <td class="small">
+            {% if c.descuento_porcentaje %}
+            <span class="text-danger">{{ c.descuento_porcentaje }}%</span>
+            {% else %}-{% endif %}
+          </td>
+          <td class="fw-bold">${{ c.total|floatformat:2 }}</td>
+          <td>
+            {% if c.completada %}
+            <span class="badge rounded-pill badge-completada"><i class="bi bi-check2"></i> Completada</span>
             {% else %}
-            <div class="text-center py-5">
-                <i class="bi bi-file-text" style="font-size: 5rem; color: #0d6efd;"></i>
-                <h4 class="mt-3 fw-bold">No hay cotizaciones registradas</h4>
-                <p class="text-muted">Crea tu primera cotización para comenzar</p>
-                <a href="{% url 'cotizacion_create' %}" class="btn btn-primary btn-lg mt-2"><i class="bi bi-plus-circle me-1"></i> Crear Cotización</a>
-            </div>
+            <span class="badge rounded-pill badge-pendiente">Pendiente</span>
             {% endif %}
-        </div>
-    </div>
+          </td>
+          <td class="small text-muted">{{ c.usuario.get_full_name|default:c.usuario.username }}</td>
+          <td class="text-center">
+            <div class="btn-group btn-group-sm">
+              <a href="{% url 'cotizacion_detail' c.pk %}" class="btn btn-outline-primary" title="Ver"><i class="bi bi-eye"></i></a>
+              <a href="{% url 'generar_pdf' c.pk %}" class="btn btn-outline-danger" title="PDF" target="_blank"><i class="bi bi-file-pdf"></i></a>
+              <a href="{% url 'cotizacion_update' c.pk %}" class="btn btn-outline-warning" title="Editar"><i class="bi bi-pencil"></i></a>
+              {% if not c.completada %}
+              <form method="post" action="{% url 'marcar_cotizacion_completada' c.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-success btn-sm" title="Completar"><i class="bi bi-check2-circle"></i></button>
+              </form>
+              {% endif %}
+              <a href="{% url 'cotizacion_delete' c.pk %}" class="btn btn-outline-secondary" title="Eliminar"><i class="bi bi-trash"></i></a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if is_paginated %}
+  <div class="card-footer bg-white">
+    <nav>
+      <ul class="pagination pagination-sm justify-content-center mb-0">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page=1&{{ request.GET.urlencode }}">«</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">‹</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">›</a></li>
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&{{ request.GET.urlencode }}">»</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-file-text" style="font-size:4rem;color:#c5d3e8"></i>
+    <h5 class="mt-3 text-muted">No hay cotizaciones</h5>
+    <a href="{% url 'cotizacion_create' %}" class="btn btn-primary mt-2">
+      <i class="bi bi-plus-circle me-1"></i> Crear primera cotización
+    </a>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}
