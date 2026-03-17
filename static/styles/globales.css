@@ -1,5 +1,33 @@
 /* GCinsumos - Estilos globales */
 
+/* Bordes de 5px para todos los inputs (EXCEPTO login/register) */
+body:not(.auth-page) input, 
+body:not(.auth-page) textarea, 
+body:not(.auth-page) .form-control, 
+body:not(.auth-page) .form-select, 
+body:not(.auth-page) .form-control-sm {
+    border: 5px solid #e2e8f0 !important;
+    border-radius: 4px !important;
+    padding: 8px 12px !important;
+    height: auto !important;
+}
+
+body:not(.auth-page) input:focus, 
+body:not(.auth-page) textarea:focus, 
+body:not(.auth-page) .form-control:focus, 
+body:not(.auth-page) .form-select:focus {
+    border-color: #4f8ef7 !important;
+    box-shadow: 0 0 0 3px rgba(79,142,247,.15) !important;
+}
+
+/* Ejemplos/placeholders centrados y en negrita (EXCEPTO auth) */
+body:not(.auth-page) input::placeholder, 
+body:not(.auth-page) textarea::placeholder {
+    text-align: center !important;
+    font-weight: 700 !important;
+    opacity: 0.8 !important;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -10,7 +38,8 @@
 #sidebar ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.3); }
 
 /* Form controls */
-.form-control:focus, .form-select:focus {
+body:not(.auth-page) .form-control:focus, 
+body:not(.auth-page) .form-select:focus {
   border-color: #4f8ef7;
   box-shadow: 0 0 0 3px rgba(79,142,247,.15);
 }
