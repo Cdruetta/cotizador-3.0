@@ -1,90 +1,426 @@
-{% extends 'base.html' %}
-{% load form_tags %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
 
-{% block title %}Registrarse{% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta · GCinsumos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            color: #fff;
+        }
 
-{% block content %}
-<div class="container">
-    <div class="row justify-content-center align-items-center" style="min-height: 90vh;">
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow login-card">
-                <div class="card-header bg-success text-white text-center">
-                    <i class="bi bi-person-plus me-2"></i> Crear Cuenta
-                </div>
-                <div class="card-body">
-                    <form method="post" novalidate>
-                        {% csrf_token %}
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: radial-gradient(ellipse at top, #1a2a52 0%, #0d1626 100%);
+        }
 
-                        <!-- Usuario -->
-                        <div class="mb-3">
-                            <label for="{{ form.username.id_for_label }}" class="form-label">Usuario</label>
-                            {{ form.username|add_class:"form-control" }}
-                            {% for error in form.username.errors %}
-                                <div class="invalid-feedback d-block">{{ error }}</div>
-                            {% endfor %}
-                        </div>
+        .container {
+            position: relative;
+            width: 800px;
+            height: 560px;
+            border: 2px solid #4f8ef7;
+            box-shadow: 0 0 30px rgba(79, 142, 247, 0.4);
+            overflow: hidden;
+        }
 
-                        <!-- Nombre y Apellido -->
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.first_name.id_for_label }}" class="form-label">Nombre</label>
-                                {{ form.first_name|add_class:"form-control" }}
-                                {% for error in form.first_name.errors %}
-                                    <div class="invalid-feedback d-block">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="{{ form.last_name.id_for_label }}" class="form-label">Apellido</label>
-                                {{ form.last_name|add_class:"form-control" }}
-                                {% for error in form.last_name.errors %}
-                                    <div class="invalid-feedback d-block">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                        </div>
+        /* ── Form Boxes ─────────────────────────── */
+        .container .form-box {
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+        }
 
-                        <!-- Email -->
-                        <div class="mb-3">
-                            <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
-                            {{ form.email|add_class:"form-control" }}
-                            {% for error in form.email.errors %}
-                                <div class="invalid-feedback d-block">{{ error }}</div>
-                            {% endfor %}
-                        </div>
+        .form-box.Login {
+            left: 0;
+            padding: 0 45px;
+        }
 
-                        <!-- Contraseña -->
-                        <div class="mb-3">
-                            <label for="{{ form.password1.id_for_label }}" class="form-label">Contraseña</label>
-                            {{ form.password1|add_class:"form-control" }}
-                            {% for error in form.password1.errors %}
-                                <div class="invalid-feedback d-block">{{ error }}</div>
-                            {% endfor %}
-                        </div>
+        .form-box.Login .animation {
+            transform: translateX(-120%);
+            opacity: 0;
+            transition: .7s;
+        }
 
-                        <!-- Confirmar Contraseña -->
-                        <div class="mb-3">
-                            <label for="{{ form.password2.id_for_label }}" class="form-label">Confirmar Contraseña</label>
-                            {{ form.password2|add_class:"form-control" }}
-                            {% for error in form.password2.errors %}
-                                <div class="invalid-feedback d-block">{{ error }}</div>
-                            {% endfor %}
-                        </div>
+        .form-box.Register {
+            right: 0;
+            padding: 0 40px;
+        }
 
-                        <!-- Botón -->
-                        <div class="d-grid mb-2">
-                            <button type="submit" class="btn btn-success">
-                                <i class="bi bi-person-plus me-1"></i> Registrarse
-                            </button>
-                        </div>
-                    </form>
+        .form-box.Register .animation {
+            transform: translateX(0%);
+            transition: .7s ease;
+            opacity: 1;
+            filter: blur(0px);
+            transition-delay: calc(.1s * var(--li));
+        }
 
-                    <!-- Texto de login -->
-                    <div class="text-center">
-                        <span>¿Ya tienes cuenta?</span>
-                        <a href="{% url 'login' %}">Inicia sesión aquí</a>
+        /* ── Inputs ─────────────────────────────── */
+        .form-box h2 {
+            font-size: 26px;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .form-box .input-box {
+            position: relative;
+            width: 100%;
+            height: 44px;
+            margin-top: 16px;
+        }
+
+        .input-box input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: #fff;
+            font-weight: 500;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+            padding-right: 26px;
+            transition: .5s;
+        }
+
+        .input-box input:focus,
+        .input-box input:valid {
+            border-bottom: 2px solid #4f8ef7;
+        }
+
+        .input-box label {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            transition: .5s;
+            pointer-events: none;
+        }
+
+        .input-box input:focus~label,
+        .input-box input:valid~label {
+            top: -4px;
+            font-size: 11px;
+            color: #4f8ef7;
+        }
+
+        .input-box box-icon {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            font-size: 17px;
+            transform: translateY(-50%);
+        }
+
+        /* ── Button ─────────────────────────────── */
+        .btn {
+            position: relative;
+            width: 100%;
+            height: 42px;
+            background: transparent;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            border: 2px solid #4f8ef7;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn::before {
+            content: "";
+            position: absolute;
+            height: 300%;
+            width: 100%;
+            background: linear-gradient(#131d35, #2a5298, #131d35, #4f8ef7);
+            top: -100%;
+            left: 0;
+            z-index: -1;
+            transition: .5s;
+        }
+
+        .btn:hover::before {
+            top: 0;
+        }
+
+        /* ── Links ──────────────────────────────── */
+        .regi-link {
+            font-size: 13px;
+            text-align: center;
+            margin: 12px 0 4px;
+        }
+
+        .regi-link a {
+            text-decoration: none;
+            color: #4f8ef7;
+            font-weight: 600;
+        }
+
+        .regi-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* ── Errors ─────────────────────────────── */
+        .field-error {
+            font-size: 11px;
+            color: #93c5fd;
+            margin-top: 2px;
+            display: block;
+        }
+
+        .general-error {
+            background: rgba(79, 142, 247, 0.12);
+            border: 1px solid rgba(79, 142, 247, 0.4);
+            border-radius: 8px;
+            padding: 7px 12px;
+            font-size: 12px;
+            color: #93c5fd;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* ── Name row ───────────────────────────── */
+        .name-row {
+            display: flex;
+            gap: 14px;
+        }
+
+        .name-row .input-box {
+            flex: 1;
+        }
+
+        /* ── Info Content ───────────────────────── */
+        .info-content {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .info-content.Login {
+            right: 0;
+            text-align: right;
+            padding: 0 45px 60px 120px;
+            transform: translateX(120%);
+            opacity: 0;
+        }
+
+        .info-content.Register {
+            left: 0;
+            text-align: left;
+            padding: 0 120px 60px 38px;
+        }
+
+        .info-content h2 {
+            text-transform: uppercase;
+            font-size: 32px;
+            line-height: 1.3;
+            font-weight: 800;
+        }
+
+        .info-content p {
+            font-size: 14px;
+            margin-top: 10px;
+            opacity: 0.85;
+            line-height: 1.6;
+        }
+
+        .info-content .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .logo-wrap img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid #4f8ef7;
+            object-fit: cover;
+        }
+
+        .logo-wrap span {
+            font-size: 18px;
+            font-weight: 700;
+            color: #4f8ef7;
+        }
+
+        /* ── Curved Shapes (active state) ───────── */
+        .curved-shape {
+            position: absolute;
+            right: 0;
+            top: -5px;
+            height: 700px;
+            width: 850px;
+            background: linear-gradient(45deg, #1e3c72, #4f8ef7);
+            transform: rotate(0deg) skewY(0deg);
+            transform-origin: bottom right;
+        }
+
+        .curved-shape2 {
+            position: absolute;
+            left: 250px;
+            top: 100%;
+            height: 800px;
+            width: 850px;
+            background: #0d1626;
+            border-top: 3px solid #4f8ef7;
+            transform: rotate(-11deg) skewY(-41deg);
+            transform-origin: bottom left;
+        }
+
+        /* ── Brand footer ───────────────────────── */
+        .brand-footer {
+            position: fixed;
+            bottom: 14px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        @media (max-width: 820px) {
+            .container {
+                width: 96vw;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container" id="mainContainer">
+        <div class="curved-shape"></div>
+        <div class="curved-shape2"></div>
+
+        <!-- ═══ INFO LOGIN (oculto) ═══ -->
+        <div class="info-content Login">
+            <div class="logo-wrap">
+                <img src="{% static 'images/logo.png' %}" alt="Logo GCinsumos">
+                <span>GCinsumos</span>
+            </div>
+            <h2>¡Bienvenido<br>de nuevo!</h2>
+            <p>Accedé al sistema de cotizaciones.</p>
+        </div>
+
+        <!-- ═══ FORMULARIO LOGIN (oculto) ═══ -->
+        <div class="form-box Login">
+            <h2 class="animation">Iniciar Sesión</h2>
+        </div>
+
+        <!-- ═══ INFO REGISTER ═══ -->
+        <div class="info-content Register">
+            <div class="logo-wrap animation" style="--li:17; --S:0">
+                <img src="{% static 'images/logo.png' %}" alt="Logo GCinsumos">
+                <span>GCinsumos</span>
+            </div>
+            <h2 class="animation" style="--li:17; --S:0">¡Unite al<br>equipo!</h2>
+            <p class="animation" style="--li:18; --S:1">Creá tu cuenta y empezá a gestionar cotizaciones de forma
+                profesional.</p>
+        </div>
+
+        <!-- ═══ FORMULARIO REGISTER ═══ -->
+        <div class="form-box Register">
+            <h2 class="animation" style="--li:17; --S:0">Crear Cuenta</h2>
+
+            {% if form.non_field_errors %}
+            <div class="general-error animation" style="--li:17; --S:0">
+                {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'register' %}" novalidate>
+                {% csrf_token %}
+
+                <!-- Nombre y Apellido -->
+                <div class="name-row">
+                    <div class="input-box animation" style="--li:18; --S:1">
+                        {{ form.first_name }}
+                        <label>Nombre</label>
+                        {% for e in form.first_name.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+                    </div>
+                    <div class="input-box animation" style="--li:18; --S:1">
+                        {{ form.last_name }}
+                        <label>Apellido</label>
+                        {% for e in form.last_name.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
                     </div>
                 </div>
+
+                <!-- Usuario -->
+                <div class="input-box animation" style="--li:18; --S:1">
+                    {{ form.username }}
+                    <label>Usuario</label>
+                    <box-icon type='solid' name='user' color="#4f8ef7"></box-icon>
+                    {% for e in form.username.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+                </div>
+
+                <!-- Email -->
+                <div class="input-box animation" style="--li:19; --S:2">
+                    {{ form.email }}
+                    <label>Email</label>
+                    <box-icon name='envelope' type='solid' color="#4f8ef7"></box-icon>
+                    {% for e in form.email.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+                </div>
+
+                <!-- Password 1 -->
+                <div class="input-box animation" style="--li:19; --S:3">
+                    {{ form.password1 }}
+                    <label>Contraseña</label>
+                    <box-icon name='lock-alt' type='solid' color="#4f8ef7"></box-icon>
+                    {% for e in form.password1.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+                </div>
+
+                <!-- Password 2 -->
+                <div class="input-box animation" style="--li:20; --S:4">
+                    {{ form.password2 }}
+                    <label>Repetir contraseña</label>
+                    <box-icon name='lock' type='solid' color="#4f8ef7"></box-icon>
+                    {% for e in form.password2.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+                </div>
+
+                <!-- Botón -->
+                <div class="input-box animation" style="--li:21; --S:5">
+                    <button class="btn" type="submit">Registrarse</button>
+                </div>
+            </form>
+
+            <div class="regi-link animation" style="--li:22; --S:6">
+                <p>¿Ya tenés cuenta? <a href="{% url 'login' %}">Iniciá sesión</a></p>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
+
+    <p class="brand-footer">© {% now "Y" %} GCinsumos · Soft Division</p>
+
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+    <script>
+        // Quitar clases de Bootstrap que Django agrega por defecto a los inputs
+        document.querySelectorAll('.form-box.Register input').forEach(input => {
+            input.removeAttribute('class');
+        });
+    </script>
+
+</body>
+
+</html>
