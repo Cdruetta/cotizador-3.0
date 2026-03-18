@@ -16,20 +16,20 @@ from io import BytesIO
 from decimal import Decimal
 
 # ==============================
-# PALETA CORPORATIVA AZUL ACERO
+# PALETA CORPORATIVA GRIS ANTRACITA
 # ==============================
-COLOR_PRIMARY      = colors.HexColor('#1C3A5E')   # azul acero oscuro
-COLOR_SECONDARY    = colors.HexColor('#2E5D8E')   # azul acero medio
-COLOR_ACCENT       = colors.HexColor('#4A7FB5')   # azul acero claro
-COLOR_HEADER_BG    = colors.HexColor('#1C3A5E')   # fondo header
+COLOR_PRIMARY      = colors.HexColor('#212121')   # antracita oscuro
+COLOR_SECONDARY    = colors.HexColor('#424242')   # antracita medio
+COLOR_ACCENT       = colors.HexColor('#757575')   # gris medio
+COLOR_HEADER_BG    = colors.HexColor('#212121')   # fondo header
 COLOR_HEADER_TEXT  = colors.white
-COLOR_ROW_ALT      = colors.HexColor('#EEF3F9')   # filas alternas
-COLOR_ROW_HEADER   = colors.HexColor('#1C3A5E')   # fila encabezado tabla
-COLOR_TOTAL_BG     = colors.HexColor('#DDEAF5')   # fila total
-COLOR_BORDER       = colors.HexColor('#AACAE6')   # bordes
-COLOR_TEXT         = colors.HexColor('#1A1A2E')
-COLOR_TEXT_MUTED   = colors.HexColor('#5A6A80')
-COLOR_FOOTER_LINE  = colors.HexColor('#2E5D8E')
+COLOR_ROW_ALT      = colors.HexColor('#F5F5F5')   # filas alternas
+COLOR_ROW_HEADER   = colors.HexColor('#212121')   # fila encabezado tabla
+COLOR_TOTAL_BG     = colors.HexColor('#EEEEEE')   # fila total
+COLOR_BORDER       = colors.HexColor('#BDBDBD')   # bordes
+COLOR_TEXT         = colors.HexColor('#212121')
+COLOR_TEXT_MUTED   = colors.HexColor('#616161')
+COLOR_FOOTER_LINE  = colors.HexColor('#424242')
 
 
 def _styles():
@@ -70,7 +70,7 @@ def _styles():
             'Seccion',
             fontName='Helvetica-Bold',
             fontSize=8,
-            textColor=COLOR_SECONDARY,
+            textColor=COLOR_ACCENT,
             leading=10,
             spaceBefore=14,
             spaceAfter=4,
