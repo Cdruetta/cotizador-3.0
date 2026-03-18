@@ -92,7 +92,8 @@ WSGI_APPLICATION = "proyecto.wsgi.application"
 # --------------------------
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
-    "postgresql://postgres:dEdklnigRETeZrpUrppxCWqNnGQnUqab@shuttle.proxy.rlwy.net:23030/railway",
+    #"postgresql://postgres:dEdklnigRETeZrpUrppxCWqNnGQnUqab@shuttle.proxy.rlwy.net:23030/railway",
+    "postgresql://cristian:GiseCris2026@gcsoft.duckdns.org:39742/cotizador"
 )
 
 DATABASES = {
