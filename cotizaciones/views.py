@@ -31,23 +31,41 @@ from .pdf_utils import generar_pdf_cotizacion, generar_pdf_buffer
 # Helpers
 # -------------------------------------------------------
 def get_db_usage_percent():
-    max_size_mb = 100
+    """
+    Devuelve:
+    - db_percent: porcentaje estimado del tamaño de la DB vs un límite configurable (None si no se configuró).
+    - db_mb: tamaño actual de la DB en MB (real si se pudo medir).
+    - max_size_mb: límite en MB usado para el cálculo del porcentaje.
+    """
+    try:
+        max_size_mb = float(os.environ.get("DB_USAGE_MAX_MB", "0"))
+    except (TypeError, ValueError):
+        max_size_mb = 0.0
     engine = settings.DATABASES['default']['ENGINE']
     if 'sqlite3' in engine:
         db_path = settings.DATABASES['default']['NAME']
+        if db_path and not os.path.isabs(db_path):
+            # En algunos despliegues el NAME viene relativo; lo normalizamos contra BASE_DIR.
+            db_path = os.path.join(str(settings.BASE_DIR), db_path)
         if os.path.exists(db_path):
             db_mb = os.path.getsize(db_path) / (1024 * 1024)
-            return round((db_mb / max_size_mb) * 100, 2), round(db_mb, 2)
-        return 0.0, 0.0
+            db_mb = round(db_mb, 2)
+            if max_size_mb > 0:
+                return round((db_mb / max_size_mb) * 100, 2), db_mb, round(max_size_mb, 2)
+            return None, db_mb, round(max_size_mb, 2)
+        return None, 0.0, round(max_size_mb, 2)
     elif 'postgresql' in engine:
         try:
             with connection.cursor() as cursor:
                 cursor.execute("SELECT pg_database_size(current_database());")
                 size_mb = cursor.fetchone()[0] / (1024 * 1024)
-                return round((size_mb / max_size_mb) * 100, 2), round(size_mb, 2)
+                size_mb = round(size_mb, 2)
+                if max_size_mb > 0:
+                    return round((size_mb / max_size_mb) * 100, 2), size_mb, round(max_size_mb, 2)
+                return None, size_mb, round(max_size_mb, 2)
         except OperationalError:
-            return 0.0, 0.0
-    return 0.0, 0.0
+            return None, 0.0, round(max_size_mb, 2)
+    return None, 0.0, round(max_size_mb, 2)
 
 
 # -------------------------------------------------------
@@ -55,7 +73,7 @@ def get_db_usage_percent():
 # -------------------------------------------------------
 @login_required
 def dashboard(request):
-    db_percent, db_mb = get_db_usage_percent()
+    db_percent, db_mb, db_max_mb = get_db_usage_percent()
     hoy = date.today()
     inicio_mes = hoy.replace(day=1)
 
@@ -72,6 +90,7 @@ def dashboard(request):
         'cotizaciones_recientes': Cotizacion.objects.select_related('cliente', 'usuario')[:5],
         'db_percent': db_percent,
         'db_mb': db_mb,
+        'db_max_mb': db_max_mb,
     }
     return render(request, 'cotizaciones/dashboard.html', context)
 
@@ -81,48 +100,121 @@ def dashboard(request):
 # -------------------------------------------------------
 @login_required
 def reportes(request):
-    # Ventas por mes (últimos 6 meses)
-    hace_6m = date.today() - timedelta(days=180)
-    ventas_mes = (
-        Cotizacion.objects.filter(fecha__gte=hace_6m, completada=True)
+    # Rango para gráficos: últimos 6 meses calendario (incluye mes actual).
+    hoy = date.today()
+
+    def shift_month(year: int, month: int, delta_months: int):
+        total = year * 12 + (month - 1) + delta_months
+        new_year = total // 12
+        new_month = total % 12 + 1
+        return new_year, new_month
+
+    # Creamos una lista de meses con su start/end (end = primer día del mes siguiente).
+    meses = []
+    base_y, base_m = hoy.year, hoy.month
+    for i in range(5, -1, -1):
+        y, m = shift_month(base_y, base_m, -i)
+        inicio = date(y, m, 1)
+        fin = date(y + 1, 1, 1) if m == 12 else date(y, m + 1, 1)
+        meses.append(
+            {
+                'key': f"{y:04d}-{m:02d}",
+                'label': inicio.strftime('%b %Y'),
+                'start': inicio,
+                'end': fin,
+            }
+        )
+
+    # Mes seleccionado para KPIs / top / estado.
+    mes_sel = request.GET.get('mes')
+    mes_sel_obj = next((m for m in meses if m['key'] == mes_sel), None) or meses[-1]
+
+    rango_inicio = mes_sel_obj['start']
+    rango_fin = mes_sel_obj['end']
+
+    # Ventas mensuales (últimos 6 meses) - completadas.
+    ventas_qs = (
+        Cotizacion.objects.filter(
+            fecha__gte=meses[0]['start'],
+            fecha__lt=meses[-1]['end'],
+            completada=True,
+        )
         .annotate(mes=TruncMonth('fecha'))
         .values('mes')
         .annotate(total=Sum('total'), cantidad=Count('id'))
         .order_by('mes')
     )
 
-    # Top 5 clientes por monto
+    ventas_map = {(row['mes'].year, row['mes'].month): row for row in ventas_qs}
+    ventas_mes = []
+    for m in meses:
+        key = (m['start'].year, m['start'].month)
+        row = ventas_map.get(key)
+        ventas_mes.append(
+            {
+                'mes': m['label'],
+                'total': float(row['total']) if row else 0,
+                'cantidad': row['cantidad'] if row else 0,
+            }
+        )
+
+    # KPIs del mes seleccionado.
+    facturado_mes = (
+        Cotizacion.objects.filter(fecha__gte=rango_inicio, fecha__lt=rango_fin, completada=True)
+        .aggregate(t=Sum('total'))['t']
+        or 0
+    )
+    monto_cotizado_mes = (
+        Cotizacion.objects.filter(fecha__gte=rango_inicio, fecha__lt=rango_fin)
+        .aggregate(t=Sum('total'))['t']
+        or 0
+    )
+
+    # Top 5 clientes por monto (mes seleccionado).
     top_clientes = (
-        Cotizacion.objects.filter(completada=True)
+        Cotizacion.objects.filter(completada=True, fecha__gte=rango_inicio, fecha__lt=rango_fin)
         .values('cliente__nombre')
         .annotate(total=Sum('total'), cantidad=Count('id'))
         .order_by('-total')[:5]
     )
 
-    # Top 5 productos más cotizados
+    # Top 5 productos más cotizados (mes seleccionado).
     top_productos = (
-        CotizacionItem.objects.values('producto__nombre')
+        CotizacionItem.objects.filter(
+            cotizacion__completada=True,
+            cotizacion__fecha__gte=rango_inicio,
+            cotizacion__fecha__lt=rango_fin,
+        )
+        .values('producto__nombre')
         .annotate(veces=Count('id'), total_vendido=Sum('subtotal'))
         .order_by('-veces')[:5]
     )
 
-    # Cotizaciones por estado
+    # Cotizaciones por estado (mes seleccionado).
     estado_data = {
-        'completadas': Cotizacion.objects.filter(completada=True).count(),
-        'pendientes': Cotizacion.objects.filter(completada=False).count(),
+        'completadas': Cotizacion.objects.filter(completada=True, fecha__gte=rango_inicio, fecha__lt=rango_fin).count(),
+        'pendientes': Cotizacion.objects.filter(completada=False, fecha__gte=rango_inicio, fecha__lt=rango_fin).count(),
     }
 
-    # Presupuestos vs recibos
+    # Presupuestos vs recibos (mes seleccionado).
     tipo_data = {
-        'presupuestos': Cotizacion.objects.filter(tipo_documento='presupuesto').count(),
-        'recibos': Cotizacion.objects.filter(tipo_documento='recibo').count(),
+        'presupuestos': Cotizacion.objects.filter(
+            tipo_documento='presupuesto',
+            fecha__gte=rango_inicio,
+            fecha__lt=rango_fin,
+        ).count(),
+        'recibos': Cotizacion.objects.filter(
+            tipo_documento='recibo',
+            fecha__gte=rango_inicio,
+            fecha__lt=rango_fin,
+        ).count(),
     }
 
     context = {
-        'ventas_mes_json': json.dumps([
-            {'mes': v['mes'].strftime('%b %Y'), 'total': float(v['total']), 'cantidad': v['cantidad']}
-            for v in ventas_mes
-        ]),
+        'mes_options': meses,
+        'mes_selected_key': mes_sel_obj['key'],
+        'mes_selected_label': mes_sel_obj['label'],
+        'ventas_mes_json': json.dumps(ventas_mes),
         'top_clientes_json': json.dumps([
             {'nombre': c['cliente__nombre'], 'total': float(c['total']), 'cantidad': c['cantidad']}
             for c in top_clientes
@@ -133,9 +225,10 @@ def reportes(request):
         ]),
         'estado_json': json.dumps(estado_data),
         'tipo_json': json.dumps(tipo_data),
-        'total_facturado': Cotizacion.objects.filter(completada=True).aggregate(t=Sum('total'))['t'] or 0,
-        'promedio_cotizacion': Cotizacion.objects.aggregate(p=Sum('total'))['p'] or 0,
+        'facturado_mes': facturado_mes,
+        'monto_cotizado_mes': monto_cotizado_mes,
     }
+
     return render(request, 'cotizaciones/reportes.html', context)
 
 

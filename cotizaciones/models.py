@@ -144,12 +144,24 @@ class Cotizacion(models.Model):
         return f"{self.numero} - {self.cliente.nombre}"
 
     def save(self, *args, **kwargs):
+        """
+        Guarda la cotización.
+        - Si ya viene con `numero`, se respeta (p.ej. tests o migraciones antiguas).
+        - Si no tiene `numero` y es nueva, se autogenera en base al ID.
+        """
+        is_new = self.pk is None
+
+        # Si ya tiene número definido, no lo tocamos.
+        if not is_new or self.numero:
+            return super().save(*args, **kwargs)
+
+        # Guardado inicial para obtener un ID
         super().save(*args, **kwargs)
-        desired_prefix = 'Cotizacion N°' if self.tipo_documento == 'presupuesto' else 'Recibo N°'
-        desired_value = f"{desired_prefix} {self.id}"
-        if not self.numero or self.numero != desired_value:
-            self.numero = desired_value
-            super().save(update_fields=['numero'])
+
+        # Autogenera número solo cuando antes estaba vacío
+        prefix = "Cotizacion N°" if self.tipo_documento == "presupuesto" else "Recibo N°"
+        self.numero = f"{prefix} {self.id}"
+        super().save(update_fields=["numero"])
 
     def calcular_total(self):
         """Recalcula subtotal, descuento y total."""

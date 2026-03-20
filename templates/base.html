@@ -149,6 +149,158 @@
   .badge-recibo { background: #e8fdf0; color: #1a7f4b; }
   .badge-pendiente { background: #fff3e0; color: #e65100; }
   .badge-completada { background: #e8fdf0; color: #1a7f4b; }
+
+  /* ── Toggle (completada/pendiente) ── */
+  .gc-toggle {
+    position: relative;
+    display: inline-block;
+    width: 46px;
+    height: 24px;
+    margin: 0;
+    cursor: pointer;
+  }
+  .gc-toggle input { display: none; }
+  .gc-slider {
+    position: absolute;
+    inset: 0;
+    background: #ff5c5c;
+    border-radius: 999px;
+    transition: background .18s ease;
+  }
+  .gc-slider:before {
+    content: "";
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform .18s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,.18);
+  }
+  .gc-toggle input:checked + .gc-slider { background: #2ecc71; }
+  .gc-toggle input:checked + .gc-slider:before { transform: translateX(22px); }
+  .gc-slider.round { border-radius: 999px; }
+
+  /* ── Theme switch (night/day) tipo pill ── */
+  .gc-nightday-switch {
+    position: relative;
+    display: inline-block;
+    width: 66px;
+    height: 30px;
+    margin: 0;
+    user-select: none;
+  }
+  .gc-nightday-switch input { display: none; }
+  .gc-nightday-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: #ff4d00;
+    box-shadow: inset 0 0 0 1px rgba(15,23,42,.12);
+    overflow: hidden;
+  }
+  /* fondo nocturno + deslizador cuando está activado (dark) */
+  .gc-nightday-switch input:checked + .gc-nightday-track {
+    background: #111827;
+  }
+  .gc-nightday-thumb {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 10px 22px rgba(15,23,42,.25);
+    transition: transform .2s ease;
+  }
+  .gc-nightday-switch input:checked + .gc-nightday-track .gc-nightday-thumb {
+    transform: translateX(36px);
+  }
+  .gc-nightday-icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    line-height: 1;
+    color: #ffffff;
+    opacity: .95;
+    pointer-events: none;
+  }
+  .gc-nightday-icon-day { left: 10px; }
+  .gc-nightday-icon-night { right: 10px; }
+  /* en light reducimos la visibilidad del ícono de luna para que destaque el sol */
+  .gc-nightday-icon-night { opacity: .35; }
+  /* en dark destaca la luna */
+  body.dark-mode .gc-nightday-icon-day { opacity: .35; }
+  body.dark-mode .gc-nightday-icon-night { opacity: .95; }
+
+  /* Switch compacto en el topbar */
+  #topbar .gc-toggle {
+    width: 40px;
+    height: 20px;
+  }
+  #topbar .gc-slider:before {
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    top: 3px;
+  }
+  #topbar .gc-toggle input:checked + .gc-slider:before {
+    transform: translateX(20px);
+  }
+
+  /* ── Dark mode automático (desde las 19:00) ── */
+  body.dark-mode:not(.auth-page) {
+    background: #0b1220 !important;
+    color: #e5e7eb !important;
+  }
+  body.dark-mode:not(.auth-page) #topbar {
+    background: #0f172a !important;
+    border-bottom-color: #22304a !important;
+  }
+  body.dark-mode:not(.auth-page) #topbar .text-muted { color: #9ca3af !important; }
+  body.dark-mode:not(.auth-page) #topbar i { color: #e5e7eb !important; }
+  body.dark-mode:not(.auth-page) .text-muted { color: #9ca3af !important; }
+  body.dark-mode:not(.auth-page) a { color: #93c5fd !important; }
+  body.dark-mode:not(.auth-page) .card,
+  body.dark-mode:not(.auth-page) .stat-card,
+  body.dark-mode:not(.auth-page) .table-card,
+  body.dark-mode:not(.auth-page) .filter-card {
+    background: #0f172a !important;
+    color: #e5e7eb !important;
+    border-color: rgba(255,255,255,.06) !important;
+  }
+  body.dark-mode:not(.auth-page) .table thead th {
+    background: #111c33 !important;
+    color: #cbd5e1 !important;
+    border-bottom-color: #22304a !important;
+  }
+  body.dark-mode:not(.auth-page) .table tbody td {
+    border-color: #1f2a44 !important;
+    color: #e5e7eb !important;
+    background: #0f172a !important;
+  }
+  body.dark-mode:not(.auth-page) .table tbody tr {
+    background: #0f172a !important;
+  }
+  body.dark-mode:not(.auth-page) .table tbody tr:hover {
+    background: #111c33 !important;
+  }
+  body.dark-mode:not(.auth-page) .badge-pendiente { background: #2a1f00 !important; color: #ffb74d !important; }
+  body.dark-mode:not(.auth-page) .badge-completada { background: #0f3d2e !important; color: #34d399 !important; }
+  body.dark-mode:not(.auth-page) .progress { background: rgba(255,255,255,.12) !important; }
+  body.dark-mode:not(.auth-page) .form-control,
+  body.dark-mode:not(.auth-page) .form-select,
+  body.dark-mode:not(.auth-page) textarea,
+  body.dark-mode:not(.auth-page) input {
+    background: #0b1220 !important;
+    color: #e5e7eb !important;
+    border-color: #22304a !important;
+  }
+
   .filter-card { background: #fff; border-radius: 12px; border: none; box-shadow: 0 2px 8px rgba(0,0,0,.06); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
   .page-footer { background: #fff; border-top: 1px solid #e2e8f0; padding: .55rem 1.5rem; font-size: .75rem; color: #999; display: flex; gap: 1.5rem; flex-wrap: wrap; }
 
@@ -251,6 +403,20 @@
     <span class="text-muted small d-none d-lg-inline">
       <i class="bi bi-thermometer-half me-1"></i>{{ clima.temp }}°C · {{ clima.ciudad|default:clima.descripcion }}
     </span>
+
+    <!-- Switch tema manual (estilo pill con íconos) -->
+    <label class="gc-nightday-switch" title="Cambiar modo">
+      <input
+        type="checkbox"
+        id="gcThemeToggle"
+        onchange="window.gcSetThemeFromToggle(this.checked)"
+      />
+      <span class="gc-nightday-track" aria-hidden="true">
+        <span class="gc-nightday-icon gc-nightday-icon-day"><i class="bi bi-sun-fill"></i></span>
+        <span class="gc-nightday-icon gc-nightday-icon-night"><i class="bi bi-moon-fill"></i></span>
+        <span class="gc-nightday-thumb"></span>
+      </span>
+    </label>
 </header>
 {% endif %}
 
@@ -266,6 +432,42 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 (function(){
+  const THEME_KEY = 'gc_theme_mode'; // 'dark' | 'light' | null (auto)
+
+  const applyTheme = (mode) => {
+    try {
+      if (mode === 'dark') document.body.classList.add('dark-mode');
+      else document.body.classList.remove('dark-mode');
+
+      const toggle = document.getElementById('gcThemeToggle');
+      if (toggle) toggle.checked = mode === 'dark';
+
+    } catch (e) {
+      // No rompemos la app si falla el DOM.
+    }
+  };
+
+  const applyAutoThemeIfNeeded = () => {
+    const stored = localStorage.getItem(THEME_KEY);
+    if (stored === 'dark' || stored === 'light') return; // el usuario forzó un modo
+
+    // Modo noche automático: desde las 19:00 (hora local del navegador).
+    try {
+      const hour = new Date().getHours();
+      applyTheme(hour >= 19 ? 'dark' : 'light');
+    } catch (e) {
+      // Si hay algún problema con Date/DOM, no rompemos la app.
+    }
+  };
+
+  window.gcSetThemeFromToggle = (isDark) => {
+    localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+    applyTheme(isDark ? 'dark' : 'light');
+  };
+
+  applyAutoThemeIfNeeded();
+  setInterval(applyAutoThemeIfNeeded, 60 * 1000);
+
 const sidebar = document.getElementById('sidebar');
   const main    = document.getElementById('main-content');
   const topbar  = document.getElementById('topbar');

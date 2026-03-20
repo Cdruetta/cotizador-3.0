@@ -108,22 +108,6 @@
       </div>
     </div>
   </div>
-  <div class="col-md-4">
-    <!-- DB Usage -->
-    <div class="card stat-card h-100">
-      <div class="card-body">
-        <div class="small text-muted mb-2">Uso de base de datos</div>
-        <div class="d-flex justify-content-between mb-1">
-          <span class="small">{{ db_mb }} MB</span>
-          <span class="small fw-bold {% if db_percent > 85 %}text-danger{% elif db_percent > 60 %}text-warning{% else %}text-success{% endif %}">{{ db_percent }}%</span>
-        </div>
-        <div class="progress" style="height:8px;border-radius:4px">
-          <div class="progress-bar" style="width:{{ db_percent }}%;background:{% if db_percent > 85 %}#dc3545{% elif db_percent > 60 %}#ffc107{% else %}#28a745{% endif %}"></div>
-        </div>
-        <div class="small text-muted mt-1">Límite: 100 MB</div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- Recent quotations -->
@@ -137,7 +121,7 @@
     <table class="table mb-0">
       <thead>
         <tr>
-          <th>Número</th><th>Cliente</th><th>Tipo</th><th>Fecha</th><th>Total</th><th>Estado</th><th></th>
+          <th>Número</th><th>Cliente</th><th>Tipo</th><th>Fecha</th><th>Total</th><th class="text-center">Estado</th><th></th>
         </tr>
       </thead>
       <tbody>
@@ -149,11 +133,32 @@
           <td class="small text-muted">{{ c.fecha|date:"d/m/Y" }}</td>
           <td class="fw-bold">${{ c.total|floatformat:2 }}</td>
           <td>
-            {% if c.completada %}
-            <span class="badge rounded-pill badge-completada">Completada</span>
-            {% else %}
-            <span class="badge rounded-pill badge-pendiente">Pendiente</span>
-            {% endif %}
+            <div class="d-flex align-items-center justify-content-center gap-2 w-100">
+              <form method="post" action="{% url 'marcar_cotizacion_completada' c.pk %}" class="d-inline">
+                {% csrf_token %}
+                <label
+                  class="gc-toggle"
+                  title="{% if c.completada %}Reabrir{% else %}Marcar completada{% endif %}"
+                  aria-label="{% if c.completada %}Reabrir{% else %}Marcar completada{% endif %}"
+                >
+                  <input
+                    type="checkbox"
+                    name="completada_toggle"
+                    value="1"
+                    {% if c.completada %}checked{% endif %}
+                    onchange="this.form.submit()"
+                  />
+                  <span class="gc-slider round"></span>
+                </label>
+              </form>
+
+              {% if c.completada %}
+                <span class="badge rounded-pill badge-completada">Completada</span>
+              {% else %}
+                <span class="badge rounded-pill badge-pendiente">Pendiente</span>
+              {% endif %}
+              </div>
+            </div>
           </td>
           <td><a href="{% url 'cotizacion_detail' c.pk %}" class="btn btn-sm btn-light"><i class="bi bi-eye"></i></a></td>
         </tr>

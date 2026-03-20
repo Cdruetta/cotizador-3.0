@@ -152,6 +152,11 @@ media/
 staticfiles/
 static_root/
 
+# Next.js
+.next/
+node_modules/
+out/
+
 # Logs
 logs/
 *.log

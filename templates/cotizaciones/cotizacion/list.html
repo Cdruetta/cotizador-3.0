@@ -83,16 +83,27 @@
           </td>
           <td class="small text-muted">{{ c.usuario.get_full_name|default:c.usuario.username }}</td>
           <td class="text-center">
-            <div class="btn-group btn-group-sm">
+            <div class="d-flex align-items-center justify-content-end gap-2">
               <a href="{% url 'cotizacion_detail' c.pk %}" class="btn btn-outline-primary" title="Ver"><i class="bi bi-eye"></i></a>
               <a href="{% url 'generar_pdf' c.pk %}" class="btn btn-outline-danger" title="PDF" target="_blank"><i class="bi bi-file-pdf"></i></a>
               <a href="{% url 'cotizacion_update' c.pk %}" class="btn btn-outline-warning" title="Editar"><i class="bi bi-pencil"></i></a>
-              {% if not c.completada %}
               <form method="post" action="{% url 'marcar_cotizacion_completada' c.pk %}" class="d-inline">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-outline-success btn-sm" title="Completar"><i class="bi bi-check2-circle"></i></button>
+                <label
+                  class="gc-toggle"
+                  title="{% if c.completada %}Reabrir{% else %}Completar{% endif %}"
+                  aria-label="{% if c.completada %}Reabrir{% else %}Completar{% endif %}"
+                >
+                  <input
+                    type="checkbox"
+                    name="completada_toggle"
+                    value="1"
+                    {% if c.completada %}checked{% endif %}
+                    onchange="this.form.submit()"
+                  />
+                  <span class="gc-slider round"></span>
+                </label>
               </form>
-              {% endif %}
               <a href="{% url 'cotizacion_delete' c.pk %}" class="btn btn-outline-secondary" title="Eliminar"><i class="bi bi-trash"></i></a>
             </div>
           </td>

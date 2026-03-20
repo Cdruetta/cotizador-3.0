@@ -137,7 +137,13 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# En producción usamos el storage con manifest para cache-busting.
+# En desarrollo y tests (DEBUG=True) evitamos el manifest para no exigir
+# que los estáticos hayan sido recolectados previamente.
+if DEBUG:
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+else:
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # --------------------------
 # Archivos media
