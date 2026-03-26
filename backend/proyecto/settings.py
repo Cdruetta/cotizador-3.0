@@ -92,7 +92,7 @@ WSGI_APPLICATION = "proyecto.wsgi.application"
 # --------------------------
 # Base de datos
 # --------------------------
-DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+DATABASE_URL = os.environ.get("DATABASE_URL", "").strip() or os.environ.get("HOME_DATABASE_URL", "").strip()
 
 if DATABASE_URL:
     DATABASES = {
