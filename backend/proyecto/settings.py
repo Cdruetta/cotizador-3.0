@@ -90,22 +90,26 @@ TEMPLATES = [
 WSGI_APPLICATION = "proyecto.wsgi.application"
 
 # --------------------------
-# Base de datos (Railway / Render)
+# Base de datos
 # --------------------------
-DATABASE_URL = os.environ.get(
-    "DATABASE_URL",
-    #"postgresql://postgres:dEdklnigRETeZrpUrppxCWqNnGQnUqab@shuttle.proxy.rlwy.net:23030/railway",
-    "postgresql://cristian:GiseCris2026@gcsoft.duckdns.org:39742/cotizador"
-)
+DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
 
-DATABASES = {
-    "default": dj_database_url.parse(
-        DATABASE_URL,
-        conn_max_age=600,
-        ssl_require="railway" in DATABASE_URL
-        or os.environ.get("RAILWAY_ENVIRONMENT") is not None,
-    )
-}
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=("railway" in DATABASE_URL) or ("render.com" in DATABASE_URL),
+        )
+    }
+else:
+    # Fallback local seguro para desarrollo/test cuando no existe DATABASE_URL.
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # --------------------------
 # Validadores de contraseña
