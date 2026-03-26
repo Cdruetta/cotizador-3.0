@@ -4,7 +4,7 @@
 pip install --upgrade pip setuptools wheel
 
 # 📦 Instala las dependencias
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 
 # 🗄 Ejecuta migraciones en la base de datos configurada (PostgreSQL en Render)
 python manage.py migrate --noinput

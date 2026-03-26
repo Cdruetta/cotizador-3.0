@@ -1,0 +1,17 @@
+from django.conf import settings
+from django.core.mail import EmailMessage
+
+from ...utils.pdf_utils import generar_pdf_buffer
+
+
+def enviar_cotizacion_por_email(*, cotizacion, email_destino: str, asunto: str, mensaje: str):
+    pdf_buffer = generar_pdf_buffer(cotizacion)
+    email = EmailMessage(
+        subject=asunto,
+        body=mensaje,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[email_destino],
+    )
+    email.attach(f"cotizacion_{cotizacion.numero}.pdf", pdf_buffer.getvalue(), "application/pdf")
+    email.send()
+

@@ -1,2 +1,2 @@
-web: gunicorn proyecto.wsgi
+web: gunicorn --chdir backend proyecto.wsgi
 

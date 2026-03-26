@@ -1,0 +1,49 @@
+import json
+import urllib.request
+from datetime import datetime
+
+
+def info_extra(request):
+    try:
+        req = urllib.request.Request("https://dolarapi.com/v1/dolares", headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=5) as response:
+            data = json.loads(response.read())
+
+        dolar = {
+            "oficial": next(item["venta"] for item in data if item["casa"] == "oficial"),
+            "blue": next(item["venta"] for item in data if item["casa"] == "blue"),
+            "bolsa": next(item["venta"] for item in data if item["casa"] == "bolsa"),
+        }
+    except Exception:
+        dolar = {"blue": "N/D", "oficial": "N/D", "bolsa": "N/D"}
+
+    try:
+        with urllib.request.urlopen(
+            "https://api.open-meteo.com/v1/forecast?latitude=-33.13&longitude=-64.35&current_weather=true",
+            timeout=5,
+        ) as response:
+            clima_data = json.loads(response.read())["current_weather"]
+
+            codigos = {
+                0: "Despejado",
+                1: "Mayormente despejado",
+                2: "Parcialmente nublado",
+                3: "Nublado",
+                45: "Niebla",
+                48: "Niebla con escarcha",
+                51: "Llovizna ligera",
+                61: "Lluvia ligera",
+                71: "Nieve ligera",
+                80: "Chaparrones",
+            }
+
+            clima = {"temp": clima_data["temperature"], "descripcion": codigos.get(clima_data["weathercode"], "Clima actual")}
+    except Exception:
+        clima = {"temp": "N/D", "descripcion": "No disponible"}
+
+    return {"dolar": dolar, "clima": clima}
+
+
+def global_context(request):
+    return {"fecha": datetime.now()}
+

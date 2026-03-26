@@ -156,6 +156,9 @@ static_root/
 .next/
 node_modules/
 out/
+frontend/.next/
+frontend/node_modules/
+frontend/out/
 
 # Logs
 logs/
@@ -163,3 +166,9 @@ logs/
 
 # Local settings
 local_settings.py
+
+# Backend after split
+backend/db.sqlite3
+backend/staticfiles/
+backend/media/
+backend/logs/
