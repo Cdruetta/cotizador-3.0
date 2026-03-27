@@ -400,9 +400,9 @@
 
             <form method="post" action="{% url 'login' %}">
                 {% csrf_token %}
-                {% if next %}
+              <! -- {% if next %}
                 <input type="hidden" name="next" value="{{ next }}">
-                {% endif %}
+                {% endif %} -->
 
                 <div class="input-box animation" style="--D:1; --S:22">
                     <label class="input-label">Usuario</label>
