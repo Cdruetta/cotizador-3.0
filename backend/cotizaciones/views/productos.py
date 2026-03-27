@@ -37,6 +37,12 @@ class ProductoListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["filter_form"] = ProductoFilterForm(self.request.GET)
+
+        # Querystring sin el parámetro de paginación para no duplicar ?page=
+        q = self.request.GET.copy()
+        q.pop("page", None)
+        ctx["current_query"] = q.urlencode()
+
         return ctx
 
 
