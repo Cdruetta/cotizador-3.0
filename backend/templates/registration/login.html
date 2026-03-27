@@ -1,4 +1,4 @@
-{% load static %}
+8{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -400,9 +400,7 @@
 
             <form method="post" action="{% url 'login' %}">
                 {% csrf_token %}
-              <! -- {% if next %}
-                <input type="hidden" name="next" value="{{ next }}">
-                {% endif %} -->
+             
 
                 <div class="input-box animation" style="--D:1; --S:22">
                     <label class="input-label">Usuario</label>
