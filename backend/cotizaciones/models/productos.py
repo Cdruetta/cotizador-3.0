@@ -5,8 +5,20 @@ from django.db import models
 
 
 class Producto(models.Model):
+    TIPO_CHOICES = [
+        ("producto", "Producto"),
+        ("servicio_soft", "Servicio (Software)"),
+        ("servicio_hard", "Servicio (Hardware)"),
+    ]
+
     nombre = models.CharField(max_length=255, verbose_name="Nombre")
     descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción")
+    tipo = models.CharField(
+        max_length=20,
+        choices=TIPO_CHOICES,
+        default="producto",
+        verbose_name="Tipo",
+    )
     precio_unitario = models.DecimalField(
         max_digits=10,
         decimal_places=2,

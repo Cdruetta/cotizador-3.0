@@ -24,16 +24,21 @@
               <label class="form-label fw-semibold small">Descripción</label>
               {{ form.descripcion }}
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+              <label class="form-label fw-semibold small">Tipo *</label>
+              {{ form.tipo }}
+              {% if form.tipo.errors %}<div class="text-danger small mt-1">{{ form.tipo.errors }}</div>{% endif %}
+            </div>
+            <div class="col-md-3">
               <label class="form-label fw-semibold small">Precio Unitario *</label>
               {{ form.precio_unitario }}
               {% if form.precio_unitario.errors %}<div class="text-danger small mt-1">{{ form.precio_unitario.errors }}</div>{% endif %}
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
               <label class="form-label fw-semibold small">Stock</label>
               {{ form.stock }}
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
               <label class="form-label fw-semibold small">Proveedor *</label>
               {{ form.proveedor }}
               {% if form.proveedor.errors %}<div class="text-danger small mt-1">{{ form.proveedor.errors }}</div>{% endif %}

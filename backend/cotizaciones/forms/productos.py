@@ -7,10 +7,11 @@ from .common import WIDGET_CLASS, SELECT_CLASS
 class ProductoForm(forms.ModelForm):
     class Meta:
         model = Producto
-        fields = ["nombre", "descripcion", "precio_unitario", "stock", "proveedor", "activo"]
+        fields = ["nombre", "descripcion", "tipo", "precio_unitario", "stock", "proveedor", "activo"]
         widgets = {
             "nombre": forms.TextInput(attrs={**WIDGET_CLASS, "required": True}),
             "descripcion": forms.Textarea(attrs={**WIDGET_CLASS, "rows": 3}),
+            "tipo": forms.Select(attrs=SELECT_CLASS),
             "precio_unitario": forms.NumberInput(attrs={**WIDGET_CLASS, "step": "0.01", "min": "0.01"}),
             "stock": forms.NumberInput(attrs={**WIDGET_CLASS, "min": "0"}),
             "proveedor": forms.Select(attrs=SELECT_CLASS),
@@ -43,5 +44,11 @@ class ProductoFilterForm(forms.Form):
     precio_max = forms.DecimalField(
         required=False,
         widget=forms.NumberInput(attrs={**WIDGET_CLASS, "placeholder": "Precio máximo", "step": "0.01"}),
+    )
+
+    tipo = forms.ChoiceField(
+        required=False,
+        choices=[("", "Todos los tipos")] + list(Producto.TIPO_CHOICES),
+        widget=forms.Select(attrs=SELECT_CLASS),
     )
 

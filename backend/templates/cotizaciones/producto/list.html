@@ -32,6 +32,10 @@
         <label class="form-label small fw-semibold mb-1">Precio máx.</label>
         {{ filter_form.precio_max }}
       </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold mb-1">Tipo</label>
+        {{ filter_form.tipo }}
+      </div>
       <div class="col-md-1 d-grid">
         <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel"></i></button>
       </div>
@@ -51,12 +55,13 @@
   <div class="table-responsive">
     <table class="table mb-0">
       <thead>
-        <tr><th>Nombre</th><th>Proveedor</th><th>Precio</th><th>Stock</th><th>Estado</th><th class="text-center">Acciones</th></tr>
+        <tr><th>Nombre</th><th>Tipo</th><th>Proveedor</th><th>Precio</th><th>Stock</th><th>Estado</th><th class="text-center">Acciones</th></tr>
       </thead>
       <tbody>
         {% for p in productos %}
         <tr>
           <td class="fw-semibold">{{ p.nombre }}</td>
+          <td class="text-muted small">{{ p.get_tipo_display }}</td>
           <td class="text-muted small">{{ p.proveedor.nombre }}</td>
           <td class="fw-bold">${{ p.precio_unitario|floatformat:2 }}</td>
           <td>

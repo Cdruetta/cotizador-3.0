@@ -5,7 +5,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}GCinsumos{% endblock %}</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Favicon estándar -->
+<link rel="icon" href="{% static 'images/gclogo.png' %}" type="image/x-icon">
+
+<!-- Favicons modernos -->
+<link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/gclogo.png-32x32.png' %}">
+<link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/gclogo.png-16x16.png' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 <link href="{% static 'styles/globales.css' %}" rel="stylesheet">
 <style>
@@ -306,7 +312,7 @@
 
   /* ── Mobile ── */
   @media (max-width: 768px) {
-    #sidebar { width: var(--gc-sidebar-col-w); }
+    #sidebar:not(.mobile-open) { width: var(--gc-sidebar-col-w); }
     #sidebar.mobile-open { width: var(--gc-sidebar-w); }
     #topbar, #topbar.collapsed { left: var(--gc-sidebar-col-w); }
     #main-content, #main-content.collapsed { margin-left: var(--gc-sidebar-col-w); }
@@ -343,8 +349,11 @@
     <a href="{% url 'proveedor_list' %}" class="nav-link {% if 'proveedor' in request.resolver_match.url_name %}active{% endif %}">
       <i class="bi bi-truck"></i><span class="lbl">Proveedores</span>
     </a>
-    <a href="{% url 'producto_list' %}" class="nav-link {% if 'producto' in request.resolver_match.url_name %}active{% endif %}">
+    <a href="{% url 'producto_list' %}?tipo=producto" class="nav-link {% if request.GET.tipo == 'producto' %}active{% endif %}">
       <i class="bi bi-box-seam"></i><span class="lbl">Productos</span>
+    </a>
+    <a href="{% url 'producto_list' %}?tipo_multiple=servicio_soft,servicio_hard" class="nav-link {% if request.GET.tipo_multiple %}active{% endif %}">
+      <i class="bi bi-gear"></i><span class="lbl">Servicios</span>
     </a>
     <div class="nav-section">Acciones rápidas</div>
     <a href="{% url 'cotizacion_create' %}" class="nav-link">

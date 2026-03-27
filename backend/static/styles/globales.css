@@ -79,3 +79,9 @@ body:not(.auth-page) .form-select:focus {
   #sidebar, #topbar, .btn, .filter-card { display: none !important; }
   #main-content { margin-left: 0 !important; padding-top: 0 !important; }
 }
+
+/* Mobile extra small (menos de 480px) */
+@media (max-width: 480px) {
+  .page-inner { padding: 0 1rem 1.5rem !important; }
+  .btn-group-sm .btn { padding: .25rem .4rem; font-size: .75rem; }
+}

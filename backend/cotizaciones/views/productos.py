@@ -22,6 +22,7 @@ class ProductoListView(LoginRequiredMixin, ListView):
             proveedor = form.cleaned_data.get("proveedor")
             activo = form.cleaned_data.get("activo")
             precio_max = form.cleaned_data.get("precio_max")
+            tipo = form.cleaned_data.get("tipo")
             if search:
                 qs = qs.filter(Q(nombre__icontains=search) | Q(descripcion__icontains=search))
             if proveedor:
@@ -32,6 +33,15 @@ class ProductoListView(LoginRequiredMixin, ListView):
                 qs = qs.filter(activo=False)
             if precio_max:
                 qs = qs.filter(precio_unitario__lte=precio_max)
+            if tipo:
+                qs = qs.filter(tipo=tipo)
+        
+        # Soporte sidebar servicios múltiples tipos
+        tipo_multiple = self.request.GET.get('tipo_multiple')
+        if tipo_multiple:
+            tipos = [t.strip() for t in tipo_multiple.split(',')]
+            qs = qs.filter(tipo__in=tipos)
+            
         return qs
 
     def get_context_data(self, **kwargs):
