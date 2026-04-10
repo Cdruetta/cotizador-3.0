@@ -92,20 +92,32 @@ WSGI_APPLICATION = "proyecto.wsgi.application"
 # --------------------------
 # Base de datos (Railway / Render)
 # --------------------------
-DATABASE_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql://postgres:dEdklnigRETeZrpUrppxCWqNnGQnUqab@shuttle.proxy.rlwy.net:23030/railway?sslmode=require",
-    #"postgresql://cristian:GiseCris2026@gcsoft.duckdns.org:39742/cotizador"
-)
+#DATABASE_URL = os.environ.get(
+    #"DATABASE_URL",
+    #"postgresql://postgres:dEdklnigRETeZrpUrppxCWqNnGQnUqab@shuttle.proxy.rlwy.net:23030/railway?sslmode=require",
+    #"postgresql://cristian:GiseCris2026@gcsoft.duckdns.org:39742/cotizador")
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise Exception("DATABASE_URL no está configurada") 
 
 DATABASES = {
     "default": dj_database_url.parse(
         DATABASE_URL,
         conn_max_age=600,
-        ssl_require="railway" in DATABASE_URL
-        or os.environ.get("RAILWAY_ENVIRONMENT") is not None,
+        ssl_require=True,
     )
 }
+
+#DATABASES = {
+    #"default": dj_database_url.parse(
+        #DATABASE_URL,
+        #conn_max_age=600,
+        #ssl_require="railway" in DATABASE_URL
+       # or os.environ.get("RAILWAY_ENVIRONMENT") is not None,
+    #)
+#}
+
 
 # --------------------------
 # Validadores de contraseña
