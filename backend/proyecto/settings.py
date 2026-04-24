@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 from django.contrib.messages import constants as messages
 from dotenv import load_dotenv
 import dj_database_url
@@ -105,8 +106,13 @@ def env_bool(name: str, default: bool = False) -> bool:
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
 DB_SSL_REQUIRE = env_bool("DB_SSL_REQUIRE", default=False)
+parsed_database_url = urlparse(DATABASE_URL) if DATABASE_URL else None
+valid_db_schemes = {"postgres", "postgresql", "mysql", "sqlite", "oracle", "mssql"}
+is_database_url_valid = bool(
+    parsed_database_url and parsed_database_url.scheme in valid_db_schemes
+)
 
-if DATABASE_URL:
+if is_database_url_valid:
     DATABASES = {
         "default": dj_database_url.parse(
             DATABASE_URL,
@@ -140,8 +146,15 @@ elif DEBUG:
         }
     }
 else:
+    invalid_database_url_msg = ""
+    if DATABASE_URL and not is_database_url_valid:
+        invalid_database_url_msg = (
+            " DATABASE_URL es invalida (debe comenzar con un esquema soportado, por ejemplo: postgresql://...)."
+        )
     raise Exception(
-        "No hay configuración de base de datos. Definí DATABASE_URL o DB_NAME/DB_USER/DB_PASSWORD/DB_HOST."
+        "No hay configuración de base de datos."
+        f"{invalid_database_url_msg} "
+        "Definí DATABASE_URL o DB_NAME/DB_USER/DB_PASSWORD/DB_HOST."
     )
 
 #DATABASES = {
