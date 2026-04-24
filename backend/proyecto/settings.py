@@ -96,18 +96,53 @@ WSGI_APPLICATION = "proyecto.wsgi.application"
     #"DATABASE_URL",
     #"postgresql://postgres:dEdklnigRETeZrpUrppxCWqNnGQnUqab@shuttle.proxy.rlwy.net:23030/railway?sslmode=require",
     #"postgresql://cristian:GiseCris2026@gcsoft.duckdns.org:39742/cotizador")
-DATABASE_URL = os.environ.get("DATABASE_URL")
+def env_bool(name: str, default: bool = False) -> bool:
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
 
-if not DATABASE_URL:
-    raise Exception("DATABASE_URL no está configurada") 
 
-DATABASES = {
-    "default": dj_database_url.parse(
-        DATABASE_URL,
-        conn_max_age=600,
-        ssl_require=True,
+DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+DB_SSL_REQUIRE = env_bool("DB_SSL_REQUIRE", default=False)
+
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=DB_SSL_REQUIRE,
+        )
+    }
+elif all(os.environ.get(key) for key in ("DB_NAME", "DB_USER", "DB_PASSWORD", "DB_HOST")):
+    db_options = {}
+    if DB_SSL_REQUIRE:
+        db_options["sslmode"] = "require"
+
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.environ["DB_NAME"],
+            "USER": os.environ["DB_USER"],
+            "PASSWORD": os.environ["DB_PASSWORD"],
+            "HOST": os.environ["DB_HOST"],
+            "PORT": os.environ.get("DB_PORT", "5432"),
+            "CONN_MAX_AGE": 600,
+            "OPTIONS": db_options,
+        }
+    }
+elif DEBUG:
+    # Evita romper el entorno local si no se definió una DB remota.
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+else:
+    raise Exception(
+        "No hay configuración de base de datos. Definí DATABASE_URL o DB_NAME/DB_USER/DB_PASSWORD/DB_HOST."
     )
-}
 
 #DATABASES = {
     #"default": dj_database_url.parse(
