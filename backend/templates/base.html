@@ -362,9 +362,22 @@
     <a href="{% url 'cliente_create' %}" class="nav-link">
       <i class="bi bi-person-plus"></i><span class="lbl">Nuevo Cliente</span>
     </a>
-    <a href="{% url 'factura_create' %}" class="nav-link">
+
+    <a href="{% url 'producto_create' %}" class="nav-link">
+      <i class="bi bi-plus-circle"></i><span class="lbl">Nuevo Producto</span>
+    </a>
+    <a href="{% url 'producto_create' %}?tipo_multiple=servicio_soft,servicio_hard" class="nav-link">
+      <i class="bi bi-plus-circle"></i><span class="lbl">Nuevo Servicio</span>
+    </a>
+    <a href="{% url 'proveedor_create' %}" class="nav-link">
+      <i class="bi bi-plus-circle"></i><span class="lbl">Nuevo Proveedor</span>
+    </a>
+
+    <a href="{% url 'factura_create' %}" class="nav-link mt-1">
       <i class="bi bi-plus-circle"></i><span class="lbl">Nueva Factura</span>
     </a>
+
+
     {% if user.is_staff %}
     <div class="nav-section">Admin</div>
     <a href="{% url 'configuracion' %}" class="nav-link {% if request.resolver_match.url_name == 'configuracion' %}active{% endif %}">
