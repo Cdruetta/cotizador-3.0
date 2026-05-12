@@ -362,10 +362,17 @@
     <a href="{% url 'cliente_create' %}" class="nav-link">
       <i class="bi bi-person-plus"></i><span class="lbl">Nuevo Cliente</span>
     </a>
+    <a href="{% url 'factura_create' %}" class="nav-link">
+      <i class="bi bi-plus-circle"></i><span class="lbl">Nueva Factura</span>
+    </a>
     {% if user.is_staff %}
     <div class="nav-section">Admin</div>
     <a href="{% url 'configuracion' %}" class="nav-link {% if request.resolver_match.url_name == 'configuracion' %}active{% endif %}">
       <i class="bi bi-gear"></i><span class="lbl">Configuración</span>
+
+    <a href="{% url 'factura_list' %}" class="nav-link {% if 'factura' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-receipt"></i><span class="lbl">Facturación</span>
+    </a>  
     </a>
     <a href="{% url 'user_list' %}" class="nav-link {% if 'user' in request.resolver_match.url_name %}active{% endif %}">
       <i class="bi bi-people-fill"></i><span class="lbl">Usuarios</span>

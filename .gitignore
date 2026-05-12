@@ -172,3 +172,18 @@ backend/db.sqlite3
 backend/staticfiles/
 backend/media/
 backend/logs/
+
+# Env files adicionales con secretos (variantes)
+*.env
+backend/.env*
+frontend/.env*
+
+# Dumps / backups locales
+*.sql
+*.dump
+*.bak
+
+# DBs con otros nombres (por las dudas)
+*.sqlite3
+*.db
+

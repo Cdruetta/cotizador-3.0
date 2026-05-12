@@ -3,4 +3,4 @@ from .proveedores import Proveedor  # noqa: F401
 from .productos import Producto  # noqa: F401
 from .cotizaciones import Cotizacion, CotizacionItem  # noqa: F401
 from .configuracion import Configuracion  # noqa: F401
-
+from .facturacion import ConfiguracionAFIP, Factura, ItemFactura  # noqa: F401
