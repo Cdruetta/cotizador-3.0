@@ -45,7 +45,7 @@ class CotizacionFilterForm(forms.Form):
     )
     estado = forms.ChoiceField(
         required=False,
-        choices=[("", "Todos los estados"), ("pendiente", "Pendiente"), ("completada", "Completada")],
+        choices=[("", "Todos los estados")] + Cotizacion.ESTADO_CHOICES,
         widget=forms.Select(attrs=SELECT_CLASS),
     )
     fecha_desde = forms.DateField(

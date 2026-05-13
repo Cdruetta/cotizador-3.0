@@ -3,230 +3,536 @@
 {% block title %}{{ cotizacion.numero }}{% endblock %}
 
 {% block content %}
+
 <!-- Header -->
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
   <div>
-    <h4 class="fw-bold mb-0" style="color:#1e3c72">{{ cotizacion.numero }}</h4>
-    <small class="text-muted">{{ cotizacion.fecha|date:"d/m/Y" }} · {{ cotizacion.get_tipo_documento_display }}</small>
+    <h4 class="fw-bold mb-0 text-primary">
+      {{ cotizacion.numero }}
+    </h4>
+
+    <small class="text-muted">
+      {{ cotizacion.fecha|date:"d/m/Y" }}
+      ·
+      {{ cotizacion.get_tipo_documento_display }}
+    </small>
   </div>
+
   <div class="d-flex gap-2 flex-wrap">
+
     {% if cotizacion.completada %}
-    <form method="post" action="{% url 'marcar_cotizacion_completada' cotizacion.pk %}">
-      {% csrf_token %}<button type="submit" class="btn btn-sm btn-outline-warning"><i class="bi bi-arrow-counterclockwise me-1"></i>Reabrir</button>
-    </form>
-    <span class="btn btn-sm btn-success disabled"><i class="bi bi-check2-circle me-1"></i>Completada</span>
+      <form method="post" action="{% url 'marcar_cotizacion_completada' cotizacion.pk %}">
+        {% csrf_token %}
+
+        <button type="submit" class="btn btn-sm btn-outline-warning">
+          <i class="bi bi-arrow-counterclockwise me-1"></i>
+          Reabrir
+        </button>
+      </form>
+
+      <span class="btn btn-sm btn-success disabled">
+        <i class="bi bi-check2-circle me-1"></i>
+        Completada
+      </span>
     {% else %}
-    <form method="post" action="{% url 'marcar_cotizacion_completada' cotizacion.pk %}">
-      {% csrf_token %}<button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check2-circle me-1"></i>Marcar completada</button>
-    </form>
+      <form method="post" action="{% url 'marcar_cotizacion_completada' cotizacion.pk %}">
+        {% csrf_token %}
+
+        <button type="submit" class="btn btn-sm btn-success">
+          <i class="bi bi-check2-circle me-1"></i>
+          Marcar completada
+        </button>
+      </form>
     {% endif %}
-    <a href="{% url 'cotizacion_update' cotizacion.pk %}" class="btn btn-sm btn-warning"><i class="bi bi-pencil me-1"></i>Editar</a>
-    <a href="{% url 'generar_pdf' cotizacion.pk %}" class="btn btn-sm btn-danger" target="_blank"><i class="bi bi-file-pdf me-1"></i>PDF</a>
-    <button class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#emailModal">
-      <i class="bi bi-envelope me-1"></i>Email
-      {% if cotizacion.email_enviado %}<i class="bi bi-check-circle-fill ms-1"></i>{% endif %}
+
+    <a href="{% url 'cotizacion_update' cotizacion.pk %}" class="btn btn-sm btn-warning">
+      <i class="bi bi-pencil me-1"></i>
+      Editar
+    </a>
+
+    <a href="{% url 'generar_pdf' cotizacion.pk %}"
+       class="btn btn-sm btn-danger"
+       target="_blank">
+      <i class="bi bi-file-pdf me-1"></i>
+      PDF
+    </a>
+
+    <button class="btn btn-sm btn-info text-white"
+            data-bs-toggle="modal"
+            data-bs-target="#emailModal">
+      <i class="bi bi-envelope me-1"></i>
+      Email
+
+      {% if cotizacion.email_enviado %}
+        <i class="bi bi-check-circle-fill ms-1"></i>
+      {% endif %}
     </button>
-    <a href="{% url 'cotizacion_list' %}" class="btn btn-sm btn-light"><i class="bi bi-arrow-left me-1"></i>Volver</a>
 
-    {# Si existe factura para esta cotización, mostramos link. Si no, mostramos botón de creación. #}
     {% if factura_creada_pk %}
-      <a href="{% url 'factura_detail' factura_creada_pk %}" class="btn btn-sm btn-primary">
-        <i class="bi bi-receipt me-1"></i>Ver Factura
+      <a href="{% url 'factura_detail' factura_creada_pk %}"
+         class="btn btn-sm btn-primary">
+        <i class="bi bi-receipt me-1"></i>
+        Ver Factura
       </a>
     {% else %}
-      <a href="{% url 'crear_factura_desde_cotizacion' cotizacion.pk %}" class="btn btn-sm btn-success">
-        <i class="bi bi-plus-circle me-1"></i>Nueva Factura
+      <a href="{% url 'crear_factura_desde_cotizacion' cotizacion.pk %}"
+         class="btn btn-sm btn-success">
+        <i class="bi bi-plus-circle me-1"></i>
+        Nueva Factura
       </a>
     {% endif %}
+
+    <a href="{% url 'cotizacion_list' %}" class="btn btn-sm btn-light">
+      <i class="bi bi-arrow-left me-1"></i>
+      Volver
+    </a>
+
   </div>
 </div>
 
-
+<!-- Información -->
 <div class="row g-3 mb-3">
+
   <!-- Cliente -->
-  <div class="col-md-6">
+  <div class="col-12 col-lg-6">
     <div class="card stat-card h-100">
+
       <div class="card-header bg-white fw-semibold small py-2 px-3">
-        <i class="bi bi-person me-2 text-primary"></i>Cliente
+        <i class="bi bi-person me-2 text-primary"></i>
+        Cliente
       </div>
+
       <div class="card-body py-2 px-3">
         <table class="table table-borderless table-sm mb-0">
-          <tr><td class="text-muted small w-35">Nombre</td><td class="fw-semibold">{{ cotizacion.cliente.nombre }}</td></tr>
-          <tr><td class="text-muted small">Dirección</td><td>{{ cotizacion.cliente.direccion|default:"—" }}</td></tr>
-          <tr><td class="text-muted small">Teléfono</td><td>{{ cotizacion.cliente.telefono|default:"—" }}</td></tr>
-          <tr><td class="text-muted small">Localidad</td><td>{{ cotizacion.cliente.localidad|default:"—" }}</td></tr>
-          <tr><td class="text-muted small">Email</td><td>{{ cotizacion.cliente.email|default:"—" }}</td></tr>
+
+          <tr>
+            <td class="text-muted small w-35">Nombre</td>
+            <td class="fw-semibold">
+              {{ cotizacion.cliente.nombre }}
+            </td>
+          </tr>
+
+          <tr>
+            <td class="text-muted small">Dirección</td>
+            <td>
+              {{ cotizacion.cliente.direccion|default:"—" }}
+            </td>
+          </tr>
+
+          <tr>
+            <td class="text-muted small">Teléfono</td>
+            <td>
+              {{ cotizacion.cliente.telefono|default:"—" }}
+            </td>
+          </tr>
+
+          <tr>
+            <td class="text-muted small">Localidad</td>
+            <td>
+              {{ cotizacion.cliente.localidad|default:"—" }}
+            </td>
+          </tr>
+
+          <tr>
+            <td class="text-muted small">Email</td>
+            <td>
+              {{ cotizacion.cliente.email|default:"—" }}
+            </td>
+          </tr>
+
         </table>
       </div>
+
     </div>
   </div>
+
   <!-- Documento -->
-  <div class="col-md-6">
+  <div class="col-12 col-lg-6">
     <div class="card stat-card h-100">
+
       <div class="card-header bg-white fw-semibold small py-2 px-3">
-        <i class="bi bi-file-text me-2 text-info"></i>Documento
+        <i class="bi bi-file-text me-2 text-info"></i>
+        Documento
       </div>
+
       <div class="card-body py-2 px-3">
         <table class="table table-borderless table-sm mb-0">
-          <tr><td class="text-muted small w-35">Número</td><td class="fw-semibold">{{ cotizacion.numero }}</td></tr>
-          <tr><td class="text-muted small">Tipo</td>
-            <td><span class="badge rounded-pill badge-{{ cotizacion.tipo_documento }}">{{ cotizacion.get_tipo_documento_display }}</span></td></tr>
-          <tr><td class="text-muted small">Fecha</td><td>{{ cotizacion.fecha|date:"d/m/Y" }}</td></tr>
-          <tr><td class="text-muted small">Usuario</td><td>{{ cotizacion.usuario.get_full_name|default:cotizacion.usuario.username }}</td></tr>
-          <tr><td class="text-muted small">Estado</td>
-            <td>{% if cotizacion.completada %}<span class="badge badge-completada rounded-pill">Completada</span>
-                {% else %}<span class="badge badge-pendiente rounded-pill">Pendiente</span>{% endif %}</td></tr>
+
+          <tr>
+            <td class="text-muted small w-35">Número</td>
+            <td class="fw-semibold">
+              {{ cotizacion.numero }}
+            </td>
+          </tr>
+
+          <tr>
+            <td class="text-muted small">Tipo</td>
+            <td>
+              <span class="badge rounded-pill badge-{{ cotizacion.tipo_documento }}">
+                {{ cotizacion.get_tipo_documento_display }}
+              </span>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="text-muted small">Fecha</td>
+            <td>
+              {{ cotizacion.fecha|date:"d/m/Y" }}
+            </td>
+          </tr>
+
+          <tr>
+            <td class="text-muted small">Usuario</td>
+            <td>
+              {{ cotizacion.usuario.get_full_name|default:cotizacion.usuario.username }}
+            </td>
+          </tr>
+
+          <tr>
+            <td class="text-muted small">Estado</td>
+            <td>
+              {% if cotizacion.completada %}
+                <span class="badge badge-completada rounded-pill">
+                  Completada
+                </span>
+              {% else %}
+                <span class="badge badge-pendiente rounded-pill">
+                  Pendiente
+                </span>
+              {% endif %}
+            </td>
+          </tr>
+
         </table>
       </div>
+
     </div>
   </div>
+
 </div>
 
-<!-- Add product -->
+<!-- Agregar producto -->
 <div class="card stat-card mb-3">
+
   <div class="card-header bg-white fw-semibold small py-2 px-3">
-    <i class="bi bi-plus-circle me-2 text-success"></i>Agregar producto
+    <i class="bi bi-plus-circle me-2 text-success"></i>
+    Agregar producto
   </div>
+
   <div class="card-body py-3 px-3">
-    <form method="post" action="{% url 'agregar_item_cotizacion' cotizacion.pk %}" id="addItemForm">
+
+    <form method="post"
+          action="{% url 'agregar_item_cotizacion' cotizacion.pk %}"
+          id="addItemForm">
+
       {% csrf_token %}
+
       <div class="row g-2 align-items-end">
-        <div class="col-md-5">
-          <label class="form-label small mb-1">Producto</label>
+
+        <div class="col-12 col-md-5">
+          <label class="form-label small mb-1">
+            Producto
+          </label>
+
           {{ item_form.producto }}
         </div>
-        <div class="col-md-2">
-          <label class="form-label small mb-1">Cantidad</label>
+
+        <div class="col-6 col-md-2">
+          <label class="form-label small mb-1">
+            Cantidad
+          </label>
+
           {{ item_form.cantidad }}
         </div>
-        <div class="col-md-3">
-          <label class="form-label small mb-1">Precio Unitario</label>
+
+        <div class="col-6 col-md-3">
+          <label class="form-label small mb-1">
+            Precio Unitario
+          </label>
+
           {{ item_form.precio_unitario }}
         </div>
-        <div class="col-md-2 d-grid">
+
+        <div class="col-12 col-md-2 d-grid">
           <button type="submit" class="btn btn-success btn-sm">
-            <i class="bi bi-plus"></i> Agregar
+            <i class="bi bi-plus"></i>
+            Agregar
           </button>
         </div>
+
       </div>
+
     </form>
+
   </div>
+
 </div>
 
-<!-- Items table -->
+<!-- Productos -->
 <div class="card table-card mb-3">
+
   <div class="card-header bg-white fw-semibold small py-2 px-3">
-    <i class="bi bi-list me-2 text-warning"></i>Productos
+    <i class="bi bi-list me-2 text-warning"></i>
+    Productos
   </div>
+
   {% if items %}
-  <div class="table-responsive">
-    <table class="table mb-0">
-      <thead>
-        <tr><th>Producto</th><th>Proveedor</th><th>Cant.</th><th>Precio Unit.</th><th>Subtotal</th><th></th></tr>
-      </thead>
-      <tbody>
-        {% for item in items %}
-        <tr>
-          <td class="fw-semibold">{{ item.producto.nombre }}</td>
-          <td class="text-muted small">{{ item.producto.proveedor.nombre }}</td>
-          <td>{{ item.cantidad }}</td>
-          <td>${{ item.precio_unitario|floatformat:2 }}</td>
-          <td class="fw-bold">${{ item.subtotal|floatformat:2 }}</td>
-          <td>
-            <a href="{% url 'eliminar_item_cotizacion' item.pk %}"
-               class="btn btn-sm btn-outline-danger"
-               onclick="return confirm('¿Eliminar este producto?')">
-              <i class="bi bi-trash"></i>
-            </a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-      <tfoot>
-        <tr class="table-light">
-          <td colspan="4" class="text-end text-muted small fw-semibold">Subtotal bruto:</td>
-          <td class="fw-semibold">${{ cotizacion.subtotal_bruto|floatformat:2 }}</td>
-          <td></td>
-        </tr>
-        {% if cotizacion.descuento_porcentaje %}
-        <tr class="table-light">
-          <td colspan="4" class="text-end text-danger small fw-semibold">Descuento ({{ cotizacion.descuento_porcentaje }}%):</td>
-          <td class="text-danger fw-semibold">-${{ cotizacion.monto_descuento|floatformat:2 }}</td>
-          <td></td>
-        </tr>
-        {% endif %}
-        <tr style="background:#f0f4ff">
-          <td colspan="4" class="text-end fw-bold">TOTAL:</td>
-          <td class="fw-bold fs-5" style="color:#1e3c72">${{ cotizacion.total|floatformat:2 }}</td>
-          <td></td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
+
+    <div class="table-responsive">
+
+      <table class="table mb-0 align-middle">
+
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Proveedor</th>
+            <th>Cant.</th>
+            <th>Precio Unit.</th>
+            <th>Subtotal</th>
+            <th class="text-end"></th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          {% for item in items %}
+          <tr>
+
+            <td class="fw-semibold">
+              {{ item.producto.nombre }}
+            </td>
+
+            <td class="text-muted small">
+              {{ item.producto.proveedor.nombre|default:"—" }}
+            </td>
+
+            <td>
+              {{ item.cantidad }}
+            </td>
+
+            <td>
+              ${{ item.precio_unitario|floatformat:2 }}
+            </td>
+
+            <td class="fw-bold">
+              ${{ item.subtotal|floatformat:2 }}
+            </td>
+
+            <td class="text-end">
+              <a href="{% url 'eliminar_item_cotizacion' item.pk %}"
+                 class="btn btn-sm btn-outline-danger"
+                 onclick="return confirm('¿Eliminar este producto?')">
+
+                <i class="bi bi-trash"></i>
+
+              </a>
+            </td>
+
+          </tr>
+          {% endfor %}
+
+        </tbody>
+
+        <tfoot>
+
+          <tr class="table-light">
+            <td colspan="4" class="text-end text-muted small fw-semibold">
+              Subtotal bruto:
+            </td>
+
+            <td class="fw-semibold">
+              ${{ cotizacion.subtotal_bruto|floatformat:2 }}
+            </td>
+
+            <td></td>
+          </tr>
+
+          {% if cotizacion.descuento_porcentaje %}
+          <tr class="table-light">
+
+            <td colspan="4" class="text-end text-danger small fw-semibold">
+              Descuento ({{ cotizacion.descuento_porcentaje }}%)
+            </td>
+
+            <td class="text-danger fw-semibold">
+              -${{ cotizacion.monto_descuento|floatformat:2 }}
+            </td>
+
+            <td></td>
+
+          </tr>
+          {% endif %}
+
+          <tr style="background:#f0f4ff">
+
+            <td colspan="4" class="text-end fw-bold">
+              TOTAL:
+            </td>
+
+            <td class="fw-bold fs-5 text-primary">
+              ${{ cotizacion.total|floatformat:2 }}
+            </td>
+
+            <td></td>
+
+          </tr>
+
+        </tfoot>
+
+      </table>
+
+    </div>
+
   {% else %}
-  <div class="text-center py-4">
-    <i class="bi bi-inbox" style="font-size:2.5rem;color:#ccd"></i>
-    <p class="text-muted mt-2 mb-0 small">Aún no hay productos. Usá el formulario de arriba.</p>
-  </div>
+
+    <div class="text-center py-4">
+
+      <i class="bi bi-inbox"
+         style="font-size:2.5rem;color:#ccd"></i>
+
+      <p class="text-muted mt-2 mb-0 small">
+        Aún no hay productos. Usá el formulario de arriba.
+      </p>
+
+    </div>
+
   {% endif %}
+
 </div>
 
+<!-- Observaciones -->
 {% if cotizacion.observaciones %}
 <div class="card stat-card">
-  <div class="card-header bg-white fw-semibold small py-2 px-3"><i class="bi bi-chat-text me-2"></i>Observaciones</div>
-  <div class="card-body py-3 px-3"><p class="mb-0">{{ cotizacion.observaciones }}</p></div>
+
+  <div class="card-header bg-white fw-semibold small py-2 px-3">
+    <i class="bi bi-chat-text me-2"></i>
+    Observaciones
+  </div>
+
+  <div class="card-body py-3 px-3">
+    <p class="mb-0">
+      {{ cotizacion.observaciones }}
+    </p>
+  </div>
+
 </div>
 {% endif %}
 
-<!-- Email Modal -->
+<!-- Modal Email -->
 <div class="modal fade" id="emailModal" tabindex="-1">
+
   <div class="modal-dialog">
+
     <div class="modal-content">
+
       <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-envelope me-2"></i>Enviar por Email</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+
+        <h5 class="modal-title">
+          <i class="bi bi-envelope me-2"></i>
+          Enviar por Email
+        </h5>
+
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"></button>
+
       </div>
-      <form method="post" action="{% url 'enviar_cotizacion_email' cotizacion.pk %}">
+
+      <form method="post"
+            action="{% url 'enviar_cotizacion_email' cotizacion.pk %}">
+
         {% csrf_token %}
+
         <div class="modal-body">
+
           <div class="mb-3">
-            <label class="form-label fw-semibold small">Email destino</label>
+            <label class="form-label fw-semibold small">
+              Email destino
+            </label>
+
             {{ email_form.email_destino }}
           </div>
+
           <div class="mb-3">
-            <label class="form-label fw-semibold small">Asunto</label>
+            <label class="form-label fw-semibold small">
+              Asunto
+            </label>
+
             {{ email_form.asunto }}
           </div>
+
           <div class="mb-3">
-            <label class="form-label fw-semibold small">Mensaje</label>
+            <label class="form-label fw-semibold small">
+              Mensaje
+            </label>
+
             {{ email_form.mensaje }}
           </div>
-          <div class="alert alert-info small py-2">
-            <i class="bi bi-paperclip me-1"></i> El PDF de la cotización se adjuntará automáticamente.
+
+          <div class="alert alert-info small py-2 mb-0">
+            <i class="bi bi-paperclip me-1"></i>
+            El PDF de la cotización se adjuntará automáticamente.
           </div>
+
         </div>
+
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-info text-white btn-sm"><i class="bi bi-send me-1"></i>Enviar</button>
+
+          <button type="button"
+                  class="btn btn-secondary btn-sm"
+                  data-bs-dismiss="modal">
+            Cancelar
+          </button>
+
+          <button type="submit"
+                  class="btn btn-info text-white btn-sm">
+
+            <i class="bi bi-send me-1"></i>
+            Enviar
+
+          </button>
+
         </div>
+
       </form>
+
     </div>
+
   </div>
+
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const productoSelect = document.getElementById('{{ item_form.producto.id_for_label }}');
-  const precioInput = document.getElementById('{{ item_form.precio_unitario.id_for_label }}');
-  productoSelect?.addEventListener('change', function() {
+document.addEventListener('DOMContentLoaded', function () {
+
+  const productoSelect = document.getElementById(
+    '{{ item_form.producto.id_for_label }}'
+  );
+
+  const precioInput = document.getElementById(
+    '{{ item_form.precio_unitario.id_for_label }}'
+  );
+
+  productoSelect?.addEventListener('change', function () {
+
     if (!this.value) return;
+
     fetch(`/api/producto/${this.value}/precio/`)
-      .then(r => r.json())
-      .then(d => { if (d.precio) precioInput.value = d.precio.toFixed(2); })
-      .catch(console.error);
+      .then(response => response.json())
+      .then(data => {
+
+        if (data.precio) {
+          precioInput.value = Number(data.precio).toFixed(2);
+        }
+
+      })
+      .catch(error => console.error(error));
+
   });
+
 });
 </script>
 {% endblock %}

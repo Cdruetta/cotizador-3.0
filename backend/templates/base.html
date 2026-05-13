@@ -4,505 +4,551 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{% block title %}GCinsumos{% endblock %}</title>
-  <!-- Favicon estándar -->
-<link rel="icon" href="{% static 'images/gclogo.png' %}" type="image/x-icon">
 
-<!-- Favicons modernos -->
+<title>{% block title %}GCinsumos{% endblock %}</title>
+
+<link rel="icon" href="{% static 'images/gclogo.png' %}" type="image/x-icon">
 <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/gclogo.png-32x32.png' %}">
 <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/gclogo.png-16x16.png' %}">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
 <link href="{% static 'styles/globales.css' %}" rel="stylesheet">
+
 <style>
-  :root {
-    --gc-primary: #1e3c72;
-    --gc-secondary: #2a5298;
-    --gc-sidebar-w: 230px;
-    --gc-sidebar-col-w: 54px;
-    --gc-topbar-h: 56px;
-  }
-  body { background: #f4f6fb; font-family: 'Segoe UI', sans-serif; }
+:root {
+  --gc-primary: #1e3c72;
+  --gc-secondary: #2a5298;
+  --gc-sidebar-w: 230px;
+  --gc-sidebar-col-w: 54px;
+  --gc-topbar-h: 56px;
+}
 
-  /* ── Sidebar ── */
-  #sidebar {
-    position: fixed; top: 0; left: 0; height: 100vh;
+body {
+  background: #f4f6fb;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+#sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: var(--gc-sidebar-w);
+  background: linear-gradient(
+    180deg,
+    var(--gc-primary) 0%,
+    var(--gc-secondary) 100%
+  );
+  z-index: 1040;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 3px 0 15px rgba(0,0,0,.18);
+  transition: width .25s ease;
+  overflow: hidden;
+}
+
+#sidebar.collapsed {
+  width: var(--gc-sidebar-col-w);
+}
+
+.sidebar-brand {
+  height: var(--gc-topbar-h);
+  padding: 0 .75rem;
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  white-space: nowrap;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sidebar-brand img {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,.4);
+  flex-shrink: 0;
+}
+
+.sidebar-brand .brand-text {
+  color: #fff;
+  font-weight: 700;
+  font-size: .95rem;
+  transition: opacity .25s;
+}
+
+#sidebar.collapsed .brand-text {
+  opacity: 0;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: .5rem 0;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+  width: 3px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.2);
+}
+
+.nav-section {
+  color: rgba(255,255,255,.4);
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  padding: .7rem .85rem .2rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sidebar-nav .nav-link {
+  color: rgba(255,255,255,.8);
+  padding: .52rem .75rem;
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  font-size: .86rem;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: background .2s;
+}
+
+.sidebar-nav .nav-link:hover {
+  background: rgba(255,255,255,.13);
+  color: #fff;
+}
+
+.sidebar-nav .nav-link.active {
+  background: rgba(255,255,255,.18);
+  color: #fff;
+  border-left: 3px solid rgba(255,255,255,.9);
+}
+
+.sidebar-nav .nav-link i {
+  font-size: 1.1rem;
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.sidebar-nav .nav-link .lbl {
+  transition: opacity .2s;
+}
+
+#sidebar.collapsed .sidebar-nav .nav-link {
+  justify-content: center;
+  padding: .52rem 0;
+  gap: 0;
+}
+
+#sidebar.collapsed .sidebar-nav .nav-link .lbl {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+.sidebar-footer {
+  padding: .6rem .75rem;
+  border-top: 1px solid rgba(255,255,255,.1);
+  color: rgba(255,255,255,.55);
+  font-size: .75rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sidebar-footer .lbl {
+  transition: opacity .25s;
+}
+
+#sidebar.collapsed .sidebar-footer .lbl {
+  opacity: 0;
+}
+
+/* =========================
+   TOPBAR
+========================= */
+
+#topbar {
+  position: fixed;
+  top: 0;
+  left: var(--gc-sidebar-w);
+  right: 0;
+  height: var(--gc-topbar-h);
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  z-index: 1035;
+  display: flex;
+  align-items: center;
+  padding: 0 1.25rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  transition: left .25s ease;
+}
+
+#topbar.collapsed {
+  left: var(--gc-sidebar-col-w);
+}
+
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+#main-content {
+  margin-left: var(--gc-sidebar-w);
+  padding-top: calc(var(--gc-topbar-h) + 1rem);
+  min-height: 100vh;
+  transition: margin-left .25s ease;
+}
+
+#main-content.collapsed {
+  margin-left: var(--gc-sidebar-col-w);
+}
+
+.page-inner {
+  padding: 0 1.5rem 1.5rem;
+}
+
+/* =========================
+   BUTTONS / TABLES
+========================= */
+
+#sidebarToggle {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8faff;
+  color: #555;
+  cursor: pointer;
+}
+
+#sidebarToggle:hover {
+  background: #e8f0fe;
+  color: var(--gc-primary);
+}
+
+.table-card,
+.stat-card,
+.filter-card {
+  border-radius: 14px;
+  border: none;
+  box-shadow: 0 2px 12px rgba(0,0,0,.07);
+}
+
+.filter-card {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+/* =========================
+   BADGES NUEVOS
+========================= */
+
+.badge-borrador {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.badge-enviada {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.badge-aprobada {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-rechazada {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-facturada {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* =========================
+   DARK MODE
+========================= */
+
+body.dark-mode:not(.auth-page) {
+  background: #0b1220 !important;
+  color: #e5e7eb !important;
+}
+
+body.dark-mode:not(.auth-page) #topbar {
+  background: #0f172a !important;
+  border-bottom-color: #22304a !important;
+}
+
+body.dark-mode:not(.auth-page) .card,
+body.dark-mode:not(.auth-page) .table-card,
+body.dark-mode:not(.auth-page) .stat-card,
+body.dark-mode:not(.auth-page) .filter-card {
+  background: #0f172a !important;
+  color: #e5e7eb !important;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.page-footer {
+  background: #fff;
+  border-top: 1px solid #e2e8f0;
+  padding: .55rem 1.5rem;
+  font-size: .75rem;
+  color: #999;
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 768px) {
+
+  #sidebar:not(.mobile-open) {
+    width: var(--gc-sidebar-col-w);
+  }
+
+  #sidebar.mobile-open {
     width: var(--gc-sidebar-w);
-    background: linear-gradient(180deg, var(--gc-primary) 0%, var(--gc-secondary) 100%);
-    z-index: 1040; display: flex; flex-direction: column;
-    box-shadow: 3px 0 15px rgba(0,0,0,.18);
-    transition: width .25s ease;
-    overflow: hidden;
   }
-  #sidebar.collapsed { width: var(--gc-sidebar-col-w); }
 
-  .sidebar-brand {
-    height: var(--gc-topbar-h); padding: 0 .75rem;
-    display: flex; align-items: center; gap: .65rem;
-    border-bottom: 1px solid rgba(255,255,255,.1);
-    white-space: nowrap; overflow: hidden; flex-shrink: 0;
-  }
-  .sidebar-brand img {
-    width: 34px; height: 34px; border-radius: 50%;
-    object-fit: cover; border: 2px solid rgba(255,255,255,.4); flex-shrink: 0;
-  }
-  .sidebar-brand .brand-text { color: #fff; font-weight: 700; font-size: .95rem; transition: opacity .25s; }
-  #sidebar.collapsed .brand-text { opacity: 0; }
-
-  .sidebar-nav { flex: 1; overflow-y: auto; overflow-x: hidden; padding: .5rem 0; }
-  .sidebar-nav::-webkit-scrollbar { width: 3px; }
-  .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); }
-
-  .nav-section {
-    color: rgba(255,255,255,.4); font-size: .65rem; font-weight: 700;
-    letter-spacing: .08em; padding: .7rem .85rem .2rem;
-    text-transform: uppercase; white-space: nowrap; transition: opacity .25s;
-  }
-  #sidebar.collapsed .nav-section { opacity: 0; height: 0; padding: 0; }
-
-  .sidebar-nav .nav-link {
-    color: rgba(255,255,255,.8); padding: .52rem .75rem;
-    display: flex; align-items: center; gap: .65rem;
-    font-size: .86rem; white-space: nowrap; overflow: hidden;
-    transition: background .2s;
-  }
-  .sidebar-nav .nav-link i { font-size: 1.1rem; width: 22px; text-align: center; flex-shrink: 0; }
-  .sidebar-nav .nav-link .lbl { transition: opacity .2s; }
-  #sidebar.collapsed .sidebar-nav .nav-link { justify-content: center; padding: .52rem 0; gap: 0; }
-  #sidebar.collapsed .sidebar-nav .nav-link .lbl { opacity: 0; width: 0; overflow: hidden; }
-  .sidebar-nav .nav-link:hover { background: rgba(255,255,255,.13); color: #fff; }
-  .sidebar-nav .nav-link.active { background: rgba(255,255,255,.18); color: #fff; border-left: 3px solid rgba(255,255,255,.9); }
-
-  .sidebar-footer {
-    padding: .6rem .75rem; border-top: 1px solid rgba(255,255,255,.1);
-    color: rgba(255,255,255,.55); font-size: .75rem;
-    display: flex; align-items: center; gap: .5rem;
-    white-space: nowrap; overflow: hidden; flex-shrink: 0;
-  }
-  .sidebar-footer i { flex-shrink: 0; }
-  .sidebar-footer .lbl { transition: opacity .25s; }
-  #sidebar.collapsed .sidebar-footer .lbl { opacity: 0; }
-
-  /* ── Topbar ── */
-  #topbar {
-    position: fixed;
-    top: 0;
-    left: var(--gc-sidebar-w);
-    right: 0;
-    height: var(--gc-topbar-h);
-    background: #fff;
-    border-bottom: 1px solid #e2e8f0;
-    z-index: 1035;
-    display: flex;
-    align-items: center;
-    padding: 0 1.25rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,.08);
-    transition: left .25s ease;
-  }
+  #topbar,
   #topbar.collapsed {
     left: var(--gc-sidebar-col-w);
   }
-  .topbar-right {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-  }
-  .topbar-marquee-wrapper {
-    width: 220px; overflow: hidden;
-    border-left: 1px solid #eee; border-right: 1px solid #eee;
-    padding: 0 .75rem;
-  }
-  .topbar-marquee {
-    display: inline-flex; gap: 1rem; align-items: center;
-    white-space: nowrap; font-size: .8rem; color: #666;
-    animation: marquee 20s linear infinite;
-  }
-  .topbar-marquee:hover { animation-play-state: paused; }
-  .topbar-marquee .sep { color: #ccc; }
-  @keyframes marquee {
-    0%   { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
-  }
 
-  /* ── Main ── */
-  #main-content {
-    margin-left: var(--gc-sidebar-w);
-    padding-top: calc(var(--gc-topbar-h) + 1rem);
-    min-height: 100vh; transition: margin-left .25s ease;
+  #main-content,
+  #main-content.collapsed {
+    margin-left: var(--gc-sidebar-col-w);
   }
-  #main-content.collapsed { margin-left: var(--gc-sidebar-col-w); }
-  .page-inner { padding: 0 1.5rem 1.5rem; }
-
-  #sidebarToggle {
-    width: 32px; height: 32px; padding: 0;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 8px; border: 1px solid #e2e8f0;
-    background: #f8faff; color: #555; cursor: pointer; transition: background .2s;
-  }
-  #sidebarToggle:hover { background: #e8f0fe; color: var(--gc-primary); }
-
-  /* ── Cards / Tables / Badges ── */
-  .stat-card { border-radius: 14px; border: none; box-shadow: 0 2px 12px rgba(0,0,0,.07); transition: transform .2s, box-shadow .2s; }
-  .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.11); }
-  .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
-  .table-card { border-radius: 14px; border: none; box-shadow: 0 2px 12px rgba(0,0,0,.07); overflow: hidden; }
-  .table-card .table { margin: 0; }
-  .table thead th { background: #f8faff; color: #4a5568; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; border-bottom: 2px solid #e2e8f0; padding: .8rem 1rem; }
-  .table tbody td { padding: .7rem 1rem; vertical-align: middle; border-color: #f0f4f8; }
-  .table tbody tr:hover { background: #f8faff; }
-  .badge-presupuesto { background: #e8f4fd; color: #1a6fb3; }
-  .badge-recibo { background: #e8fdf0; color: #1a7f4b; }
-  .badge-pendiente { background: #fff3e0; color: #e65100; }
-  .badge-completada { background: #e8fdf0; color: #1a7f4b; }
-
-  /* ── Toggle (completada/pendiente) ── */
-  .gc-toggle {
-    position: relative;
-    display: inline-block;
-    width: 46px;
-    height: 24px;
-    margin: 0;
-    cursor: pointer;
-  }
-  .gc-toggle input { display: none; }
-  .gc-slider {
-    position: absolute;
-    inset: 0;
-    background: #ff5c5c;
-    border-radius: 999px;
-    transition: background .18s ease;
-  }
-  .gc-slider:before {
-    content: "";
-    position: absolute;
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    top: 3px;
-    background: #fff;
-    border-radius: 50%;
-    transition: transform .18s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,.18);
-  }
-  .gc-toggle input:checked + .gc-slider { background: #2ecc71; }
-  .gc-toggle input:checked + .gc-slider:before { transform: translateX(22px); }
-  .gc-slider.round { border-radius: 999px; }
-
-  /* ── Theme switch (night/day) tipo pill ── */
-  .gc-nightday-switch {
-    position: relative;
-    display: inline-block;
-    width: 66px;
-    height: 30px;
-    margin: 0;
-    user-select: none;
-  }
-  .gc-nightday-switch input { display: none; }
-  .gc-nightday-track {
-    position: absolute;
-    inset: 0;
-    border-radius: 999px;
-    background: #ff4d00;
-    box-shadow: inset 0 0 0 1px rgba(15,23,42,.12);
-    overflow: hidden;
-  }
-  /* fondo nocturno + deslizador cuando está activado (dark) */
-  .gc-nightday-switch input:checked + .gc-nightday-track {
-    background: #111827;
-  }
-  .gc-nightday-thumb {
-    position: absolute;
-    top: 4px;
-    left: 4px;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: #ffffff;
-    box-shadow: 0 10px 22px rgba(15,23,42,.25);
-    transition: transform .2s ease;
-  }
-  .gc-nightday-switch input:checked + .gc-nightday-track .gc-nightday-thumb {
-    transform: translateX(36px);
-  }
-  .gc-nightday-icon {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 14px;
-    line-height: 1;
-    color: #ffffff;
-    opacity: .95;
-    pointer-events: none;
-  }
-  .gc-nightday-icon-day { left: 10px; }
-  .gc-nightday-icon-night { right: 10px; }
-  /* en light reducimos la visibilidad del ícono de luna para que destaque el sol */
-  .gc-nightday-icon-night { opacity: .35; }
-  /* en dark destaca la luna */
-  body.dark-mode .gc-nightday-icon-day { opacity: .35; }
-  body.dark-mode .gc-nightday-icon-night { opacity: .95; }
-
-  /* Switch compacto en el topbar */
-  #topbar .gc-toggle {
-    width: 40px;
-    height: 20px;
-  }
-  #topbar .gc-slider:before {
-    height: 14px;
-    width: 14px;
-    left: 3px;
-    top: 3px;
-  }
-  #topbar .gc-toggle input:checked + .gc-slider:before {
-    transform: translateX(20px);
-  }
-
-  /* ── Dark mode automático (desde las 19:00) ── */
-  body.dark-mode:not(.auth-page) {
-    background: #0b1220 !important;
-    color: #e5e7eb !important;
-  }
-  body.dark-mode:not(.auth-page) #topbar {
-    background: #0f172a !important;
-    border-bottom-color: #22304a !important;
-  }
-  body.dark-mode:not(.auth-page) #topbar .text-muted { color: #9ca3af !important; }
-  body.dark-mode:not(.auth-page) #topbar i { color: #e5e7eb !important; }
-  body.dark-mode:not(.auth-page) .text-muted { color: #9ca3af !important; }
-  body.dark-mode:not(.auth-page) a { color: #93c5fd !important; }
-  body.dark-mode:not(.auth-page) .card,
-  body.dark-mode:not(.auth-page) .stat-card,
-  body.dark-mode:not(.auth-page) .table-card,
-  body.dark-mode:not(.auth-page) .filter-card {
-    background: #0f172a !important;
-    color: #e5e7eb !important;
-    border-color: rgba(255,255,255,.06) !important;
-  }
-  body.dark-mode:not(.auth-page) .table thead th {
-    background: #111c33 !important;
-    color: #cbd5e1 !important;
-    border-bottom-color: #22304a !important;
-  }
-  body.dark-mode:not(.auth-page) .table tbody td {
-    border-color: #1f2a44 !important;
-    color: #e5e7eb !important;
-    background: #0f172a !important;
-  }
-  body.dark-mode:not(.auth-page) .table tbody tr {
-    background: #0f172a !important;
-  }
-  body.dark-mode:not(.auth-page) .table tbody tr:hover {
-    background: #111c33 !important;
-  }
-  body.dark-mode:not(.auth-page) .badge-pendiente { background: #2a1f00 !important; color: #ffb74d !important; }
-  body.dark-mode:not(.auth-page) .badge-completada { background: #0f3d2e !important; color: #34d399 !important; }
-  body.dark-mode:not(.auth-page) .progress { background: rgba(255,255,255,.12) !important; }
-  body.dark-mode:not(.auth-page) .form-control,
-  body.dark-mode:not(.auth-page) .form-select,
-  body.dark-mode:not(.auth-page) textarea,
-  body.dark-mode:not(.auth-page) input {
-    background: #0b1220 !important;
-    color: #e5e7eb !important;
-    border-color: #22304a !important;
-  }
-
-  .filter-card { background: #fff; border-radius: 12px; border: none; box-shadow: 0 2px 8px rgba(0,0,0,.06); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
-  .page-footer { background: #fff; border-top: 1px solid #e2e8f0; padding: .55rem 1.5rem; font-size: .75rem; color: #999; display: flex; gap: 1.5rem; flex-wrap: wrap; }
-
-  /* ── Mobile ── */
-  @media (max-width: 768px) {
-    #sidebar:not(.mobile-open) { width: var(--gc-sidebar-col-w); }
-    #sidebar.mobile-open { width: var(--gc-sidebar-w); }
-    #topbar, #topbar.collapsed { left: var(--gc-sidebar-col-w); }
-    #main-content, #main-content.collapsed { margin-left: var(--gc-sidebar-col-w); }
-  }
-  @media print {
-    #sidebar, #topbar, .btn, .filter-card { display: none !important; }
-    #main-content { margin-left: 0 !important; padding-top: 0 !important; }
-  }
+}
 </style>
 </head>
+
 <body>
 
 {% if user.is_authenticated %}
+
 <nav id="sidebar">
+
   <div class="sidebar-brand">
     <img src="{% static 'images/logo.png' %}" alt="Logo">
     <span class="brand-text">GCinsumos</span>
   </div>
+
   <div class="sidebar-nav">
+
     <div class="nav-section">Principal</div>
-    <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-      <i class="bi bi-speedometer2"></i><span class="lbl">Dashboard</span>
+
+    <a href="{% url 'dashboard' %}"
+       class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <i class="bi bi-speedometer2"></i>
+      <span class="lbl">Dashboard</span>
     </a>
-    <a href="{% url 'reportes' %}" class="nav-link {% if request.resolver_match.url_name == 'reportes' %}active{% endif %}">
-      <i class="bi bi-bar-chart-line"></i><span class="lbl">Reportes</span>
+
+    <a href="{% url 'reportes' %}"
+       class="nav-link {% if request.resolver_match.url_name == 'reportes' %}active{% endif %}">
+      <i class="bi bi-bar-chart-line"></i>
+      <span class="lbl">Reportes</span>
     </a>
+
     <div class="nav-section">Gestión</div>
-    <a href="{% url 'cotizacion_list' %}" class="nav-link {% if 'cotizacion' in request.resolver_match.url_name %}active{% endif %}">
-      <i class="bi bi-file-text"></i><span class="lbl">Cotizaciones</span>
+
+    <a href="{% url 'cotizacion_list' %}"
+       class="nav-link {% if 'cotizacion' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-file-text"></i>
+      <span class="lbl">Cotizaciones</span>
     </a>
-    <a href="{% url 'cliente_list' %}" class="nav-link {% if 'cliente' in request.resolver_match.url_name %}active{% endif %}">
-      <i class="bi bi-people"></i><span class="lbl">Clientes</span>
+
+    <a href="{% url 'cliente_list' %}"
+       class="nav-link {% if 'cliente' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-people"></i>
+      <span class="lbl">Clientes</span>
     </a>
-    <a href="{% url 'proveedor_list' %}" class="nav-link {% if 'proveedor' in request.resolver_match.url_name %}active{% endif %}">
-      <i class="bi bi-truck"></i><span class="lbl">Proveedores</span>
+
+    <a href="{% url 'proveedor_list' %}"
+       class="nav-link {% if 'proveedor' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-truck"></i>
+      <span class="lbl">Proveedores</span>
     </a>
-    <a href="{% url 'producto_list' %}?tipo=producto" class="nav-link {% if request.GET.tipo == 'producto' %}active{% endif %}">
-      <i class="bi bi-box-seam"></i><span class="lbl">Productos</span>
+
+    <a href="{% url 'producto_list' %}?tipo=producto"
+       class="nav-link">
+      <i class="bi bi-box-seam"></i>
+      <span class="lbl">Productos</span>
     </a>
-    <a href="{% url 'producto_list' %}?tipo_multiple=servicio_soft,servicio_hard" class="nav-link {% if request.GET.tipo_multiple %}active{% endif %}">
-      <i class="bi bi-gear"></i><span class="lbl">Servicios</span>
+
+    <a href="{% url 'producto_list' %}?tipo_multiple=servicio_soft,servicio_hard"
+       class="nav-link">
+      <i class="bi bi-gear"></i>
+      <span class="lbl">Servicios</span>
     </a>
+
     <div class="nav-section">Acciones rápidas</div>
+
     <a href="{% url 'cotizacion_create' %}" class="nav-link">
-      <i class="bi bi-plus-circle"></i><span class="lbl">Nueva Cotización</span>
+      <i class="bi bi-plus-circle"></i>
+      <span class="lbl">Nueva Cotización</span>
     </a>
-    <a href="{% url 'factura_create' %}" class="nav-link mt-1">
-      <i class="bi bi-plus-circle"></i><span class="lbl">Nueva Factura</span>
+
+    <a href="{% url 'factura_create' %}" class="nav-link">
+      <i class="bi bi-plus-circle"></i>
+      <span class="lbl">Nueva Factura</span>
     </a>
+
     <a href="{% url 'cliente_create' %}" class="nav-link">
-      <i class="bi bi-person-plus"></i><span class="lbl">Nuevo Cliente</span>
+      <i class="bi bi-person-plus"></i>
+      <span class="lbl">Nuevo Cliente</span>
     </a>
+
     <a href="{% url 'producto_create' %}" class="nav-link">
-      <i class="bi bi-plus-circle"></i><span class="lbl">Nuevo Producto</span>
+      <i class="bi bi-plus-circle"></i>
+      <span class="lbl">Nuevo Producto</span>
     </a>
-    <a href="{% url 'producto_create' %}?tipo_multiple=servicio_soft,servicio_hard" class="nav-link">
-      <i class="bi bi-plus-circle"></i><span class="lbl">Nuevo Servicio</span>
-    </a>
+
     <a href="{% url 'proveedor_create' %}" class="nav-link">
-      <i class="bi bi-plus-circle"></i><span class="lbl">Nuevo Proveedor</span>
+      <i class="bi bi-plus-circle"></i>
+      <span class="lbl">Nuevo Proveedor</span>
     </a>
-
-    
-
 
     {% if user.is_staff %}
-    <div class="nav-section">Admin</div>
-    <a href="{% url 'configuracion' %}" class="nav-link {% if request.resolver_match.url_name == 'configuracion' %}active{% endif %}">
-      <i class="bi bi-gear"></i><span class="lbl">Configuración</span>
 
-    <a href="{% url 'factura_list' %}" class="nav-link {% if 'factura' in request.resolver_match.url_name %}active{% endif %}">
-      <i class="bi bi-receipt"></i><span class="lbl">Facturación</span>
-    </a>  
+    <div class="nav-section">Admin</div>
+
+    <a href="{% url 'configuracion' %}"
+       class="nav-link {% if request.resolver_match.url_name == 'configuracion' %}active{% endif %}">
+      <i class="bi bi-gear"></i>
+      <span class="lbl">Configuración</span>
     </a>
-    <a href="{% url 'user_list' %}" class="nav-link {% if 'user' in request.resolver_match.url_name %}active{% endif %}">
-      <i class="bi bi-people-fill"></i><span class="lbl">Usuarios</span>
+
+    <a href="{% url 'factura_list' %}"
+       class="nav-link {% if 'factura' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-receipt"></i>
+      <span class="lbl">Facturación</span>
     </a>
-    <a href="{% url 'admin:index' %}" class="nav-link" target="_blank">
-      <i class="bi bi-terminal"></i><span class="lbl">Panel Admin</span>
+
+    <a href="{% url 'user_list' %}"
+       class="nav-link {% if 'user' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-people-fill"></i>
+      <span class="lbl">Usuarios</span>
     </a>
+
+    <a href="{% url 'admin:index' %}"
+       class="nav-link"
+       target="_blank">
+      <i class="bi bi-terminal"></i>
+      <span class="lbl">Panel Admin</span>
+    </a>
+
     {% endif %}
   </div>
+
   <div class="sidebar-footer">
     <i class="bi bi-person-circle me-2"></i>
-    <span class="lbl">{{ user.get_full_name|default:user.username }}</span>
-    <a href="{% url 'logout' %}" class="ms-auto" title="Cerrar Sesión" style="color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.9rem;">
+
+    <span class="lbl">
+      {{ user.get_full_name|default:user.username }}
+    </span>
+
+    <a href="{% url 'logout' %}"
+       class="ms-auto"
+       title="Cerrar Sesión"
+       style="color: rgba(255,255,255,0.6); text-decoration:none;">
       <i class="bi bi-box-arrow-right"></i>
     </a>
   </div>
 </nav>
 
 <header id="topbar">
-  <button id="sidebarToggle" title="Colapsar/expandir">
+
+  <button id="sidebarToggle">
     <i class="bi bi-layout-sidebar"></i>
   </button>
+
   <div class="topbar-right">
+
     <span class="text-muted small d-none d-md-inline">
-      <i class="bi bi-calendar3 me-1"></i>{% now "d/m/Y" %}
-    </span>
-    
-    <div class="topbar-marquee-wrapper d-none d-md-flex">
-      <div class="topbar-marquee">
-        <span><i class="bi bi-currency-dollar me-1"></i>Blue: <strong>{{ dolar.blue }}</strong></span>
-        <span class="sep">·</span>
-        <span>Oficial: <strong>{{ dolar.oficial }}</strong></span>
-        <span class="sep">·</span>
-        <span>Bolsa: <strong>{{ dolar.bolsa }}</strong></span>
-        &nbsp;&nbsp;&nbsp;&nbsp;
-        <span><i class="bi bi-currency-dollar me-1"></i>Blue: <strong>{{ dolar.blue }}</strong></span>
-        <span class="sep">·</span>
-        <span>Oficial: <strong>{{ dolar.oficial }}</strong></span>
-        <span class="sep">·</span>
-        <span>Bolsa: <strong>{{ dolar.bolsa }}</strong></span>
-      </div>
-    </div>
-    
-    <span class="text-muted small d-none d-lg-inline">
-      <i class="bi bi-thermometer-half me-1"></i>{{ clima.temp }}°C · {{ clima.ciudad|default:clima.descripcion }}
+      <i class="bi bi-calendar3 me-1"></i>
+      {% now "d/m/Y" %}
     </span>
 
-    <!-- Switch tema manual (estilo pill con íconos) -->
-    <label class="gc-nightday-switch" title="Cambiar modo">
-      <input
-        type="checkbox"
-        id="gcThemeToggle"
-        onchange="window.gcSetThemeFromToggle(this.checked)"
-      />
-      <span class="gc-nightday-track" aria-hidden="true">
-        <span class="gc-nightday-icon gc-nightday-icon-day"><i class="bi bi-sun-fill"></i></span>
-        <span class="gc-nightday-icon gc-nightday-icon-night"><i class="bi bi-moon-fill"></i></span>
-        <span class="gc-nightday-thumb"></span>
-      </span>
-    </label>
+  </div>
 </header>
+
 {% endif %}
 
-<div id="main-content" {% if not user.is_authenticated %}style="margin-left:0;padding-top:0"{% endif %}>
-  <div class="position-fixed top-0 end-0 p-3" style="z-index:2000"><div id="toast-container"></div></div>
-  <div class="page-inner">{% block content %}{% endblock %}</div>
+<div id="main-content"
+{% if not user.is_authenticated %}
+style="margin-left:0;padding-top:0"
+{% endif %}
+>
+
+  <div class="position-fixed top-0 end-0 p-3" style="z-index:2000">
+    <div id="toast-container"></div>
+  </div>
+
+  <div class="page-inner">
+    {% block content %}{% endblock %}
+  </div>
+
   <footer class="page-footer">
-    <span><i class="bi bi-calendar3 me-1"></i>{% now "d/m/Y H:i" %}</span>
-    <span class="ms-auto">© {% now "Y" %} GCinsumos · Soft Division</span>
+    <span>
+      <i class="bi bi-calendar3 me-1"></i>
+      {% now "d/m/Y H:i" %}
+    </span>
+
+    <span class="ms-auto">
+      © {% now "Y" %} GCinsumos · Soft Division
+    </span>
   </footer>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
 (function(){
-  const THEME_KEY = 'gc_theme_mode'; // 'dark' | 'light' | null (auto)
 
-  const applyTheme = (mode) => {
-    try {
-      if (mode === 'dark') document.body.classList.add('dark-mode');
-      else document.body.classList.remove('dark-mode');
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('main-content');
+  const topbar = document.getElementById('topbar');
+  const btn = document.getElementById('sidebarToggle');
 
-      const toggle = document.getElementById('gcThemeToggle');
-      if (toggle) toggle.checked = mode === 'dark';
-
-    } catch (e) {
-      // No rompemos la app si falla el DOM.
-    }
-  };
-
-  const applyAutoThemeIfNeeded = () => {
-    const stored = localStorage.getItem(THEME_KEY);
-    if (stored === 'dark' || stored === 'light') return; // el usuario forzó un modo
-
-    // Modo noche automático: desde las 19:00 (hora local del navegador).
-    try {
-      const hour = new Date().getHours();
-      applyTheme(hour >= 19 ? 'dark' : 'light');
-    } catch (e) {
-      // Si hay algún problema con Date/DOM, no rompemos la app.
-    }
-  };
-
-  window.gcSetThemeFromToggle = (isDark) => {
-    localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
-    applyTheme(isDark ? 'dark' : 'light');
-  };
-
-  applyAutoThemeIfNeeded();
-  setInterval(applyAutoThemeIfNeeded, 60 * 1000);
-
-const sidebar = document.getElementById('sidebar');
-  const main    = document.getElementById('main-content');
-  const topbar  = document.getElementById('topbar');
-  const btn     = document.getElementById('sidebarToggle');
-  const userDropdown = document.querySelector('.user-dropdown');
-  let dropdownOpen = false;
   if (!sidebar || !btn) return;
 
   const MOBILE = () => window.innerWidth <= 768;
@@ -515,32 +561,24 @@ const sidebar = document.getElementById('sidebar');
   }
 
   btn.addEventListener('click', () => {
-    if (MOBILE()) { sidebar.classList.toggle('mobile-open'); return; }
+
+    if (MOBILE()) {
+      sidebar.classList.toggle('mobile-open');
+      return;
+    }
+
     const col = sidebar.classList.toggle('collapsed');
+
     main.classList.toggle('collapsed', col);
     topbar.classList.toggle('collapsed', col);
-  localStorage.setItem(KEY, col);
+
+    localStorage.setItem(KEY, col);
   });
 
-
-
-  document.addEventListener('DOMContentLoaded', () => {
-    {% if messages %}{% for message in messages %}
-    (function(){
-      const map = {success:'success',error:'danger',warning:'warning',info:'info'};
-      const tag = map['{{ message.tags }}'] || 'secondary';
-      const el = document.createElement('div');
-      el.className = `toast align-items-center text-bg-${tag} border-0 mb-2`;
-      el.setAttribute('role','alert');
-      el.innerHTML = `<div class="d-flex"><div class="toast-body">{{ message }}</div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>`;
-      document.getElementById('toast-container').appendChild(el);
-      new bootstrap.Toast(el,{delay:4500}).show();
-    })();
-    {% endfor %}{% endif %}
-  });
 })();
 </script>
+
 {% block extra_js %}{% endblock %}
+
 </body>
 </html>

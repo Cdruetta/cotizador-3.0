@@ -55,7 +55,21 @@ class Cotizacion(models.Model):
         verbose_name="Total",
     )
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Usuario")
-    completada = models.BooleanField(default=False, verbose_name="Completada", db_column="completado")
+    ESTADO_CHOICES = [
+        ("borrador", "Borrador"),
+        ("enviada", "Enviada"),
+        ("aprobada", "Aprobada"),
+        ("rechazada", "Rechazada"),
+        ("facturada", "Facturada"),
+    ]
+
+    estado = models.CharField(
+        max_length=20,
+        choices=ESTADO_CHOICES,
+        default="borrador",
+        verbose_name="Estado",
+    )
+    
     email_enviado = models.BooleanField(default=False, verbose_name="Email enviado")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

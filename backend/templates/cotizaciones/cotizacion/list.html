@@ -2,143 +2,298 @@
 {% block title %}Cotizaciones{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+
   <div>
-    <h4 class="fw-bold mb-0" style="color:#1e3c72"><i class="bi bi-file-text me-2"></i>Cotizaciones</h4>
-    <small class="text-muted">Administrá tus presupuestos y recibos</small>
+    <h4 class="fw-bold mb-0 text-primary">
+      <i class="bi bi-file-text me-2"></i>
+      Cotizaciones
+    </h4>
+
+    <small class="text-muted">
+      Administrá tus presupuestos y recibos
+    </small>
   </div>
-  <a href="{% url 'cotizacion_create' %}" class="btn btn-primary btn-sm px-3">
-    <i class="bi bi-plus-circle me-1"></i> Nueva
+
+  <a href="{% url 'cotizacion_create' %}"
+     class="btn btn-primary btn-sm px-3">
+    <i class="bi bi-plus-circle me-1"></i>
+    Nueva
   </a>
+
 </div>
 
 <!-- Filtros -->
 <div class="filter-card">
+
   <form method="get" id="filterForm">
+
     <div class="row g-2 align-items-end">
-      <div class="col-md-3">
-        <label class="form-label small fw-semibold mb-1">Buscar</label>
+
+      <div class="col-12 col-md-3">
+        <label class="form-label small fw-semibold mb-1">
+          Buscar
+        </label>
         {{ filter_form.search }}
       </div>
-      <div class="col-md-2">
-        <label class="form-label small fw-semibold mb-1">Tipo</label>
+
+      <div class="col-6 col-md-2">
+        <label class="form-label small fw-semibold mb-1">
+          Tipo
+        </label>
         {{ filter_form.tipo_documento }}
       </div>
-      <div class="col-md-2">
-        <label class="form-label small fw-semibold mb-1">Estado</label>
+
+      <div class="col-6 col-md-2">
+        <label class="form-label small fw-semibold mb-1">
+          Estado
+        </label>
         {{ filter_form.estado }}
       </div>
-      <div class="col-md-2">
-        <label class="form-label small fw-semibold mb-1">Desde</label>
+
+      <div class="col-6 col-md-2">
+        <label class="form-label small fw-semibold mb-1">
+          Desde
+        </label>
         {{ filter_form.fecha_desde }}
       </div>
-      <div class="col-md-2">
-        <label class="form-label small fw-semibold mb-1">Hasta</label>
+
+      <div class="col-6 col-md-2">
+        <label class="form-label small fw-semibold mb-1">
+          Hasta
+        </label>
         {{ filter_form.fecha_hasta }}
       </div>
-      <div class="col-md-1 d-grid">
-        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-funnel"></i></button>
+
+      <div class="col-12 col-md-1 d-grid">
+        <button type="submit" class="btn btn-primary btn-sm">
+          <i class="bi bi-funnel"></i>
+        </button>
       </div>
+
     </div>
+
     {% if request.GET %}
     <div class="mt-2">
-      <a href="{% url 'cotizacion_list' %}" class="btn btn-sm btn-outline-secondary">
-        <i class="bi bi-x-circle me-1"></i>Limpiar filtros
+      <a href="{% url 'cotizacion_list' %}"
+         class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-x-circle me-1"></i>
+        Limpiar filtros
       </a>
     </div>
     {% endif %}
+
   </form>
+
 </div>
 
+<!-- Tabla -->
 <div class="card table-card">
+
   {% if cotizaciones %}
+
   <div class="table-responsive">
-    <table class="table mb-0">
+
+    <table class="table mb-0 align-middle">
+
       <thead>
         <tr>
-          <th>Número</th><th>Cliente</th><th>Tipo</th><th>Fecha</th>
-          <th>Descuento</th><th>Total</th><th>Estado</th><th>Usuario</th>
+          <th>Número</th>
+          <th>Cliente</th>
+          <th>Tipo</th>
+          <th>Fecha</th>
+          <th>Descuento</th>
+          <th>Total</th>
+          <th>Estado</th>
+          <th>Usuario</th>
           <th class="text-center">Acciones</th>
         </tr>
       </thead>
+
       <tbody>
+
         {% for c in cotizaciones %}
         <tr>
+
           <td class="fw-semibold small">{{ c.numero }}</td>
+
           <td>{{ c.cliente.nombre }}</td>
-          <td><span class="badge rounded-pill badge-{{ c.tipo_documento }}">{{ c.get_tipo_documento_display }}</span></td>
-          <td class="small text-muted">{{ c.fecha|date:"d/m/Y" }}</td>
+
+          <td>
+            <span class="badge rounded-pill badge-{{ c.tipo_documento }}">
+              {{ c.get_tipo_documento_display }}
+            </span>
+          </td>
+
+          <td class="small text-muted">
+            {{ c.fecha|date:"d/m/Y" }}
+          </td>
+
           <td class="small">
             {% if c.descuento_porcentaje %}
-            <span class="text-danger">{{ c.descuento_porcentaje }}%</span>
-            {% else %}-{% endif %}
-          </td>
-          <td class="fw-bold">${{ c.total|floatformat:2 }}</td>
-          <td>
-            {% if c.completada %}
-            <span class="badge rounded-pill badge-completada"><i class="bi bi-check2"></i> Completada</span>
+              <span class="text-danger fw-semibold">
+                {{ c.descuento_porcentaje }}%
+              </span>
             {% else %}
-            <span class="badge rounded-pill badge-pendiente">Pendiente</span>
+              —
             {% endif %}
           </td>
-          <td class="small text-muted">{{ c.usuario.get_full_name|default:c.usuario.username }}</td>
-          <td class="text-center">
-            <div class="d-flex align-items-center justify-content-end gap-2">
-              <a href="{% url 'cotizacion_detail' c.pk %}" class="btn btn-outline-primary" title="Ver"><i class="bi bi-eye"></i></a>
-              <a href="{% url 'generar_pdf' c.pk %}" class="btn btn-outline-danger" title="PDF" target="_blank"><i class="bi bi-file-pdf"></i></a>
-              <a href="{% url 'cotizacion_update' c.pk %}" class="btn btn-outline-warning" title="Editar"><i class="bi bi-pencil"></i></a>
-              <form method="post" action="{% url 'marcar_cotizacion_completada' c.pk %}" class="d-inline">
-                {% csrf_token %}
-                <label
-                  class="gc-toggle"
-                  title="{% if c.completada %}Reabrir{% else %}Completar{% endif %}"
-                  aria-label="{% if c.completada %}Reabrir{% else %}Completar{% endif %}"
-                >
-                  <input
-                    type="checkbox"
-                    name="completada_toggle"
-                    value="1"
-                    {% if c.completada %}checked{% endif %}
-                    onchange="this.form.submit()"
-                  />
-                  <span class="gc-slider round"></span>
-                </label>
-              </form>
-              <a href="{% url 'cotizacion_delete' c.pk %}" class="btn btn-outline-secondary" title="Eliminar"><i class="bi bi-trash"></i></a>
-            </div>
+
+          <td class="fw-bold">
+            ${{ c.total|floatformat:2 }}
           </td>
+
+          <td>
+            {% if c.estado == "completada" %}
+
+              <span class="badge rounded-pill bg-success">
+                <i class="bi bi-check2 me-1"></i>
+                Completada
+              </span>
+
+            {% else %}
+
+              <span class="badge rounded-pill bg-warning text-dark">
+                Pendiente
+              </span>
+
+            {% endif %}
+          </td>
+
+          <td class="small text-muted">
+            {{ c.usuario.get_full_name|default:c.usuario.username }}
+          </td>
+
+          <td class="text-center">
+
+            <div class="d-flex align-items-center justify-content-center flex-wrap gap-1">
+
+              <!-- Ver -->
+              <a href="{% url 'cotizacion_detail' c.pk %}"
+                 class="btn btn-sm btn-outline-primary"
+                 title="Ver">
+                <i class="bi bi-eye"></i>
+              </a>
+
+              <!-- PDF -->
+              <a href="{% url 'generar_pdf' c.pk %}"
+                 class="btn btn-sm btn-outline-danger"
+                 title="PDF"
+                 target="_blank">
+                <i class="bi bi-file-pdf"></i>
+              </a>
+
+              <!-- Editar -->
+              <a href="{% url 'cotizacion_update' c.pk %}"
+                 class="btn btn-sm btn-outline-warning"
+                 title="Editar">
+                <i class="bi bi-pencil"></i>
+              </a>
+
+              <!-- TOGGLE ESTADO (CORREGIDO) -->
+              {% if c.estado == "completada" %}
+
+                <a href="{% url 'cambiar_estado_cotizacion' c.pk 'pendiente' %}"
+                   class="btn btn-sm btn-outline-warning"
+                   title="Reabrir">
+                  <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+
+              {% else %}
+
+                <a href="{% url 'cambiar_estado_cotizacion' c.pk 'completada' %}"
+                   class="btn btn-sm btn-outline-success"
+                   title="Completar">
+                  <i class="bi bi-check2"></i>
+                </a>
+
+              {% endif %}
+
+              <!-- Eliminar -->
+              <a href="{% url 'cotizacion_delete' c.pk %}"
+                 class="btn btn-sm btn-outline-secondary"
+                 title="Eliminar"
+                 onclick="return confirm('¿Eliminar esta cotización?')">
+                <i class="bi bi-trash"></i>
+              </a>
+
+            </div>
+
+          </td>
+
         </tr>
         {% endfor %}
+
       </tbody>
+
     </table>
+
   </div>
 
+  <!-- Paginación -->
   {% if is_paginated %}
   <div class="card-footer bg-white">
+
     <nav>
       <ul class="pagination pagination-sm justify-content-center mb-0">
+
         {% if page_obj.has_previous %}
-        <li class="page-item"><a class="page-link" href="?page=1&{{ request.GET.urlencode }}">«</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">‹</a></li>
+        <li class="page-item">
+          <a class="page-link" href="?page=1&{{ request.GET.urlencode }}">«</a>
+        </li>
+
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">‹</a>
+        </li>
         {% endif %}
-        <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+
+        <li class="page-item active">
+          <span class="page-link">
+            {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+          </span>
+        </li>
+
         {% if page_obj.has_next %}
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">›</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&{{ request.GET.urlencode }}">»</a></li>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">›</a>
+        </li>
+
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&{{ request.GET.urlencode }}">»</a>
+        </li>
         {% endif %}
+
       </ul>
     </nav>
+
   </div>
   {% endif %}
 
   {% else %}
+
+  <!-- Empty -->
   <div class="text-center py-5">
+
     <i class="bi bi-file-text" style="font-size:4rem;color:#c5d3e8"></i>
+
     <h5 class="mt-3 text-muted">No hay cotizaciones</h5>
-    <a href="{% url 'cotizacion_create' %}" class="btn btn-primary mt-2">
-      <i class="bi bi-plus-circle me-1"></i> Crear primera cotización
+
+    <p class="text-muted small mb-3">
+      Todavía no creaste ninguna cotización.
+    </p>
+
+    <a href="{% url 'cotizacion_create' %}"
+       class="btn btn-primary">
+      <i class="bi bi-plus-circle me-1"></i>
+      Crear primera cotización
     </a>
+
   </div>
+
   {% endif %}
+
 </div>
+
 {% endblock %}

@@ -8,6 +8,22 @@ from .views import (
     ProductoUpdateView,
     ProductoDeleteView,
     ProductoDetailView,
+
+    CotizacionListView,
+    CotizacionCreateView,
+    CotizacionUpdateView,
+    CotizacionDeleteView,
+    CotizacionDetailView,
+
+    agregar_item_cotizacion,
+    eliminar_item_cotizacion,
+    generar_pdf,
+    cambiar_estado_cotizacion,
+    enviar_cotizacion_email,
+
+    reportes,
+    configuracion,
+    get_producto_precio,
 )
 
 from .views.facturacion import (
@@ -24,17 +40,12 @@ from .views.facturacion import (
 )
 
 urlpatterns = [
+
     # Dashboard
     path('', views.dashboard, name='dashboard'),
 
-    # Autenticación
-    path(
-        'login/',
-        auth_views.LoginView.as_view(
-            template_name='registration/login.html'
-        ),
-        name='login'
-    ),
+    # Auth
+    path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('register/', views.register, name='register'),
 
@@ -64,75 +75,70 @@ urlpatterns = [
     path('productos/<int:pk>/eliminar/', ProductoDeleteView.as_view(), name='producto_delete'),
 
     # Cotizaciones
-    path('cotizaciones/', views.CotizacionListView.as_view(), name='cotizacion_list'),
-    path('cotizaciones/crear/', views.CotizacionCreateView.as_view(), name='cotizacion_create'),
-    path('cotizaciones/<int:pk>/', views.CotizacionDetailView.as_view(), name='cotizacion_detail'),
-    path('cotizaciones/<int:pk>/editar/', views.CotizacionUpdateView.as_view(), name='cotizacion_update'),
-    path('cotizaciones/<int:pk>/eliminar/', views.CotizacionDeleteView.as_view(), name='cotizacion_delete'),
+    path('cotizaciones/', CotizacionListView.as_view(), name='cotizacion_list'),
+    path('cotizaciones/crear/', CotizacionCreateView.as_view(), name='cotizacion_create'),
+    path('cotizaciones/<int:pk>/', CotizacionDetailView.as_view(), name='cotizacion_detail'),
+    path('cotizaciones/<int:pk>/editar/', CotizacionUpdateView.as_view(), name='cotizacion_update'),
+    path('cotizaciones/<int:pk>/eliminar/', CotizacionDeleteView.as_view(), name='cotizacion_delete'),
 
+    # PDF
     path(
         'cotizaciones/<int:cotizacion_id>/pdf/',
-        views.generar_pdf,
+        generar_pdf,
         name='generar_pdf'
     ),
 
+    # Estado
     path(
-        'cotizaciones/<int:cotizacion_id>/completar/',
-        views.marcar_cotizacion_completada,
-        name='marcar_cotizacion_completada'
+        'cotizaciones/<int:cotizacion_id>/estado/<str:estado>/',
+        cambiar_estado_cotizacion,
+        name='cambiar_estado_cotizacion'
     ),
 
-    path(
-        'cotizaciones/<int:cotizacion_id>/email/',
-        views.enviar_cotizacion_email,
-        name='enviar_cotizacion_email'
-    ),
-
+    # Factura desde cotización
     path(
         'cotizaciones/<int:cotizacion_id>/crear-factura/',
         crear_factura_desde_cotizacion,
         name='crear_factura_desde_cotizacion'
     ),
 
-    # Reportes
-    path('reportes/', views.reportes, name='reportes'),
-
-    # Configuración
-    path('configuracion/', views.configuracion, name='configuracion'),
-
-    # API
-    path(
-        'api/producto/<int:producto_id>/precio/',
-        views.get_producto_precio,
-        name='get_producto_precio'
-    ),
-
+    # Items cotización
     path(
         'cotizaciones/<int:cotizacion_id>/agregar-item/',
-        views.agregar_item_cotizacion,
+        agregar_item_cotizacion,
         name='agregar_item_cotizacion'
     ),
 
     path(
         'items/<int:item_id>/eliminar/',
-        views.eliminar_item_cotizacion,
+        eliminar_item_cotizacion,
         name='eliminar_item_cotizacion'
+    ),
+
+    # Email
+    path(
+        'cotizaciones/<int:cotizacion_id>/enviar-email/',
+        enviar_cotizacion_email,
+        name='enviar_cotizacion_email'
+    ),
+
+    # Reportes
+    path('reportes/', reportes, name='reportes'),
+
+    # Configuración
+    path('configuracion/', configuracion, name='configuracion'),
+
+    # API
+    path(
+        'api/producto/<int:producto_id>/precio/',
+        get_producto_precio,
+        name='get_producto_precio'
     ),
 
     # Facturación
     path('facturacion/', FacturaListView.as_view(), name='factura_list'),
-
-    path(
-        'facturacion/nueva/',
-        FacturaCreateView.as_view(),
-        name='factura_create'
-    ),
-
-    path(
-        'facturacion/<int:pk>/',
-        FacturaDetailView.as_view(),
-        name='factura_detail'
-    ),
+    path('facturacion/nueva/', FacturaCreateView.as_view(), name='factura_create'),
+    path('facturacion/<int:pk>/', FacturaDetailView.as_view(), name='factura_detail'),
 
     path(
         'facturacion/<int:factura_id>/items/',
@@ -152,22 +158,8 @@ urlpatterns = [
         name='generar_pdf_factura'
     ),
 
-    # Configuración AFIP / ARCA
-    path(
-        'facturacion/configuracion/',
-        configuracion_afip,
-        name='facturacion_config'
-    ),
-
-    path(
-        'facturacion/configuracion/csr/',
-        generar_csr_view,
-        name='facturacion_generar_csr'
-    ),
-
-    path(
-        'facturacion/configuracion/test/',
-        test_conexion_afip,
-        name='facturacion_test'
-    ),
+    # AFIP
+    path('facturacion/configuracion/', configuracion_afip, name='facturacion_config'),
+    path('facturacion/configuracion/csr/', generar_csr_view, name='facturacion_generar_csr'),
+    path('facturacion/configuracion/test/', test_conexion_afip, name='facturacion_test'),
 ]

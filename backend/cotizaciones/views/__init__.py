@@ -35,10 +35,10 @@ from .cotizaciones import (  # noqa: F401
     CotizacionUpdateView,
     CotizacionDeleteView,
     CotizacionDetailView,
+    cambiar_estado_cotizacion,
     agregar_item_cotizacion,
     eliminar_item_cotizacion,
     generar_pdf,
-    marcar_cotizacion_completada,
     enviar_cotizacion_email,
 )
 from .api import get_producto_precio  # noqa: F401
