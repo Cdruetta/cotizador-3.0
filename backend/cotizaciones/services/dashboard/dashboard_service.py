@@ -28,6 +28,15 @@ def build_dashboard_context():
         or Decimal("0")
     )
 
+    ultima_cotizacion = Cotizacion.objects.select_related("cliente").order_by("-fecha", "-id").first()
+
+    if ultima_cotizacion:
+        estado_sistema = ultima_cotizacion.get_estado_display()
+        numero_ultima = ultima_cotizacion.numero
+    else:
+        estado_sistema = "Sin cotizaciones"
+        numero_ultima = "-"
+
     return {
         "total_clientes": Cliente.objects.count(),
 
@@ -63,7 +72,11 @@ def build_dashboard_context():
             "usuario",
         ).order_by("-creada")[:5],
 
+        "estado_sistema": estado_sistema,
+        "numero_ultima_cotizacion": numero_ultima,
+
         "db_percent": db_percent,
         "db_mb": db_mb,
         "db_max_mb": db_max_mb,
     }
+
