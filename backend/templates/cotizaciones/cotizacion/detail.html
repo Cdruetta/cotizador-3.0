@@ -7,6 +7,7 @@
 <!-- Header -->
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
   <div>
+
     <h4 class="fw-bold mb-0 text-primary">
       {{ cotizacion.numero }}
     </h4>
@@ -20,8 +21,8 @@
 
   <div class="d-flex gap-2 flex-wrap">
 
-    {% if cotizacion.completada %}
-      <form method="post" action="{% url 'marcar_cotizacion_completada' cotizacion.pk %}">
+    {% if cotizacion.estado == 'aprobada' %}
+      <form method="post" action="{% url 'cambiar_estado_cotizacion' cotizacion.pk 'borrador' %}">
         {% csrf_token %}
 
         <button type="submit" class="btn btn-sm btn-outline-warning">
@@ -35,7 +36,7 @@
         Completada
       </span>
     {% else %}
-      <form method="post" action="{% url 'marcar_cotizacion_completada' cotizacion.pk %}">
+      <form method="post" action="{% url 'cambiar_estado_cotizacion' cotizacion.pk 'aprobada' %}">
         {% csrf_token %}
 
         <button type="submit" class="btn btn-sm btn-success">
@@ -44,6 +45,7 @@
         </button>
       </form>
     {% endif %}
+
 
     <a href="{% url 'cotizacion_update' cotizacion.pk %}" class="btn btn-sm btn-warning">
       <i class="bi bi-pencil me-1"></i>
@@ -191,7 +193,7 @@
           <tr>
             <td class="text-muted small">Estado</td>
             <td>
-              {% if cotizacion.completada %}
+              {% if cotizacion.estado == 'aprobada' %}
                 <span class="badge badge-completada rounded-pill">
                   Completada
                 </span>
