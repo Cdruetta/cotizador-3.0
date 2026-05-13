@@ -7,8 +7,9 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import ListView, CreateView, DetailView
 from django.urls import reverse_lazy
 
-from ..models import ConfiguracionAFIP, Factura, ItemFactura
+from ..models import ConfiguracionAFIP, Factura, ItemFactura, CotizacionItem, Cotizacion
 from ..forms.facturacion import ConfiguracionAFIPForm, GenerarCSRForm, FacturaForm, ItemFacturaForm
+
 from ..services.arca.csr import generar_csr
 from ..services.arca.conexion import probar_conexion, autorizar_factura
 from ..utils.pdf_utils import generar_pdf_factura
@@ -145,4 +146,39 @@ def autorizar_factura_view(request, factura_id):
 def generar_pdf_factura_view(request, factura_id):
     factura = get_object_or_404(Factura, id=factura_id)
     return generar_pdf_factura(factura)
+
+
+@login_required
+def crear_factura_desde_cotizacion(request, cotizacion_id):
+    """Crea una factura copiando los items de la cotización.
+    (Si ya existiera una factura para esa cotización, la reusa si el modelo lo soporta.)
+    """
+    cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
+
+    # Nota: todavía el modelo Factura no tiene relación con Cotizacion.
+    # Por eso, por ahora creamos siempre una nueva factura.
+    # Cuando se implemente Factura.cotizacion (OneToOne), se puede ajustar a reusar.
+
+    factura = Factura.objects.create(
+        cliente=cotizacion.cliente,
+        punto_venta=1,
+        usuario=request.user,
+    )
+
+    # Copiar items
+    for c_item in cotizacion.items.select_related("producto", "producto__proveedor").all():
+        ItemFactura.objects.create(
+            factura=factura,
+            descripcion=c_item.producto.nombre,
+            cantidad=c_item.cantidad,
+            precio_unit=c_item.precio_unitario,
+        )
+
+    # Recalcular totales
+    factura.total = sum(i.subtotal for i in factura.items.all())
+    factura.neto = factura.total
+    factura.save(update_fields=["total", "neto"])
+
+    return redirect("factura_detail", pk=factura.pk)
+
 

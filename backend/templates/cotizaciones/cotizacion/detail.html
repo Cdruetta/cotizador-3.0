@@ -27,8 +27,20 @@
       {% if cotizacion.email_enviado %}<i class="bi bi-check-circle-fill ms-1"></i>{% endif %}
     </button>
     <a href="{% url 'cotizacion_list' %}" class="btn btn-sm btn-light"><i class="bi bi-arrow-left me-1"></i>Volver</a>
+
+    {# Si existe factura para esta cotización, mostramos link. Si no, mostramos botón de creación. #}
+    {% if factura_creada_pk %}
+      <a href="{% url 'factura_detail' factura_creada_pk %}" class="btn btn-sm btn-primary">
+        <i class="bi bi-receipt me-1"></i>Ver Factura
+      </a>
+    {% else %}
+      <a href="{% url 'crear_factura_desde_cotizacion' cotizacion.pk %}" class="btn btn-sm btn-success">
+        <i class="bi bi-plus-circle me-1"></i>Nueva Factura
+      </a>
+    {% endif %}
   </div>
 </div>
+
 
 <div class="row g-3 mb-3">
   <!-- Cliente -->

@@ -95,7 +95,13 @@ class CotizacionDetailView(LoginRequiredMixin, DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx["items"] = self.object.items.select_related("producto", "producto__proveedor")
         ctx["item_form"] = CotizacionItemForm()
+
+        # Si existe factura para esta cotización (en el estado actual del modelo, aún no hay FK/OneToOne).
+        # Por compatibilidad, no mostramos factura creada automáticamente.
+        ctx["factura_creada_pk"] = None
+
         ctx["email_form"] = EnviarEmailForm(
+
             initial={
                 "email_destino": self.object.cliente.email or "",
                 "asunto": f'Cotización {self.object.numero} - GCinsumos',
