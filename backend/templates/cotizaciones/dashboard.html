@@ -12,20 +12,19 @@
     <small class="text-muted">Resumen general del sistema</small>
   </div>
 
-  <a href="{% url 'cotizacion_create' %}" class="btn btn-primary btn-sm px-3">
+  <a href="{% url 'cotizacion_create' %}" class="btn btn-primary btn-sm px-3 shadow-sm">
     <i class="bi bi-plus-circle me-1"></i> Nueva Cotización
   </a>
 </div>
 
-<!-- Stats -->
+<!-- Stats (Accesos Directos) -->
 <div class="row g-3 mb-4">
-
-  <div class="col-6 col-sm-6 col-md-3">
+  <div class="col-6 col-md-3">
     <a href="{% url 'cliente_list' %}" class="text-decoration-none">
-      <div class="card stat-card h-100">
+      <div class="card stat-card h-100 shadow-sm border-0">
         <div class="card-body d-flex align-items-center gap-3">
-          <div class="stat-icon" style="background:#e8f4fd">
-            <i class="bi bi-people-fill" style="color:#1a6fb3"></i>
+          <div class="stat-icon p-3 rounded" style="background:#e8f4fd">
+            <i class="bi bi-people-fill fs-4" style="color:#1a6fb3"></i>
           </div>
           <div>
             <div class="fw-bold fs-4">{{ total_clientes|default:0 }}</div>
@@ -38,10 +37,10 @@
 
   <div class="col-6 col-md-3">
     <a href="{% url 'proveedor_list' %}" class="text-decoration-none">
-      <div class="card stat-card h-100">
+      <div class="card stat-card h-100 shadow-sm border-0">
         <div class="card-body d-flex align-items-center gap-3">
-          <div class="stat-icon" style="background:#e8fdf0">
-            <i class="bi bi-truck" style="color:#1a7f4b"></i>
+          <div class="stat-icon p-3 rounded" style="background:#e8fdf0">
+            <i class="bi bi-truck fs-4" style="color:#1a7f4b"></i>
           </div>
           <div>
             <div class="fw-bold fs-4">{{ total_proveedores|default:0 }}</div>
@@ -54,10 +53,10 @@
 
   <div class="col-6 col-md-3">
     <a href="{% url 'producto_list' %}" class="text-decoration-none">
-      <div class="card stat-card h-100">
+      <div class="card stat-card h-100 shadow-sm border-0">
         <div class="card-body d-flex align-items-center gap-3">
-          <div class="stat-icon" style="background:#fff3e0">
-            <i class="bi bi-box-seam" style="color:#e65100"></i>
+          <div class="stat-icon p-3 rounded" style="background:#fff3e0">
+            <i class="bi bi-box-seam fs-4" style="color:#e65100"></i>
           </div>
           <div>
             <div class="fw-bold fs-4">{{ total_productos|default:0 }}</div>
@@ -70,10 +69,10 @@
 
   <div class="col-6 col-md-3">
     <a href="{% url 'cotizacion_list' %}" class="text-decoration-none">
-      <div class="card stat-card h-100">
+      <div class="card stat-card h-100 shadow-sm border-0">
         <div class="card-body d-flex align-items-center gap-3">
-          <div class="stat-icon" style="background:#f0e8ff">
-            <i class="bi bi-file-text-fill" style="color:#6f42c1"></i>
+          <div class="stat-icon p-3 rounded" style="background:#f0e8ff">
+            <i class="bi bi-file-text-fill fs-4" style="color:#6f42c1"></i>
           </div>
           <div>
             <div class="fw-bold fs-4">{{ total_cotizaciones|default:0 }}</div>
@@ -83,161 +82,102 @@
       </div>
     </a>
   </div>
-
 </div>
 
-<!-- Mes actual + pendientes -->
-<div class="row g-3 mb-4">
-
-  <div class="col-12 col-sm-6 col-md-4">
-    <div class="card stat-card h-100" style="background:linear-gradient(135deg,#1e3c72,#2a5298);color:#fff">
-      <div class="card-body">
-
-        <div class="d-flex justify-content-between align-items-start">
-          <div>
-            <div class="small opacity-75 mb-1">Facturado este mes</div>
-            <div class="fs-3 fw-bold">
-              ${{ total_facturado_mes|default:0|floatformat:0 }}
-            </div>
-          </div>
-          <i class="bi bi-graph-up-arrow fs-2 opacity-50"></i>
-        </div>
-
-        <div class="small opacity-75 mt-2">
-          {{ cotizaciones_mes|default:0 }} cotizaciones completadas
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-4">
-    <div class="card stat-card h-100">
-      <div class="card-body">
-
-        <div class="d-flex justify-content-between align-items-start">
-          <div>
-            <div class="small text-muted mb-1">Pendientes de cobro</div>
-            <div class="fs-3 fw-bold text-warning">
-              {{ cotizaciones_pendientes|default:0 }}
-            </div>
-          </div>
-          <i class="bi bi-clock-history fs-2 text-warning opacity-50"></i>
-        </div>
-
-        <a href="{% url 'cotizacion_list' %}?estado=pendiente"
-           class="small text-muted mt-2 d-block">
-          Ver pendientes →
-        </a>
-
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- Recent quotations -->
+<!-- Cotizaciones Recientes -->
 {% if cotizaciones_recientes %}
-
-<div class="card table-card">
-
-  <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 px-4">
+<div class="card shadow-sm border-0" style="border-radius: 12px;">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 px-4 border-0">
     <h6 class="mb-0 fw-bold">
       <i class="bi bi-clock-history me-2 text-primary"></i>
       Cotizaciones Recientes
     </h6>
-
-    <a href="{% url 'cotizacion_list' %}" class="btn btn-sm btn-outline-primary">
-      Ver todas
-    </a>
+    <a href="{% url 'cotizacion_list' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Ver todas</a>
   </div>
 
   <div class="table-responsive">
-    <table class="table mb-0">
-
-      <thead>
+    <table class="table mb-0 align-middle">
+      <thead class="bg-light">
         <tr>
-          <th>Número</th>
-          <th>Cliente</th>
-          <th>Tipo</th>
-          <th>Fecha</th>
-          <th>Total</th>
-          <th class="text-center">Estado</th>
-          <th></th>
+          <th class="px-4 py-3 text-muted small fw-bold">NÚMERO</th>
+          <th class="py-3 text-muted small fw-bold">CLIENTE</th>
+          <th class="py-3 text-muted small fw-bold">TIPO</th>
+          <th class="py-3 text-muted small fw-bold">FECHA</th>
+          <th class="py-3 text-muted small fw-bold">TOTAL</th>
+          <th class="text-center py-3 text-muted small fw-bold">ESTADO</th>
+          <th class="text-center py-3 text-muted small fw-bold">ACCIONES</th>
         </tr>
       </thead>
-
       <tbody>
-
         {% for c in cotizaciones_recientes %}
-        <tr>
-
-          <td class="fw-semibold small">
-            {{ c.numero }}
-          </td>
-
-          <td>
-            {{ c.cliente.nombre }}
-          </td>
-
-          <td>
-            <span class="badge rounded-pill badge-{{ c.tipo_documento }}">
-              {{ c.get_tipo_documento_display }}
-            </span>
-          </td>
-
-          <td class="small text-muted">
-            {{ c.fecha|date:"d/m/Y" }}
-          </td>
-
-          <td class="fw-bold">
-            ${{ c.total|floatformat:2 }}
-          </td>
-
+        <tr class="border-bottom">
+          <td class="px-4 fw-semibold small text-nowrap">Cotizacion Nº {{ c.numero }}</td>
+          <td>{{ c.cliente.nombre }}</td>
+          <td>{{ c.get_tipo_documento_display }}</td>
+          <td class="small text-muted text-nowrap">{{ c.fecha|date:"d/m/Y" }}</td>
+          <td class="fw-bold text-nowrap">${{ c.total|floatformat:2 }}</td>
+          
+          <!-- Estado -->
           <td class="text-center">
-            {% if c.estado == "facturada" or c.estado == "aprobada" %}
-              <span class="badge rounded-pill badge-completada">
-                {{ c.get_estado_display }}
+            {% if c.estado == "autorizada" or c.estado == "facturada" or c.estado == "aprobada" %}
+              <span class="badge" style="background-color: #198754; color: white; padding: 0.6em 1.2em; border-radius: 8px; font-weight: bold; min-width: 110px;">
+                Autorizada
+              </span>
+            {% elif c.estado == "anulada" %}
+              <span class="badge" style="background-color: #6c757d; color: white; padding: 0.6em 1.2em; border-radius: 8px; font-weight: bold; min-width: 110px;">
+                Anulada
               </span>
             {% else %}
-              <span class="badge rounded-pill badge-pendiente">
-                {{ c.get_estado_display }}
+              <span class="badge" style="background-color: #ffc107; color: black; padding: 0.6em 1.2em; border-radius: 8px; font-weight: bold; min-width: 110px;">
+                Pendiente
               </span>
             {% endif %}
           </td>
 
-          <td>
-            <a href="{% url 'cotizacion_detail' c.pk %}" class="btn btn-sm btn-light">
-              <i class="bi bi-eye"></i>
-            </a>
-          </td>
+          <!-- Acciones Dinámicas -->
+          <td class="text-center">
+            <div class="d-flex justify-content-center align-items-center gap-3">
+              
+              {% if c.estado == "pendiente" %}
+                <!-- Botón para completar: usa el nombre de URL 'cambiar_estado_cotizacion' -->
+                <a href="{% url 'cambiar_estado_cotizacion' cotizacion_id=c.pk estado='autorizada' %}" 
+                   class="btn btn-sm text-white px-3 d-flex align-items-center shadow-sm" 
+                   style="background-color: #198754; border-radius: 8px; font-size: 0.85rem;">
+                  <i class="bi bi-check2-circle me-1"></i> Marcar completada
+                </a>
+              {% else %}
+                <!-- Botón para reabrir -->
+                <a href="{% url 'cambiar_estado_cotizacion' cotizacion_id=c.pk estado='pendiente' %}" 
+                   class="btn btn-sm btn-outline-secondary px-3 d-flex align-items-center" 
+                   style="border-radius: 8px; font-size: 0.85rem;">
+                  <i class="bi bi-arrow-counterclockwise me-1"></i> Reabrir
+                </a>
+              {% endif %}
 
+              <!-- Separador vertical sutil -->
+              <div class="vr opacity-25" style="height: 20px;"></div>
+
+              <!-- Ver detalle -->
+              <a href="{% url 'cotizacion_detail' c.pk %}" class="text-dark" title="Ver detalle">
+                <i class="bi bi-eye fs-5"></i>
+              </a>
+
+            </div>
+          </td>
         </tr>
         {% endfor %}
-
       </tbody>
-
     </table>
   </div>
-
 </div>
-
-  <!-- Estado del sistema (última cotización) -->
-  <div class="card stat-card h-100 mt-4">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-start">
-        <div>
-          <div class="small text-muted mb-1">Estado actual</div>
-          <div class="fs-4 fw-bold" style="color:#1e3c72">{{ estado_sistema|default:"-" }}</div>
-          <div class="text-muted small mt-1">Última cotización: {{ numero_ultima_cotizacion|default:"-" }}</div>
-        </div>
-        <i class="bi bi-info-circle fs-2 opacity-50"></i>
-      </div>
-    </div>
+{% else %}
+<div class="card shadow-sm border-0 py-5 text-center">
+  <div class="card-body">
+    <i class="bi bi-inbox fs-1 text-muted opacity-25"></i>
+    <p class="text-muted mt-3 mb-0">No hay cotizaciones recientes para mostrar.</p>
+    <a href="{% url 'cotizacion_create' %}" class="btn btn-link text-primary p-0 mt-2">Crea la primera aquí</a>
+  </div>
 </div>
-
 {% endif %}
 
 {% endblock %}
-
-
