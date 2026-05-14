@@ -209,7 +209,51 @@ body {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: .9rem;
+}
+
+/* Badges dólar */
+.gc-dolar-badge {
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: .72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: .01em;
+}
+
+.gc-dolar-badge.oficial {
+  background: #E6F1FB;
+  color: #0C447C;
+}
+
+.gc-dolar-badge.mep {
+  background: #EAF3DE;
+  color: #27500A;
+}
+
+.gc-dolar-badge.blue {
+  background: #DBEAFE;
+  color: #1e40af;
+}
+
+/* Separador vertical topbar */
+.topbar-sep {
+  width: 1px;
+  height: 18px;
+  background: #e2e8f0;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Label USD */
+.gc-usd-label {
+  font-size: .68rem;
+  font-weight: 700;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  flex-shrink: 0;
 }
 
 /* =========================
@@ -318,6 +362,30 @@ body.dark-mode:not(.auth-page) .filter-card {
   color: #e5e7eb !important;
 }
 
+/* Ajuste dark mode para badges dólar */
+body.dark-mode:not(.auth-page) .gc-dolar-badge.oficial {
+  background: #0C447C;
+  color: #B5D4F4;
+}
+
+body.dark-mode:not(.auth-page) .gc-dolar-badge.mep {
+  background: #27500A;
+  color: #C0DD97;
+}
+
+body.dark-mode:not(.auth-page) .gc-dolar-badge.blue {
+  background: #1e3a8a;
+  color: #BFDBFE;
+}
+
+body.dark-mode:not(.auth-page) .topbar-sep {
+  background: #22304a;
+}
+
+body.dark-mode:not(.auth-page) .gc-usd-label {
+  color: #4a6080;
+}
+
 /* =========================
    FOOTER
 ========================= */
@@ -355,6 +423,18 @@ body.dark-mode:not(.auth-page) .filter-card {
   #main-content,
   #main-content.collapsed {
     margin-left: var(--gc-sidebar-col-w);
+  }
+
+  /* Ocultar dólar en móvil muy chico */
+  #gc-dolar-wrap {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  /* En tablets ocultar descripción clima, solo temp */
+  #clima-desc {
+    display: none;
   }
 }
 </style>
@@ -502,6 +582,48 @@ body.dark-mode:not(.auth-page) .filter-card {
 
   <div class="topbar-right">
 
+    <!-- ══ COTIZACIÓN DÓLAR ══════════════════════════════ -->
+    <div id="gc-dolar-wrap"
+         style="display:flex;align-items:center;gap:5px;"
+         title="Cotizaciones del dólar (actualizadas en tiempo real)">
+
+      <span class="gc-usd-label">USD</span>
+
+      <span id="dolar-oficial"
+            class="gc-dolar-badge oficial"
+            title="Dólar Oficial (venta)">
+        <i class="bi bi-arrow-repeat" style="font-size:.65rem;"></i>
+      </span>
+
+      <span id="dolar-mep"
+            class="gc-dolar-badge mep"
+            title="Dólar MEP / Bolsa (venta)">
+        <i class="bi bi-arrow-repeat" style="font-size:.65rem;"></i>
+      </span>
+
+      <span id="dolar-blue"
+            class="gc-dolar-badge blue"
+            title="Dólar Blue (venta)">
+        <i class="bi bi-arrow-repeat" style="font-size:.65rem;"></i>
+      </span>
+
+    </div>
+
+    <span class="topbar-sep d-none d-lg-inline-block"></span>
+
+    <!-- ══ CLIMA ════════════════════════════════════════ -->
+    <span id="gc-clima"
+          class="text-muted small d-none d-sm-inline-flex"
+          style="align-items:center;gap:4px;white-space:nowrap;"
+          title="Clima actual en Río Cuarto, Córdoba">
+      <i id="clima-icon" class="bi bi-arrow-repeat" style="font-size:.85rem;"></i>
+      <span id="clima-temp" style="font-weight:600;color:#374151;"></span>
+      <span id="clima-desc" style="color:#888;font-size:.75rem;"></span>
+    </span>
+
+    <span class="topbar-sep d-none d-md-inline-block"></span>
+
+    <!-- ══ FECHA ════════════════════════════════════════ -->
     <span class="text-muted small d-none d-md-inline">
       <i class="bi bi-calendar3 me-1"></i>
       {% now "d/m/Y" %}
@@ -541,18 +663,21 @@ style="margin-left:0;padding-top:0"
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- ══════════════════════════════════════════════════════════
+     SIDEBAR TOGGLE
+══════════════════════════════════════════════════════════ -->
 <script>
 (function(){
 
   const sidebar = document.getElementById('sidebar');
-  const main = document.getElementById('main-content');
-  const topbar = document.getElementById('topbar');
-  const btn = document.getElementById('sidebarToggle');
+  const main    = document.getElementById('main-content');
+  const topbar  = document.getElementById('topbar');
+  const btn     = document.getElementById('sidebarToggle');
 
   if (!sidebar || !btn) return;
 
   const MOBILE = () => window.innerWidth <= 768;
-  const KEY = 'gc_sidebar_collapsed';
+  const KEY    = 'gc_sidebar_collapsed';
 
   if (!MOBILE() && localStorage.getItem(KEY) === 'true') {
     sidebar.classList.add('collapsed');
@@ -568,12 +693,139 @@ style="margin-left:0;padding-top:0"
     }
 
     const col = sidebar.classList.toggle('collapsed');
-
     main.classList.toggle('collapsed', col);
     topbar.classList.toggle('collapsed', col);
-
     localStorage.setItem(KEY, col);
   });
+
+})();
+</script>
+
+<!-- ══════════════════════════════════════════════════════════
+     DÓLAR + CLIMA EN TIEMPO REAL
+══════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+
+  /* ── Helpers ───────────────────────────────────────── */
+
+  function fmtPeso(v) {
+    if (v == null || isNaN(v)) return '–';
+    return '$' + Math.round(v).toLocaleString('es-AR');
+  }
+
+  function setEl(id, html) {
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  }
+
+  /* ── DÓLAR (dolarapi.com — sin API key) ────────────── */
+
+  var TIPOS_DOLAR = [
+    { id: 'dolar-oficial', url: 'https://dolarapi.com/v1/dolares/oficial',  label: 'Oficial' },
+    { id: 'dolar-mep',     url: 'https://dolarapi.com/v1/dolares/bolsa',    label: 'MEP'     },
+    { id: 'dolar-blue',    url: 'https://dolarapi.com/v1/dolares/blue',     label: 'Blue'    }
+  ];
+
+  function cargarDolar() {
+    TIPOS_DOLAR.forEach(function(t) {
+      fetch(t.url)
+        .then(function(r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function(d) {
+          var venta = d.venta ?? d.compra;
+          setEl(t.id, t.label + ' ' + fmtPeso(venta));
+        })
+        .catch(function() {
+          setEl(t.id, t.label + ' –');
+        });
+    });
+  }
+
+  /* ── CLIMA (Open-Meteo — sin API key) ──────────────── */
+  /* Coordenadas: Río Cuarto, Córdoba, Argentina          */
+
+  var LAT = -33.1307;
+  var LON = -64.3499;
+
+  var WMO_DESC = {
+    0:'Despejado', 1:'Mayorm. despejado', 2:'Parcialm. nublado', 3:'Nublado',
+    45:'Niebla', 48:'Niebla c/escarcha',
+    51:'Llovizna leve', 53:'Llovizna', 55:'Llovizna intensa',
+    61:'Lluvia leve', 63:'Lluvia', 65:'Lluvia intensa',
+    71:'Nieve leve', 73:'Nieve', 75:'Nieve intensa',
+    80:'Chubascos leves', 81:'Chubascos', 82:'Chubascos fuertes',
+    95:'Tormenta', 96:'Tormenta c/granizo', 99:'Tormenta fuerte'
+  };
+
+  var WMO_ICON = {
+    0:'bi-sun', 1:'bi-sun', 2:'bi-cloud-sun', 3:'bi-cloud',
+    45:'bi-cloud-haze2', 48:'bi-cloud-haze2',
+    51:'bi-cloud-drizzle', 53:'bi-cloud-drizzle', 55:'bi-cloud-drizzle',
+    61:'bi-cloud-rain', 63:'bi-cloud-rain', 65:'bi-cloud-rain-heavy',
+    71:'bi-snow', 73:'bi-snow', 75:'bi-snow2',
+    80:'bi-cloud-rain', 81:'bi-cloud-rain', 82:'bi-cloud-rain-heavy',
+    95:'bi-cloud-lightning-rain', 96:'bi-cloud-lightning-rain', 99:'bi-cloud-lightning-rain'
+  };
+
+  function cargarClima() {
+    var url = 'https://api.open-meteo.com/v1/forecast'
+      + '?latitude=' + LAT
+      + '&longitude=' + LON
+      + '&current=temperature_2m,weathercode'
+      + '&timezone=America%2FArgentina%2FBuenos_Aires';
+
+    fetch(url)
+      .then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(d) {
+        var temp  = Math.round(d.current.temperature_2m);
+        var code  = d.current.weathercode;
+        var desc  = WMO_DESC[code] || 'N/D';
+        var icon  = WMO_ICON[code] || 'bi-cloud';
+
+        /* Mostrar el bloque clima */
+        var wrap = document.getElementById('gc-clima');
+        if (wrap) {
+          wrap.classList.remove('d-none');
+          wrap.style.display = 'inline-flex';
+        }
+
+        /* Ícono */
+        var iconEl = document.getElementById('clima-icon');
+        if (iconEl) iconEl.className = 'bi ' + icon;
+
+        /* Temperatura */
+        var tempEl = document.getElementById('clima-temp');
+        if (tempEl) tempEl.textContent = temp + '°C';
+
+        /* Descripción */
+        var descEl = document.getElementById('clima-desc');
+        if (descEl) descEl.textContent = '· ' + desc;
+      })
+      .catch(function() {
+        var iconEl = document.getElementById('clima-icon');
+        if (iconEl) iconEl.className = 'bi bi-exclamation-circle';
+        var tempEl = document.getElementById('clima-temp');
+        if (tempEl) tempEl.textContent = 'N/D';
+        var wrap = document.getElementById('gc-clima');
+        if (wrap) { wrap.classList.remove('d-none'); wrap.style.display = 'inline-flex'; }
+      });
+  }
+
+  /* ── Init y refresco cada 5 minutos ───────────────── */
+
+  cargarDolar();
+  cargarClima();
+
+  setInterval(function() {
+    cargarDolar();
+    cargarClima();
+  }, 5 * 60 * 1000);
 
 })();
 </script>

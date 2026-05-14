@@ -195,13 +195,13 @@
           </td>
 
           <td class="text-center">
-            {% if c.estado == "completada" %}
+            {% if c.estado == "facturada" or c.estado == "aprobada" %}
               <span class="badge rounded-pill badge-completada">
-                Completada
+                {{ c.get_estado_display }}
               </span>
             {% else %}
               <span class="badge rounded-pill badge-pendiente">
-                Pendiente
+                {{ c.get_estado_display }}
               </span>
             {% endif %}
           </td>
