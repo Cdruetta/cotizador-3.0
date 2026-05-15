@@ -2,6 +2,14 @@
 {% block title %}Presupuestos{% endblock %}
 
 {% block content %}
+<style>
+  /* Evita que el número de comprobante se parta en dos líneas */
+  .table td { white-space: nowrap; }
+  .num-comprobante {
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: -0.5px;
+  }
+</style>
 
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
   <div>
@@ -75,13 +83,15 @@
         {% for c in cotizaciones %}
         <tr>
           <td class="ps-3">
-              <span class="fw-bold text-primary" style="font-family: 'Courier New', monospace; font-size: 1rem;">
-                  {% if c.numero %}
-                      #{{ c.numero|stringformat:"04d" }}
-                  {% else %}
-                      #{{ c.id|stringformat:"04d" }}
-                  {% endif %}
-              </span>
+            <span class="fw-bold text-primary num-comprobante" style="font-size: 1.05rem;">
+              {% if c.numero %}
+                #{{ c.numero }}
+              {% elif c.pk %}
+                #{{ c.pk }}
+              {% else %}
+                <span class="text-muted small">#---</span>
+              {% endif %}
+            </span>
           </td>
           
           <td>{{ c.cliente.nombre }}</td>
@@ -129,7 +139,7 @@
               <a href="{% url 'cotizacion_detail' c.pk %}" class="btn btn-sm btn-outline-primary" title="Ver Detalle">
                 <i class="bi bi-eye"></i>
               </a>
-              <a href="{% url 'generar_pdf' c.pk %}" class="btn btn-sm btn-outline-danger" title="Generar PDF" target="_blank">
+              <a href="{% url 'generar_pdf' c.pk %}" class="btn btn-sm btn-outline-danger" title="PDF" target="_blank">
                 <i class="bi bi-file-pdf"></i>
               </a>
               <a href="{% url 'cotizacion_update' c.pk %}" class="btn btn-sm btn-outline-warning" title="Editar">
@@ -138,7 +148,7 @@
 
               {% if c.estado == "aprobada" or c.estado == "rechazada" %}
                 <a href="{% url 'cambiar_estado_cotizacion' c.pk 'borrador' %}" 
-                   class="btn btn-sm btn-outline-secondary" title="Marcar como Pendiente">
+                   class="btn btn-sm btn-outline-secondary" title="Reabrir">
                   <i class="bi bi-arrow-counterclockwise"></i>
                 </a>
               {% else %}
@@ -154,7 +164,7 @@
               {% endif %}
 
               <a href="{% url 'cotizacion_delete' c.pk %}" class="btn btn-sm btn-outline-dark" 
-                 title="Eliminar" onclick="return confirm('¿Está seguro de eliminar este registro?')">
+                 title="Eliminar" onclick="return confirm('¿Eliminar registro?')">
                 <i class="bi bi-trash"></i>
               </a>
             </div>
