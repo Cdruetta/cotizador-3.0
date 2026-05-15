@@ -1,6 +1,6 @@
 from django.db import models
+from django.db.models import Sum
 from .clientes import Cliente
-
 
 class ConfiguracionAFIP(models.Model):
     AMBIENTE_CHOICES = [
@@ -54,6 +54,13 @@ class Factura(models.Model):
 
     def __str__(self):
         return f"Factura C {self.punto_venta:04d}-{self.numero or 0:08d}"
+
+    def actualizar_totales(self):
+        """Calcula la suma de subtotales y actualiza la factura."""
+        resultado = self.items.aggregate(total_suma=Sum('subtotal'))['total_suma'] or 0
+        self.total = resultado
+        self.neto = resultado  # En Factura C coinciden
+        self.save()
 
 
 class ItemFactura(models.Model):
