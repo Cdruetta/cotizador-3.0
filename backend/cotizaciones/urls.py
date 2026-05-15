@@ -21,10 +21,13 @@ from .views import (
     cambiar_estado_cotizacion,
     enviar_cotizacion_email,
 
-    reportes,
+    # Quitamos 'reportes' de aquí si estaba en views/__init__.py
     configuracion,
     get_producto_precio,
 )
+
+# Importamos la nueva vista de reportes desde su archivo específico
+from .views.reportes import reportes_view
 
 from .views.facturacion import (
     configuracion_afip,
@@ -122,8 +125,8 @@ urlpatterns = [
         name='enviar_cotizacion_email'
     ),
 
-    # Reportes
-    path('reportes/', reportes, name='reportes'),
+    # Reportes (Actualizado para usar la nueva vista)
+    path('reportes/', reportes_view, name='reportes'),
 
     # Configuración
     path('configuracion/', configuracion, name='configuracion'),
