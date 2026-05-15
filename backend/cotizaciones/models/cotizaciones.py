@@ -139,4 +139,3 @@ class CotizacionItem(models.Model):
         self.subtotal = self.cantidad * self.precio_unitario
         super().save(*args, **kwargs)
         self.cotizacion.calcular_total()
-

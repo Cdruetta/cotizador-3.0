@@ -5,29 +5,15 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import (
-    ListView,
-    CreateView,
-    UpdateView,
-    DeleteView,
-    DetailView,
-)
-
-from ..forms import (
-    CotizacionForm,
-    CotizacionItemForm,
-    CotizacionFilterForm,
-    EnviarEmailForm,
+    ListView, CreateView, UpdateView, DeleteView, DetailView,
 )
 
 from ..models import Cotizacion, CotizacionItem
-
-from ..services.communication.email import (
-    enviar_cotizacion_por_email,
+from ..forms import (
+    CotizacionForm, CotizacionItemForm, CotizacionFilterForm, EnviarEmailForm,
 )
-
-from ..services.documents.pdf import (
-    build_cotizacion_pdf_response,
-)
+from ..services.communication.email import enviar_cotizacion_por_email
+from ..services.documents.pdf import build_cotizacion_pdf_response
 
 
 # =========================
@@ -42,33 +28,25 @@ class CotizacionListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         qs = Cotizacion.objects.select_related("cliente", "usuario")
         form = CotizacionFilterForm(self.request.GET)
-
         if form.is_valid():
             search = form.cleaned_data.get("search")
             tipo = form.cleaned_data.get("tipo_documento")
             estado = form.cleaned_data.get("estado")
             fecha_desde = form.cleaned_data.get("fecha_desde")
             fecha_hasta = form.cleaned_data.get("fecha_hasta")
-
             if search:
                 qs = qs.filter(
-                    Q(numero__icontains=search)
-                    | Q(cliente__nombre__icontains=search)
+                    Q(numero__icontains=search) | Q(cliente__nombre__icontains=search)
                 )
-
             if tipo:
                 qs = qs.filter(tipo_documento=tipo)
-
             if estado:
                 qs = qs.filter(estado=estado)
-
             if fecha_desde:
                 qs = qs.filter(fecha__gte=fecha_desde)
-
             if fecha_hasta:
                 qs = qs.filter(fecha__lte=fecha_hasta)
-
-        return qs
+        return qs.order_by('-fecha', '-id')
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -77,7 +55,7 @@ class CotizacionListView(LoginRequiredMixin, ListView):
 
 
 # =========================
-# CREAR
+# ACCIONES (C.R.U.D)
 # =========================
 class CotizacionCreateView(LoginRequiredMixin, CreateView):
     model = Cotizacion
@@ -93,9 +71,6 @@ class CotizacionCreateView(LoginRequiredMixin, CreateView):
         return reverse_lazy("cotizacion_detail", kwargs={"pk": self.object.pk})
 
 
-# =========================
-# EDITAR
-# =========================
 class CotizacionUpdateView(LoginRequiredMixin, UpdateView):
     model = Cotizacion
     form_class = CotizacionForm
@@ -111,9 +86,6 @@ class CotizacionUpdateView(LoginRequiredMixin, UpdateView):
         return reverse_lazy("cotizacion_detail", kwargs={"pk": self.object.pk})
 
 
-# =========================
-# ELIMINAR
-# =========================
 class CotizacionDeleteView(LoginRequiredMixin, DeleteView):
     model = Cotizacion
     template_name = "cotizaciones/cotizacion/confirm_delete.html"
@@ -124,9 +96,6 @@ class CotizacionDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-# =========================
-# DETALLE
-# =========================
 class CotizacionDetailView(LoginRequiredMixin, DetailView):
     model = Cotizacion
     template_name = "cotizaciones/cotizacion/detail.html"
@@ -134,30 +103,20 @@ class CotizacionDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["items"] = self.object.items.select_related(
-            "producto",
-            "producto__proveedor",
-        )
+        ctx["items"] = self.object.items.select_related("producto")
         ctx["item_form"] = CotizacionItemForm()
-        ctx["factura_creada_pk"] = None
         ctx["email_form"] = EnviarEmailForm(
             initial={
                 "email_destino": self.object.cliente.email or "",
                 "asunto": f"Cotización {self.object.numero} - GCinsumos",
-                "mensaje": (
-                    f"Estimado/a {self.object.cliente.nombre},\n\n"
-                    "Adjuntamos su cotización.\n\n"
-                    "Quedamos a disposición.\n\n"
-                    "Saludos,\n"
-                    "GCinsumos"
-                ),
+                "mensaje": f"Estimado/a {self.object.cliente.nombre},\n\nAdjuntamos su cotización.\n\nSaludos,\nGCinsumos",
             }
         )
         return ctx
 
 
 # =========================
-# AGREGAR ITEM
+# GESTIÓN DE ITEMS Y ESTADOS
 # =========================
 @login_required
 def agregar_item_cotizacion(request, cotizacion_id):
@@ -169,26 +128,35 @@ def agregar_item_cotizacion(request, cotizacion_id):
             item.cotizacion = cotizacion
             item.save()
             messages.success(request, "Producto agregado.")
-        else:
-            messages.error(request, "Error al agregar el producto.")
     return redirect("cotizacion_detail", pk=cotizacion_id)
 
 
-# =========================
-# ELIMINAR ITEM
-# =========================
 @login_required
 def eliminar_item_cotizacion(request, item_id):
     item = get_object_or_404(CotizacionItem, id=item_id)
-    cotizacion_id = item.cotizacion.id
+    cot_id = item.cotizacion.id
     item.delete()
-    item.cotizacion.calcular_total()
     messages.success(request, "Producto eliminado.")
-    return redirect("cotizacion_detail", pk=cotizacion_id)
+    return redirect("cotizacion_detail", pk=cot_id)
+
+
+@login_required
+def cambiar_estado_cotizacion(request, cotizacion_id, estado):
+    cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
+    nuevo_estado = estado.lower()
+    estados_validos = [e[0] for e in Cotizacion.ESTADO_CHOICES]
+    if nuevo_estado in estados_validos:
+        cotizacion.estado = nuevo_estado
+        cotizacion.save()
+        messages.success(request, f"Estado actualizado a: {cotizacion.get_estado_display()}")
+    else:
+        messages.error(request, f"Estado '{estado}' no es válido.")
+    next_url = request.META.get('HTTP_REFERER')
+    return redirect(next_url if next_url else "cotizacion_list")
 
 
 # =========================
-# PDF
+# SALIDA (PDF / EMAIL)
 # =========================
 @login_required
 def generar_pdf(request, cotizacion_id):
@@ -196,43 +164,6 @@ def generar_pdf(request, cotizacion_id):
     return build_cotizacion_pdf_response(cotizacion=cotizacion)
 
 
-# =========================
-# CAMBIO DE ESTADO (OPTIMIZADO)
-# =========================
-@login_required
-def cambiar_estado_cotizacion(request, cotizacion_id, estado):
-    """
-    Cambia el estado de una cotización y redirige dinámicamente a la página de origen
-    (Dashboard, Lista o Detalle) para evitar interrupciones en el flujo de trabajo.
-    """
-    cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
-    estados_validos = [e[0] for e in Cotizacion.ESTADO_CHOICES]
-
-    if estado not in estados_validos:
-        messages.error(request, "Estado inválido.")
-        return redirect("cotizacion_detail", pk=cotizacion_id)
-
-    cotizacion.estado = estado
-    cotizacion.save(update_fields=["estado"])
-
-    messages.success(
-        request,
-        f"Cotización {cotizacion.numero} actualizada a {cotizacion.get_estado_display()}."
-    )
-
-    # Lógica de redirección dinámica:
-    # 1. Intenta volver a la URL anterior (HTTP_REFERER)
-    # 2. Si no existe o falla, redirige al detalle de la cotización por defecto
-    next_url = request.META.get('HTTP_REFERER')
-    if next_url:
-        return redirect(next_url)
-    
-    return redirect("cotizacion_detail", pk=cotizacion_id)
-
-
-# =========================
-# ENVIAR EMAIL
-# =========================
 @login_required
 def enviar_cotizacion_email(request, cotizacion_id):
     cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
@@ -248,12 +179,7 @@ def enviar_cotizacion_email(request, cotizacion_id):
                 )
                 cotizacion.email_enviado = True
                 cotizacion.save(update_fields=["email_enviado"])
-                messages.success(
-                    request,
-                    f'Email enviado a {form.cleaned_data["email_destino"]} exitosamente.'
-                )
+                messages.success(request, "Email enviado con éxito.")
             except Exception as e:
-                messages.error(request, f"Error al enviar el email: {str(e)}")
-        else:
-            messages.error(request, "Error en el formulario de email.")
+                messages.error(request, f"Error al enviar: {str(e)}")
     return redirect("cotizacion_detail", pk=cotizacion_id)
