@@ -75,9 +75,13 @@
         {% for c in cotizaciones %}
         <tr>
           <td class="ps-3">
-            <span class="fw-bold text-primary" style="font-family: monospace; font-size: 0.95rem;">
-                #{{ c.numero|stringformat:"04d" }}
-            </span>
+              <span class="fw-bold text-primary" style="font-family: 'Courier New', monospace; font-size: 1rem;">
+                  {% if c.numero %}
+                      #{{ c.numero|stringformat:"04d" }}
+                  {% else %}
+                      #{{ c.id|stringformat:"04d" }}
+                  {% endif %}
+              </span>
           </td>
           
           <td>{{ c.cliente.nombre }}</td>
