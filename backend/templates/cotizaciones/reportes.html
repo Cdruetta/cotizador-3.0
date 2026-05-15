@@ -200,7 +200,8 @@
       datasets: [{
         data: {{ chart_clientes_data|safe }},
         backgroundColor: '#2a5298',
-        borderRadius: 5
+        borderRadius: 5,
+        barThickness: 15, // <--- Ajustá este número (en píxeles) para que sean más finas
       }]
     },
     options: commonOptionsBar
@@ -214,7 +215,8 @@
       datasets: [{
         data: {{ chart_productos_data|safe }},
         backgroundColor: '#11998e',
-        borderRadius: 5
+        borderRadius: 5,
+        barThickness: 15, // <--- Ajustá este número (en píxeles) para que sean más finas
       }]
     },
     options: commonOptionsBar
