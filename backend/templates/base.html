@@ -341,52 +341,6 @@ body {
 }
 
 /* =========================
-   DARK MODE
-========================= */
-
-body.dark-mode:not(.auth-page) {
-  background: #0b1220 !important;
-  color: #e5e7eb !important;
-}
-
-body.dark-mode:not(.auth-page) #topbar {
-  background: #0f172a !important;
-  border-bottom-color: #22304a !important;
-}
-
-body.dark-mode:not(.auth-page) .card,
-body.dark-mode:not(.auth-page) .table-card,
-body.dark-mode:not(.auth-page) .stat-card,
-body.dark-mode:not(.auth-page) .filter-card {
-  background: #0f172a !important;
-  color: #e5e7eb !important;
-}
-
-/* Ajuste dark mode para badges dólar */
-body.dark-mode:not(.auth-page) .gc-dolar-badge.oficial {
-  background: #0C447C;
-  color: #B5D4F4;
-}
-
-body.dark-mode:not(.auth-page) .gc-dolar-badge.mep {
-  background: #27500A;
-  color: #C0DD97;
-}
-
-body.dark-mode:not(.auth-page) .gc-dolar-badge.blue {
-  background: #1e3a8a;
-  color: #BFDBFE;
-}
-
-body.dark-mode:not(.auth-page) .topbar-sep {
-  background: #22304a;
-}
-
-body.dark-mode:not(.auth-page) .gc-usd-label {
-  color: #4a6080;
-}
-
-/* =========================
    FOOTER
 ========================= */
 
@@ -453,37 +407,45 @@ body.dark-mode:not(.auth-page) .gc-usd-label {
 
   <div class="sidebar-nav">
 
-    <div class="nav-section">Principal</div>
+    <div class="nav-section">Análisis</div>
 
     <a href="{% url 'dashboard' %}"
        class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-      <i class="bi bi-speedometer2"></i>
+      <i class="bi bi-grid-1x2"></i>
       <span class="lbl">Dashboard</span>
     </a>
 
     <a href="{% url 'reportes' %}"
        class="nav-link {% if request.resolver_match.url_name == 'reportes' %}active{% endif %}">
-      <i class="bi bi-bar-chart-line"></i>
+      <i class="bi bi-graph-up-arrow"></i>
       <span class="lbl">Reportes</span>
     </a>
 
-    <div class="nav-section">Gestión</div>
+    <div class="nav-section">Gestión Comercial</div>
 
     <a href="{% url 'cotizacion_list' %}"
        class="nav-link {% if 'cotizacion' in request.resolver_match.url_name %}active{% endif %}">
-      <i class="bi bi-file-text"></i>
-      <span class="lbl">Cotizaciones</span>
+      <i class="bi bi-file-earmark-text"></i>
+      <span class="lbl">Presupuestos</span>
     </a>
+
+    <a href="{% url 'factura_list' %}"
+       class="nav-link {% if 'factura' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-receipt"></i>
+      <span class="lbl">Ventas / Facturas</span>
+    </a>
+
+    <div class="nav-section">Entidades</div>
 
     <a href="{% url 'cliente_list' %}"
        class="nav-link {% if 'cliente' in request.resolver_match.url_name %}active{% endif %}">
-      <i class="bi bi-people"></i>
+      <i class="bi bi-person-badge"></i>
       <span class="lbl">Clientes</span>
     </a>
 
     <a href="{% url 'proveedor_list' %}"
        class="nav-link {% if 'proveedor' in request.resolver_match.url_name %}active{% endif %}">
-      <i class="bi bi-truck"></i>
+      <i class="bi bi-building-up"></i>
       <span class="lbl">Proveedores</span>
     </a>
 
@@ -495,189 +457,106 @@ body.dark-mode:not(.auth-page) .gc-usd-label {
 
     <a href="{% url 'producto_list' %}?tipo_multiple=servicio_soft,servicio_hard"
        class="nav-link">
-      <i class="bi bi-gear"></i>
+      <i class="bi bi-tools"></i>
       <span class="lbl">Servicios</span>
     </a>
 
     <div class="nav-section">Acciones rápidas</div>
 
     <a href="{% url 'cotizacion_create' %}" class="nav-link">
-      <i class="bi bi-plus-circle"></i>
-      <span class="lbl">Nueva Cotización</span>
+      <i class="bi bi-file-earmark-plus"></i>
+      <span class="lbl">Nuevo Presupuesto</span>
     </a>
 
     <a href="{% url 'factura_create' %}" class="nav-link">
-      <i class="bi bi-plus-circle"></i>
-      <span class="lbl">Nueva Factura</span>
-    </a>
-
-    <a href="{% url 'cliente_create' %}" class="nav-link">
-      <i class="bi bi-person-plus"></i>
-      <span class="lbl">Nuevo Cliente</span>
-    </a>
-
-    <a href="{% url 'producto_create' %}" class="nav-link">
-      <i class="bi bi-plus-circle"></i>
-      <span class="lbl">Nuevo Producto</span>
-    </a>
-
-    <a href="{% url 'proveedor_create' %}" class="nav-link">
-      <i class="bi bi-plus-circle"></i>
-      <span class="lbl">Nuevo Proveedor</span>
+      <i class="bi bi-receipt-cutoff"></i>
+      <span class="lbl">Registrar Venta</span>
     </a>
 
     {% if user.is_staff %}
-
-    <div class="nav-section">Admin</div>
+    <div class="nav-section">Administración</div>
 
     <a href="{% url 'configuracion' %}"
        class="nav-link {% if request.resolver_match.url_name == 'configuracion' %}active{% endif %}">
-      <i class="bi bi-gear"></i>
+      <i class="bi bi-sliders"></i>
       <span class="lbl">Configuración</span>
-    </a>
-
-    <a href="{% url 'factura_list' %}"
-       class="nav-link {% if 'factura' in request.resolver_match.url_name %}active{% endif %}">
-      <i class="bi bi-receipt"></i>
-      <span class="lbl">Facturación</span>
     </a>
 
     <a href="{% url 'user_list' %}"
        class="nav-link {% if 'user' in request.resolver_match.url_name %}active{% endif %}">
-      <i class="bi bi-people-fill"></i>
+      <i class="bi bi-shield-lock"></i>
       <span class="lbl">Usuarios</span>
     </a>
-
-    <a href="{% url 'admin:index' %}"
-       class="nav-link"
-       target="_blank">
-      <i class="bi bi-terminal"></i>
-      <span class="lbl">Panel Admin</span>
-    </a>
-
     {% endif %}
   </div>
 
   <div class="sidebar-footer">
     <i class="bi bi-person-circle me-2"></i>
-
     <span class="lbl">
       {{ user.get_full_name|default:user.username }}
     </span>
-
-    <a href="{% url 'logout' %}"
-       class="ms-auto"
-       title="Cerrar Sesión"
-       style="color: rgba(255,255,255,0.6); text-decoration:none;">
+    <a href="{% url 'logout' %}" class="ms-auto" title="Cerrar Sesión" style="color: rgba(255,255,255,0.6); text-decoration:none;">
       <i class="bi bi-box-arrow-right"></i>
     </a>
   </div>
 </nav>
 
 <header id="topbar">
-
   <button id="sidebarToggle">
     <i class="bi bi-layout-sidebar"></i>
   </button>
 
   <div class="topbar-right">
-
-    <!-- ══ COTIZACIÓN DÓLAR ══════════════════════════════ -->
-    <div id="gc-dolar-wrap"
-         style="display:flex;align-items:center;gap:5px;"
-         title="Cotizaciones del dólar (actualizadas en tiempo real)">
-
+    <div id="gc-dolar-wrap" style="display:flex;align-items:center;gap:5px;">
       <span class="gc-usd-label">USD</span>
-
-      <span id="dolar-oficial"
-            class="gc-dolar-badge oficial"
-            title="Dólar Oficial (venta)">
-        <i class="bi bi-arrow-repeat" style="font-size:.65rem;"></i>
-      </span>
-
-      <span id="dolar-mep"
-            class="gc-dolar-badge mep"
-            title="Dólar MEP / Bolsa (venta)">
-        <i class="bi bi-arrow-repeat" style="font-size:.65rem;"></i>
-      </span>
-
-      <span id="dolar-blue"
-            class="gc-dolar-badge blue"
-            title="Dólar Blue (venta)">
-        <i class="bi bi-arrow-repeat" style="font-size:.65rem;"></i>
-      </span>
-
+      <span id="dolar-oficial" class="gc-dolar-badge oficial"></span>
+      <span id="dolar-mep" class="gc-dolar-badge mep"></span>
+      <span id="dolar-blue" class="gc-dolar-badge blue"></span>
     </div>
 
     <span class="topbar-sep d-none d-lg-inline-block"></span>
 
-    <!-- ══ CLIMA ════════════════════════════════════════ -->
-    <span id="gc-clima"
-          class="text-muted small d-none d-sm-inline-flex"
-          style="align-items:center;gap:4px;white-space:nowrap;"
-          title="Clima actual en Río Cuarto, Córdoba">
-      <i id="clima-icon" class="bi bi-arrow-repeat" style="font-size:.85rem;"></i>
+    <span id="gc-clima" class="text-muted small d-none d-sm-inline-flex" style="align-items:center;gap:4px;white-space:nowrap;">
+      <i id="clima-icon" class="bi bi-arrow-repeat"></i>
       <span id="clima-temp" style="font-weight:600;color:#374151;"></span>
       <span id="clima-desc" style="color:#888;font-size:.75rem;"></span>
     </span>
 
     <span class="topbar-sep d-none d-md-inline-block"></span>
 
-    <!-- ══ FECHA ════════════════════════════════════════ -->
     <span class="text-muted small d-none d-md-inline">
       <i class="bi bi-calendar3 me-1"></i>
       {% now "d/m/Y" %}
     </span>
-
   </div>
 </header>
 
 {% endif %}
 
-<div id="main-content"
-{% if not user.is_authenticated %}
-style="margin-left:0;padding-top:0"
-{% endif %}
->
-
-  <div class="position-fixed top-0 end-0 p-3" style="z-index:2000">
-    <div id="toast-container"></div>
-  </div>
-
+<div id="main-content" {% if not user.is_authenticated %} style="margin-left:0;padding-top:0" {% endif %}>
   <div class="page-inner">
     {% block content %}{% endblock %}
   </div>
 
   <footer class="page-footer">
-    <span>
-      <i class="bi bi-calendar3 me-1"></i>
-      {% now "d/m/Y H:i" %}
-    </span>
-
-    <span class="ms-auto">
-      © {% now "Y" %} GCinsumos · Soft Division
-    </span>
+    <span><i class="bi bi-calendar3 me-1"></i>{% now "d/m/Y H:i" %}</span>
+    <span class="ms-auto">© {% now "Y" %} GCinsumos · Soft Division</span>
   </footer>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- ══════════════════════════════════════════════════════════
-     SIDEBAR TOGGLE
-══════════════════════════════════════════════════════════ -->
 <script>
+/* Sidebar Toggle Logic */
 (function(){
-
   const sidebar = document.getElementById('sidebar');
-  const main    = document.getElementById('main-content');
-  const topbar  = document.getElementById('topbar');
-  const btn     = document.getElementById('sidebarToggle');
-
+  const main = document.getElementById('main-content');
+  const topbar = document.getElementById('topbar');
+  const btn = document.getElementById('sidebarToggle');
   if (!sidebar || !btn) return;
 
   const MOBILE = () => window.innerWidth <= 768;
-  const KEY    = 'gc_sidebar_collapsed';
+  const KEY = 'gc_sidebar_collapsed';
 
   if (!MOBILE() && localStorage.getItem(KEY) === 'true') {
     sidebar.classList.add('collapsed');
@@ -686,147 +565,45 @@ style="margin-left:0;padding-top:0"
   }
 
   btn.addEventListener('click', () => {
-
     if (MOBILE()) {
       sidebar.classList.toggle('mobile-open');
       return;
     }
-
     const col = sidebar.classList.toggle('collapsed');
     main.classList.toggle('collapsed', col);
     topbar.classList.toggle('collapsed', col);
     localStorage.setItem(KEY, col);
   });
-
 })();
-</script>
 
-<!-- ══════════════════════════════════════════════════════════
-     DÓLAR + CLIMA EN TIEMPO REAL
-══════════════════════════════════════════════════════════ -->
-<script>
+/* Dolar & Weather Logic */
 (function(){
-
-  /* ── Helpers ───────────────────────────────────────── */
-
-  function fmtPeso(v) {
-    if (v == null || isNaN(v)) return '–';
-    return '$' + Math.round(v).toLocaleString('es-AR');
-  }
-
-  function setEl(id, html) {
-    var el = document.getElementById(id);
-    if (el) el.innerHTML = html;
-  }
-
-  /* ── DÓLAR (dolarapi.com — sin API key) ────────────── */
-
-  var TIPOS_DOLAR = [
-    { id: 'dolar-oficial', url: 'https://dolarapi.com/v1/dolares/oficial',  label: 'Oficial' },
-    { id: 'dolar-mep',     url: 'https://dolarapi.com/v1/dolares/bolsa',    label: 'MEP'     },
-    { id: 'dolar-blue',    url: 'https://dolarapi.com/v1/dolares/blue',     label: 'Blue'    }
-  ];
+  function fmtPeso(v) { return v ? '$' + Math.round(v).toLocaleString('es-AR') : '–'; }
+  function setEl(id, html) { var el = document.getElementById(id); if (el) el.innerHTML = html; }
 
   function cargarDolar() {
-    TIPOS_DOLAR.forEach(function(t) {
-      fetch(t.url)
-        .then(function(r) {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          return r.json();
-        })
-        .then(function(d) {
-          var venta = d.venta ?? d.compra;
-          setEl(t.id, t.label + ' ' + fmtPeso(venta));
-        })
-        .catch(function() {
-          setEl(t.id, t.label + ' –');
-        });
+    const tipos = [
+      { id: 'dolar-oficial', url: 'https://dolarapi.com/v1/dolares/oficial', label: 'Oficial' },
+      { id: 'dolar-mep', url: 'https://dolarapi.com/v1/dolares/bolsa', label: 'MEP' },
+      { id: 'dolar-blue', url: 'https://dolarapi.com/v1/dolares/blue', label: 'Blue' }
+    ];
+    tipos.forEach(t => {
+      fetch(t.url).then(r => r.json()).then(d => {
+        setEl(t.id, t.label + ' ' + fmtPeso(d.venta || d.compra));
+      }).catch(() => setEl(t.id, t.label + ' –'));
     });
   }
 
-  /* ── CLIMA (Open-Meteo — sin API key) ──────────────── */
-  /* Coordenadas: Río Cuarto, Córdoba, Argentina          */
-
-  var LAT = -33.1307;
-  var LON = -64.3499;
-
-  var WMO_DESC = {
-    0:'Despejado', 1:'Mayorm. despejado', 2:'Parcialm. nublado', 3:'Nublado',
-    45:'Niebla', 48:'Niebla c/escarcha',
-    51:'Llovizna leve', 53:'Llovizna', 55:'Llovizna intensa',
-    61:'Lluvia leve', 63:'Lluvia', 65:'Lluvia intensa',
-    71:'Nieve leve', 73:'Nieve', 75:'Nieve intensa',
-    80:'Chubascos leves', 81:'Chubascos', 82:'Chubascos fuertes',
-    95:'Tormenta', 96:'Tormenta c/granizo', 99:'Tormenta fuerte'
-  };
-
-  var WMO_ICON = {
-    0:'bi-sun', 1:'bi-sun', 2:'bi-cloud-sun', 3:'bi-cloud',
-    45:'bi-cloud-haze2', 48:'bi-cloud-haze2',
-    51:'bi-cloud-drizzle', 53:'bi-cloud-drizzle', 55:'bi-cloud-drizzle',
-    61:'bi-cloud-rain', 63:'bi-cloud-rain', 65:'bi-cloud-rain-heavy',
-    71:'bi-snow', 73:'bi-snow', 75:'bi-snow2',
-    80:'bi-cloud-rain', 81:'bi-cloud-rain', 82:'bi-cloud-rain-heavy',
-    95:'bi-cloud-lightning-rain', 96:'bi-cloud-lightning-rain', 99:'bi-cloud-lightning-rain'
-  };
-
   function cargarClima() {
-    var url = 'https://api.open-meteo.com/v1/forecast'
-      + '?latitude=' + LAT
-      + '&longitude=' + LON
-      + '&current=temperature_2m,weathercode'
-      + '&timezone=America%2FArgentina%2FBuenos_Aires';
-
-    fetch(url)
-      .then(function(r) {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      })
-      .then(function(d) {
-        var temp  = Math.round(d.current.temperature_2m);
-        var code  = d.current.weathercode;
-        var desc  = WMO_DESC[code] || 'N/D';
-        var icon  = WMO_ICON[code] || 'bi-cloud';
-
-        /* Mostrar el bloque clima */
-        var wrap = document.getElementById('gc-clima');
-        if (wrap) {
-          wrap.classList.remove('d-none');
-          wrap.style.display = 'inline-flex';
-        }
-
-        /* Ícono */
-        var iconEl = document.getElementById('clima-icon');
-        if (iconEl) iconEl.className = 'bi ' + icon;
-
-        /* Temperatura */
-        var tempEl = document.getElementById('clima-temp');
-        if (tempEl) tempEl.textContent = temp + '°C';
-
-        /* Descripción */
-        var descEl = document.getElementById('clima-desc');
-        if (descEl) descEl.textContent = '· ' + desc;
-      })
-      .catch(function() {
-        var iconEl = document.getElementById('clima-icon');
-        if (iconEl) iconEl.className = 'bi bi-exclamation-circle';
-        var tempEl = document.getElementById('clima-temp');
-        if (tempEl) tempEl.textContent = 'N/D';
-        var wrap = document.getElementById('gc-clima');
-        if (wrap) { wrap.classList.remove('d-none'); wrap.style.display = 'inline-flex'; }
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=-33.1307&longitude=-64.3499&current=temperature_2m,weathercode')
+      .then(r => r.json()).then(d => {
+        document.getElementById('clima-temp').textContent = Math.round(d.current.temperature_2m) + '°C';
+        document.getElementById('gc-clima').classList.remove('d-none');
       });
   }
 
-  /* ── Init y refresco cada 5 minutos ───────────────── */
-
-  cargarDolar();
-  cargarClima();
-
-  setInterval(function() {
-    cargarDolar();
-    cargarClima();
-  }, 5 * 60 * 1000);
-
+  cargarDolar(); cargarClima();
+  setInterval(() => { cargarDolar(); cargarClima(); }, 5 * 60 * 1000);
 })();
 </script>
 

@@ -125,25 +125,34 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  // Configuración para evitar que los nombres largos se corten
+  // CONFIGURACIÓN CLAVE: axis.width acorta las barras para dar lugar a los nombres
   const commonOptionsBar = {
     indexAxis: 'y',
     responsive: true,
     maintainAspectRatio: false,
+    layout: {
+      padding: { left: 10, right: 30 } // Margen derecho para que la barra no toque el borde
+    },
     plugins: {
       legend: { display: false }
     },
     scales: {
-      x: { beginAtZero: true },
+      x: { 
+        beginAtZero: true,
+        grid: { display: false } 
+      },
       y: {
+        afterFit: function(axis) {
+          axis.width = 250; // <--- FORZA el ancho de la columna de nombres a 250px
+        },
         ticks: {
           autoSkip: false,
-          font: { size: 11 },
-          // Corta el texto si supera los 25 caracteres para que no se coma el gráfico
+          font: { size: 10 },
           callback: function(value) {
             const label = this.getLabelForValue(value);
-            if (label && label.length > 25) {
-              return label.substr(0, 25) + '...';
+            // Ahora que hay más espacio, permitimos hasta 40 caracteres
+            if (label && label.length > 40) {
+              return label.substr(0, 37) + '...';
             }
             return label;
           }
@@ -152,7 +161,7 @@
     }
   };
 
-  // 1. Gráfico de Ventas Mensuales
+  // 1. Ventas Mensuales
   new Chart(document.getElementById('chartVentas').getContext('2d'), {
     type: 'line',
     data: {
@@ -173,7 +182,7 @@
     }
   });
 
-  // 2. Gráfico de Estado de Cotizaciones
+  // 2. Estado de Cotizaciones
   new Chart(document.getElementById('chartEstado').getContext('2d'), {
     type: 'doughnut',
     data: {
@@ -187,12 +196,12 @@
       responsive: true, 
       maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
       }
     }
   });
 
-  // 3. Gráfico Top Clientes
+  // 3. Top Clientes (Barras Finitas y Cortas)
   new Chart(document.getElementById('chartClientes').getContext('2d'), {
     type: 'bar',
     data: {
@@ -200,14 +209,14 @@
       datasets: [{
         data: {{ chart_clientes_data|safe }},
         backgroundColor: '#2a5298',
-        borderRadius: 5,
-        barThickness: 15, // <--- Ajustá este número (en píxeles) para que sean más finas
+        borderRadius: 4,
+        barThickness: 12 // Barra más fina
       }]
     },
     options: commonOptionsBar
   });
 
-  // 4. Gráfico Top Productos
+  // 4. Top Productos (Barras Finitas y Cortas)
   new Chart(document.getElementById('chartProductos').getContext('2d'), {
     type: 'bar',
     data: {
@@ -215,8 +224,8 @@
       datasets: [{
         data: {{ chart_productos_data|safe }},
         backgroundColor: '#11998e',
-        borderRadius: 5,
-        barThickness: 15, // <--- Ajustá este número (en píxeles) para que sean más finas
+        borderRadius: 4,
+        barThickness: 12 // Barra más fina
       }]
     },
     options: commonOptionsBar
