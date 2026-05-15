@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
-{% block title %}Cotizaciones{% endblock %}
+{% block title %}Presupuestos{% endblock %}
 
 {% block content %}
 
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
   <div>
     <h4 class="fw-bold mb-0 text-primary">
-      <i class="bi bi-file-text me-2"></i> Cotizaciones
+      <i class="bi bi-file-earmark-text me-2"></i> Presupuestos y Comprobantes
     </h4>
-    <small class="text-muted">Administrá tus presupuestos y recibos</small>
+    <small class="text-muted">Gestión de propuestas comerciales y ventas registradas</small>
   </div>
   <a href="{% url 'cotizacion_create' %}" class="btn btn-primary btn-sm px-3 shadow-sm">
-    <i class="bi bi-plus-circle me-1"></i> Nueva
+    <i class="bi bi-plus-circle me-1"></i> Nuevo Presupuesto
   </a>
 </div>
 
@@ -60,11 +60,11 @@
     <table class="table mb-0 align-middle">
       <thead class="table-light">
         <tr>
-          <th class="ps-3">Número</th>
+          <th class="ps-3">Comprobante</th>
           <th>Cliente</th>
           <th>Tipo</th>
           <th>Fecha</th>
-          <th>Descuento</th>
+          <th>Desc.</th>
           <th>Total</th>
           <th class="text-center">Estado</th>
           <th>Usuario</th>
@@ -74,14 +74,22 @@
       <tbody>
         {% for c in cotizaciones %}
         <tr>
-          <td class="fw-semibold small ps-3">Nº {{ c.numero }}</td>
+          <td class="ps-3">
+            <span class="fw-bold text-primary" style="font-family: monospace; font-size: 0.95rem;">
+                #{{ c.numero|stringformat:"04d" }}
+            </span>
+          </td>
+          
           <td>{{ c.cliente.nombre }}</td>
+          
           <td>
-            <span class="badge rounded-pill bg-light text-dark border">
+            <span class="badge rounded-pill bg-light text-dark border small">
               {{ c.get_tipo_documento_display }}
             </span>
           </td>
+          
           <td class="small text-muted">{{ c.fecha|date:"d/m/Y" }}</td>
+          
           <td class="small">
             {% if c.descuento_porcentaje %}
               <span class="text-danger fw-semibold">{{ c.descuento_porcentaje }}%</span>
@@ -89,16 +97,17 @@
               <span class="text-muted">—</span>
             {% endif %}
           </td>
+          
           <td class="fw-bold">${{ c.total|floatformat:2 }}</td>
 
           <td class="text-center">
             {% if c.estado == "aprobada" %}
               <span class="badge rounded-pill bg-success px-3">
-                <i class="bi bi-check2-circle me-1"></i> Aprobada
+                <i class="bi bi-check2-circle me-1"></i> Aprobado
               </span>
             {% elif c.estado == "rechazada" %}
               <span class="badge rounded-pill bg-danger px-3">
-                <i class="bi bi-x-circle me-1"></i> Rechazada
+                <i class="bi bi-x-circle me-1"></i> Rechazado
               </span>
             {% else %}
               <span class="badge rounded-pill bg-warning text-dark px-3">
@@ -113,10 +122,10 @@
 
           <td class="text-center pe-3">
             <div class="d-flex align-items-center justify-content-center gap-1">
-              <a href="{% url 'cotizacion_detail' c.pk %}" class="btn btn-sm btn-outline-primary" title="Ver">
+              <a href="{% url 'cotizacion_detail' c.pk %}" class="btn btn-sm btn-outline-primary" title="Ver Detalle">
                 <i class="bi bi-eye"></i>
               </a>
-              <a href="{% url 'generar_pdf' c.pk %}" class="btn btn-sm btn-outline-danger" title="PDF" target="_blank">
+              <a href="{% url 'generar_pdf' c.pk %}" class="btn btn-sm btn-outline-danger" title="Generar PDF" target="_blank">
                 <i class="bi bi-file-pdf"></i>
               </a>
               <a href="{% url 'cotizacion_update' c.pk %}" class="btn btn-sm btn-outline-warning" title="Editar">
@@ -125,7 +134,7 @@
 
               {% if c.estado == "aprobada" or c.estado == "rechazada" %}
                 <a href="{% url 'cambiar_estado_cotizacion' c.pk 'borrador' %}" 
-                   class="btn btn-sm btn-outline-secondary" title="Reabrir / Pendiente">
+                   class="btn btn-sm btn-outline-secondary" title="Marcar como Pendiente">
                   <i class="bi bi-arrow-counterclockwise"></i>
                 </a>
               {% else %}
@@ -135,13 +144,13 @@
                 </a>
                 <a href="{% url 'cambiar_estado_cotizacion' c.pk 'rechazada' %}" 
                    class="btn btn-sm btn-outline-danger" title="Rechazar"
-                   onclick="return confirm('¿Rechazar esta cotización?')">
+                   onclick="return confirm('¿Rechazar este presupuesto?')">
                   <i class="bi bi-x-lg"></i>
                 </a>
               {% endif %}
 
               <a href="{% url 'cotizacion_delete' c.pk %}" class="btn btn-sm btn-outline-dark" 
-                 title="Eliminar" onclick="return confirm('¿Eliminar?')">
+                 title="Eliminar" onclick="return confirm('¿Está seguro de eliminar este registro?')">
                 <i class="bi bi-trash"></i>
               </a>
             </div>
@@ -154,8 +163,8 @@
   {% else %}
   <div class="text-center py-5">
     <i class="bi bi-file-earmark-x fs-1 text-muted"></i>
-    <h5 class="mt-3 text-secondary">No hay cotizaciones</h5>
-    <a href="{% url 'cotizacion_create' %}" class="btn btn-primary mt-2">Crear nueva</a>
+    <h5 class="mt-3 text-secondary">No se encontraron registros</h5>
+    <a href="{% url 'cotizacion_create' %}" class="btn btn-primary mt-2">Crear nuevo presupuesto</a>
   </div>
   {% endif %}
 </div>
