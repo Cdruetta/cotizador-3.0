@@ -22,7 +22,7 @@
 
 <div class="row g-3 mb-4">
   <div class="col-12 col-md-4">
-    <div class="card stat-card h-100" style="background:linear-gradient(135deg,#1e3c72,#2a5298);color:#fff; border:none">
+    <div class="card stat-card h-100 shadow-sm" style="background:linear-gradient(135deg,#1e3c72,#2a5298);color:#fff; border:none">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-start">
           <div>
@@ -37,7 +37,7 @@
   </div>
 
   <div class="col-12 col-md-4">
-    <div class="card stat-card h-100" style="background:linear-gradient(135deg,#11998e,#38ef7d);color:#fff; border:none">
+    <div class="card stat-card h-100 shadow-sm" style="background:linear-gradient(135deg,#11998e,#38ef7d);color:#fff; border:none">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-start">
           <div>
@@ -52,7 +52,7 @@
   </div>
 
   <div class="col-12 col-md-4">
-    <div class="card stat-card h-100">
+    <div class="card stat-card h-100 shadow-sm">
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-start">
           <div>
@@ -69,22 +69,26 @@
 
 <div class="row g-3 mb-4">
   <div class="col-12 col-lg-8">
-    <div class="card stat-card h-100">
+    <div class="card shadow-sm h-100">
       <div class="card-header bg-white fw-semibold small py-2 px-3">
         <i class="bi bi-graph-up me-2 text-primary"></i>Ventas mensuales (últimos 6 meses)
       </div>
       <div class="card-body">
-        <canvas id="chartVentas" height="110"></canvas>
+        <div style="height: 250px;">
+          <canvas id="chartVentas"></canvas>
+        </div>
       </div>
     </div>
   </div>
   <div class="col-12 col-lg-4">
-    <div class="card stat-card h-100">
+    <div class="card shadow-sm h-100">
       <div class="card-header bg-white fw-semibold small py-2 px-3">
         <i class="bi bi-pie-chart me-2 text-success"></i>Estado de cotizaciones
       </div>
       <div class="card-body d-flex align-items-center justify-content-center">
-        <canvas id="chartEstado" height="160"></canvas>
+        <div style="height: 250px; width: 100%;">
+          <canvas id="chartEstado"></canvas>
+        </div>
       </div>
     </div>
   </div>
@@ -92,22 +96,26 @@
 
 <div class="row g-3">
   <div class="col-md-6">
-    <div class="card stat-card">
+    <div class="card shadow-sm">
       <div class="card-header bg-white fw-semibold small py-2 px-3">
         <i class="bi bi-trophy me-2 text-warning"></i>Top 5 Clientes (Monto $)
       </div>
       <div class="card-body">
-        <canvas id="chartClientes" height="160"></canvas>
+        <div style="height: 300px;">
+          <canvas id="chartClientes"></canvas>
+        </div>
       </div>
     </div>
   </div>
   <div class="col-md-6">
-    <div class="card stat-card">
+    <div class="card shadow-sm">
       <div class="card-header bg-white fw-semibold small py-2 px-3">
         <i class="bi bi-box-seam me-2 text-info"></i>Top 5 Productos (Vendidos)
       </div>
       <div class="card-body">
-        <canvas id="chartProductos" height="160"></canvas>
+        <div style="height: 300px;">
+          <canvas id="chartProductos"></canvas>
+        </div>
       </div>
     </div>
   </div>
@@ -117,8 +125,21 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const ctxVentas = document.getElementById('chartVentas').getContext('2d');
-  new Chart(ctxVentas, {
+  // Configuración común para gráficos de barras horizontales
+  const commonOptionsBar = {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false }
+    },
+    scales: {
+      x: { beginAtZero: true }
+    }
+  };
+
+  // Ventas Mensuales
+  new Chart(document.getElementById('chartVentas').getContext('2d'), {
     type: 'line',
     data: {
       labels: {{ labels_6_meses|safe }},
@@ -131,11 +152,15 @@
         tension: 0.4
       }]
     },
-    options: { responsive: true, plugins: { legend: { display: false } } }
+    options: { 
+        responsive: true, 
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } } 
+    }
   });
 
-  const ctxEstado = document.getElementById('chartEstado').getContext('2d');
-  new Chart(ctxEstado, {
+  // Estado de Cotizaciones
+  new Chart(document.getElementById('chartEstado').getContext('2d'), {
     type: 'doughnut',
     data: {
       labels: {{ chart_estado_labels|safe }},
@@ -147,31 +172,30 @@
     options: { responsive: true, maintainAspectRatio: false }
   });
 
-  const ctxClientes = document.getElementById('chartClientes').getContext('2d');
-  new Chart(ctxClientes, {
+  // Top 5 Clientes
+  new Chart(document.getElementById('chartClientes').getContext('2d'), {
     type: 'bar',
     data: {
       labels: {{ chart_clientes_labels|safe }},
       datasets: [{
-        label: 'Monto Total $',
         data: {{ chart_clientes_data|safe }},
         backgroundColor: '#2a5298'
       }]
     },
-    options: { indexAxis: 'y', plugins: { legend: { display: false } } }
+    options: commonOptionsBar
   });
 
-  const ctxProductos = document.getElementById('chartProductos').getContext('2d');
-  new Chart(ctxProductos, {
-    type: 'pie',
+  // Top 5 Productos (Cambiado de Pie a Bar Horizontal para que no se amontone)
+  new Chart(document.getElementById('chartProductos').getContext('2d'), {
+    type: 'bar',
     data: {
       labels: {{ chart_productos_labels|safe }},
       datasets: [{
         data: {{ chart_productos_data|safe }},
-        backgroundColor: ['#11998e', '#38ef7d', '#1e3c72', '#ffc107', '#9c27b0']
+        backgroundColor: '#11998e'
       }]
     },
-    options: { responsive: true, maintainAspectRatio: false }
+    options: commonOptionsBar
   });
 </script>
 {% endblock %}
