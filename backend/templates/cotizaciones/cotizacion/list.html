@@ -6,8 +6,8 @@
   .table td, .table th { 
     white-space: nowrap; 
     vertical-align: middle;
-    font-size: 0.9rem;
-    padding: 0.55rem 0.45rem;
+    font-size: 0.88rem;
+    padding: 0.5rem 0.4rem;
   }
   
   .num-comprobante {
@@ -20,37 +20,37 @@
     overflow-x: auto;
   }
 
-  /* Columnas más estrechas */
-  .col-comprobante { min-width: 100px; width: 100px; }
-  .col-cliente     { min-width: 155px; }
-  .col-tipo        { min-width: 90px; }
-  .col-fecha       { min-width: 88px; text-align: center; }
-  .col-desc        { min-width: 60px; text-align: center; }
-  .col-total       { min-width: 100px; text-align: right; }
-  .col-estado      { min-width: 105px; text-align: center; }
-  .col-usuario     { min-width: 100px; }
-  .col-acciones    { min-width: 135px; text-align: center; }
+  /* Columnas muy ajustadas */
+  .col-comprobante { min-width: 95px; width: 95px; }
+  .col-cliente     { min-width: 145px; }
+  .col-tipo        { min-width: 85px; }
+  .col-fecha       { min-width: 85px; text-align: center; }
+  .col-desc        { min-width: 55px; text-align: center; }
+  .col-total       { min-width: 98px; text-align: right; }
+  .col-estado      { min-width: 100px; text-align: center; }
+  .col-usuario     { min-width: 95px; }
+  .col-acciones    { min-width: 125px; text-align: center; }
 
   .estado-badge {
-    font-size: 0.7rem;
-    padding: 0.2em 0.55em;
+    font-size: 0.68rem;
+    padding: 0.2em 0.5em;
   }
 
   .acciones-btn {
-    padding: 0.18rem 0.35rem;
-    font-size: 0.78rem;
-    width: 30px;
-    height: 30px;
+    padding: 0.15rem 0.3rem;
+    font-size: 0.75rem;
+    width: 28px;
+    height: 28px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
   }
 
-  /* Ocultar columnas en pantallas más chicas */
-  @media (max-width: 1250px) {
+  /* Ocultar columnas automáticamente */
+  @media (max-width: 1300px) {
     .col-usuario { display: none; }
   }
-  @media (max-width: 1050px) {
+  @media (max-width: 1100px) {
     .col-tipo { display: none; }
     .col-desc { display: none; }
   }
@@ -59,12 +59,12 @@
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
   <div>
     <h4 class="fw-bold mb-0 text-primary">
-      <i class="bi bi-file-earmark-text me-2"></i> Presupuestos y Comprobantes
+      <i class="bi bi-file-earmark-text me-2"></i> Presupuestos
     </h4>
-    <small class="text-muted">Gestión de propuestas comerciales y ventas registradas</small>
+    <small class="text-muted">Gestión de propuestas comerciales</small>
   </div>
   <a href="{% url 'cotizacion_create' %}" class="btn btn-primary btn-sm px-3 shadow-sm">
-    <i class="bi bi-plus-circle me-1"></i> Nuevo Presupuesto
+    <i class="bi bi-plus-circle me-1"></i> Nuevo
   </a>
 </div>
 
@@ -101,7 +101,7 @@
     {% if request.GET %}
     <div class="mt-2">
       <a href="{% url 'cotizacion_list' %}" class="btn btn-sm btn-outline-secondary">
-        <i class="bi bi-x-circle me-1"></i> Limpiar filtros
+        <i class="bi bi-x-circle me-1"></i> Limpiar
       </a>
     </div>
     {% endif %}
@@ -183,11 +183,11 @@
               {% else %}
                 <a href="{% url 'cambiar_estado_cotizacion' c.pk 'aprobada' %}" class="btn btn-sm btn-outline-success acciones-btn" title="Aprobar"><i class="bi bi-check2"></i></a>
                 <a href="{% url 'cambiar_estado_cotizacion' c.pk 'rechazada' %}" class="btn btn-sm btn-outline-danger acciones-btn" title="Rechazar"
-                   onclick="return confirm('¿Rechazar?')"><i class="bi bi-x-lg"></i></a>
+                  onclick="return confirm('¿Rechazar?')"><i class="bi bi-x-lg"></i></a>
               {% endif %}
 
               <a href="{% url 'cotizacion_delete' c.pk %}" class="btn btn-sm btn-outline-dark acciones-btn" title="Eliminar"
-                 onclick="return confirm('¿Eliminar?')"><i class="bi bi-trash"></i></a>
+                onclick="return confirm('¿Eliminar?')"><i class="bi bi-trash"></i></a>
             </div>
           </td>
         </tr>
