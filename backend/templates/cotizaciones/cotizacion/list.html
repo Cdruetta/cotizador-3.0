@@ -6,13 +6,13 @@
   .table td, .table th { 
     white-space: nowrap; 
     vertical-align: middle;
-    font-size: 0.87rem;
-    padding: 0.45rem 0.35rem;
+    font-size: 0.88rem;
+    padding: 0.5rem 0.4rem;
   }
   
   .num-comprobante {
     font-family: 'Courier New', Courier, monospace;
-    font-size: 1.04rem;
+    font-size: 1.05rem;
     font-weight: 700;
   }
 
@@ -20,39 +20,30 @@
     overflow-x: auto;
   }
 
-  /* Ultra compacto */
-  .col-comprobante { min-width: 90px; width: 90px; }
-  .col-cliente     { min-width: 135px; }
-  .col-tipo        { min-width: 80px; }
-  .col-fecha       { min-width: 82px; text-align: center; }
-  .col-desc        { min-width: 50px; text-align: center; }
-  .col-total       { min-width: 95px; text-align: right; }
-  .col-estado      { min-width: 95px; text-align: center; }
-  .col-usuario     { min-width: 90px; }
-  .col-acciones    { min-width: 120px; text-align: center; }
+  /* Anchos y alineación */
+  .col-comprobante { min-width: 95px; width: 95px; }
+  .col-cliente     { min-width: 145px; }
+  .col-tipo        { min-width: 85px; text-align: center; }
+  .col-fecha       { min-width: 85px; text-align: center; }
+  .col-desc        { min-width: 55px; text-align: center; }
+  .col-total       { min-width: 100px; text-align: right; }
+  .col-estado      { min-width: 100px; text-align: center; }
+  .col-usuario     { min-width: 95px; text-align: center; }
+  .col-acciones    { min-width: 125px; text-align: center; }
 
   .estado-badge {
-    font-size: 0.67rem;
-    padding: 0.18em 0.5em;
+    font-size: 0.68rem;
+    padding: 0.2em 0.5em;
   }
 
   .acciones-btn {
-    padding: 0.1rem 0.25rem;
-    font-size: 0.72rem;
-    width: 26px;
-    height: 26px;
+    padding: 0.15rem 0.3rem;
+    font-size: 0.75rem;
+    width: 27px;
+    height: 27px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-  }
-
-  /* Ocultar columnas para que entre mejor */
-  @media (max-width: 1350px) {
-    .col-usuario { display: none; }
-  }
-  @media (max-width: 1150px) {
-    .col-tipo { display: none; }
-    .col-desc { display: none; }
   }
 </style>
 
@@ -114,14 +105,14 @@
     <table class="table mb-0 align-middle">
       <thead class="table-light">
         <tr>
-          <th class="ps-3 col-comprobante">N°</th>
+          <th class="ps-3 col-comprobante">Comprobante</th>
           <th class="col-cliente">Cliente</th>
-          <th class="col-tipo">Tipo</th>
-          <th class="col-fecha">Fecha</th>
-          <th class="col-desc">Desc.</th>
+          <th class="col-tipo text-center">Tipo</th>
+          <th class="col-fecha text-center">Fecha</th>
+          <th class="col-desc text-center">Desc.</th>
           <th class="col-total text-end">Total</th>
           <th class="text-center col-estado">Estado</th>
-          <th class="col-usuario">Usuario</th>
+          <th class="col-usuario text-center">Usuario</th>
           <th class="text-center pe-3 col-acciones">Acciones</th>
         </tr>
       </thead>
@@ -140,13 +131,13 @@
           
           <td class="col-cliente">{{ c.cliente.nombre }}</td>
           
-          <td class="col-tipo">
+          <td class="col-tipo text-center">
             <span class="badge rounded-pill bg-light text-dark border small">
               {{ c.get_tipo_documento_display }}
             </span>
           </td>
           
-          <td class="col-fecha small text-muted">{{ c.fecha|date:"d/m/Y" }}</td>
+          <td class="col-fecha small text-muted text-center">{{ c.fecha|date:"d/m/Y" }}</td>
           
           <td class="col-desc small text-center">
             {% if c.descuento_porcentaje %}
@@ -168,7 +159,7 @@
             {% endif %}
           </td>
 
-          <td class="col-usuario small text-muted">
+          <td class="col-usuario small text-muted text-center">
             {{ c.usuario.get_full_name|default:c.usuario.username }}
           </td>
 
