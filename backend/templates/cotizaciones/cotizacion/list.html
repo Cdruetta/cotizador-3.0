@@ -96,11 +96,11 @@
           <td class="ps-3">
             <span class="fw-bold text-primary num-comprobante" style="font-size: 1.05rem;">
               {% if c.numero %}
-                #{{ c.numero }}
+                {{ c.numero }}
               {% elif c.pk %}
-                #{{ c.pk }}
+                {{ c.pk }}
               {% else %}
-                <span class="text-muted small">#---</span>
+                <span class="text-muted small">---</span>
               {% endif %}
             </span>
           </td>
