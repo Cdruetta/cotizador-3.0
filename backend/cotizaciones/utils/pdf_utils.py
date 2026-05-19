@@ -1,6 +1,4 @@
 from reportlab.lib.pagesizes import A4, landscape
-
-
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.platypus import (
@@ -195,7 +193,7 @@ def _styles():
             'DocTitulo',
             fontName='Helvetica-Bold',
             fontSize=22,
-            textColor=COLOR_PRIMARY,
+            textColor=COLOR_HEADER_TEXT,
             alignment=TA_RIGHT,
             leading=26,
         ),
@@ -204,6 +202,14 @@ def _styles():
             fontName='Helvetica',
             fontSize=10,
             textColor=COLOR_TEXT_MUTED,
+            alignment=TA_RIGHT,
+            leading=14,
+        ),
+        'doc_numero_blanco': ParagraphStyle(
+            'DocNumeroBlanco',
+            fontName='Helvetica',
+            fontSize=10,
+            textColor=colors.white,
             alignment=TA_RIGHT,
             leading=14,
         ),
@@ -332,10 +338,11 @@ def _build_elements(cotizacion):
     ]))
 
     tipo_doc = cotizacion.tipo_documento.upper() if hasattr(cotizacion, 'tipo_documento') else 'COTIZACIÓN'
+    
     doc_info = Table(
         [[Paragraph(tipo_doc, st['doc_titulo'])],
-         [Paragraph(f'N° {cotizacion.numero}', st['doc_numero'])],
-         [Paragraph(f'Fecha: {cotizacion.fecha.strftime("%d/%m/%Y")}', st['doc_numero'])]],
+         [Paragraph(cotizacion.numero or '', st['doc_numero_blanco'])],
+         [Paragraph(f'Fecha: {cotizacion.fecha.strftime("%d/%m/%Y")}', st['doc_numero_blanco'])]],
         colWidths=[2.5 * inch]
     )
     doc_info.setStyle(TableStyle([
@@ -413,7 +420,6 @@ def _build_elements(cotizacion):
         ]]
 
         for i, item in enumerate(cotizacion.items.all()):
-            row_bg = colors.white if i % 2 == 0 else COLOR_ROW_ALT
             table_data.append([
                 Paragraph(item.producto.nombre, st['tabla_celda']),
                 Paragraph(item.producto.proveedor.nombre, st['tabla_celda']),
@@ -431,7 +437,6 @@ def _build_elements(cotizacion):
         table_data.append(['', '', '', Paragraph('TOTAL:', st['tabla_total']),
                             Paragraph(f'${cotizacion.total:,.2f}', st['tabla_total'])])
 
-        n_items = len(cotizacion.items.all())
         last_row = len(table_data) - 1
         subtotal_row = last_row - (2 if cotizacion.descuento_porcentaje > 0 else 1)
 
@@ -483,7 +488,14 @@ def _build_elements(cotizacion):
     # ── FOOTER ────────────────────────────────────────────
     elements.append(Spacer(1, 24))
     elements.append(HRFlowable(width='100%', thickness=1, color=COLOR_FOOTER_LINE, spaceAfter=8))
-    elements.append(Paragraph('Esta cotización tiene una validez de 7 días hábiles.', st['footer_validez']))
+    validez_texto = (
+        'Esta cotización tiene una validez de 7 días hábiles.'
+        if getattr(cotizacion, 'tipo_documento', '') != 'recibo'
+        else None
+    )
+    if validez_texto:
+        elements.append(Paragraph(validez_texto, st['footer_validez']))
+
     elements.append(Spacer(1, 3))
     elements.append(Paragraph('Paso a paso se llega lejos — GCSoft 2025', st['footer_slogan']))
     elements.append(Spacer(1, 3))
@@ -503,18 +515,6 @@ def generar_pdf_buffer(cotizacion):
     buffer.seek(0)
     return buffer
 
-
-def generar_pdf_cotizacion(cotizacion):
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="cotizacion_{cotizacion.numero}.pdf"'
-    buffer = generar_pdf_buffer(cotizacion)
-    response.write(buffer.getvalue())
-    return response
-
-
-# ==============================
-# FACTURA PDF (layout comprobante AR)
-# ==============================
 
 def _factura_logo_path():
     for name in ('logo_factura.png', 'logo.png'):
@@ -710,7 +710,6 @@ def _build_elements_factura(factura):
         cant_dec = 0 if (cant % 1 == 0) else 2
         cant_txt = _fmt_ar_num(cant, cant_dec)
         pu_txt = _fmt_ar_num(item.precio_unit, 4)
-        # IVA en Factura C no discriminado — columna alineada al formato modelo
         iva_txt = '0 %' if letra == 'C' else '—'
         table_data.append([
             Paragraph('—', tc),
@@ -792,44 +791,35 @@ def _build_elements_factura(factura):
 
 def _factura_watermark_and_frame(canvas, doc):
     """Marca de agua centrada (logo) + marco alrededor de toda la hoja."""
-    # --- Marco (bordes) ---
     canvas.saveState()
     canvas.setStrokeColor(COLOR_BORDER)
     canvas.setLineWidth(1)
 
-    # Rectángulo respetando márgenes del documento
     x = doc.leftMargin
     y = doc.bottomMargin
     w = doc.width
     h = doc.height
     canvas.rect(x, y, w, h, stroke=1, fill=0)
 
-    # --- Marca de agua (logo) ---
     logo_path = _factura_logo_path()
     if logo_path:
         try:
             ir = ImageReader(logo_path)
             iw, ih = ir.getSize()
 
-            # Tamaño grande centrado (horizontal)
-            # En landscape A4 el área útil es más ancha; ajustamos un poco.
             target_w = min(w * 0.75, 6.0 * inch)
             target_h = target_w * (ih / iw) if iw else target_w
 
-            # Ubicación: centrada en X y más abajo en Y (marca de agua “al fondo”)
             cx = x + w / 2
             cy = y + h / 2 - (0.18 * h)
             img_x = cx - target_w / 2
             img_y = cy - target_h / 2
 
-
-            # Transparencia para que no tape el contenido
             if hasattr(canvas, 'setFillAlpha'):
                 canvas.setFillAlpha(0.12)
 
             canvas.drawImage(logo_path, img_x, img_y, width=target_w, height=target_h, mask='auto')
         except Exception:
-            # Si algo falla con el logo, no rompas el PDF
             pass
 
     canvas.restoreState()
@@ -839,7 +829,6 @@ def generar_pdf_factura_buffer(factura):
     buffer = BytesIO()
     doc = SimpleDocTemplate(
         buffer, pagesize=landscape(A4),
-
         rightMargin=28, leftMargin=28,
         topMargin=36, bottomMargin=32,
     )
@@ -854,14 +843,59 @@ def generar_pdf_factura_buffer(factura):
     return buffer
 
 
+# ==========================================
+# FUNCIONES DE DESCARGA CON NOMBRE DINÁMICO
+# ==========================================
 
-def generar_pdf_factura(factura):
+def generar_pdf_cotizacion(cotizacion):
     response = HttpResponse(content_type='application/pdf')
-    pv = factura.punto_venta or 0
-    numero = factura.numero or 0
-    response['Content-Disposition'] = f'attachment; filename="factura_{pv:04d}-{numero:08d}.pdf"'
-    buffer = generar_pdf_factura_buffer(factura)
+    
+    # 1. Extraemos y limpiamos el nombre del cliente
+    cliente_nombre = cotizacion.cliente.nombre if cotizacion.cliente and cotizacion.cliente.nombre else 'sin_nombre'
+    cliente_slug = cliente_nombre.strip().replace(' ', '_')
+    
+    # 2. Limpiamos el número del documento base (sacamos el '°' y espacios)
+    num_doc_raw = (cotizacion.numero or '').replace('°', '').strip()
+    
+    # 3. Detectamos el tipo de documento (por atributo o por texto en el número)
+    tipo_doc_attr = getattr(cotizacion, 'tipo_documento', '').lower()
+    
+    if 'recibo' in tipo_doc_attr or 'recibo' in num_doc_raw.lower():
+        # Limpiamos posibles redundancias de la palabra "Recibo"
+        clean_num = num_doc_raw.replace('Recibo_', '').replace('recibo_', '').replace('Recibo', '').replace('recibo', '').strip('_ ')
+        filename = f"Recibo_{clean_num}_{cliente_slug}.pdf"
+        
+    elif 'cotizacion' in tipo_doc_attr or 'cotización' in tipo_doc_attr or 'cotizacion' in num_doc_raw.lower() or 'cotización' in num_doc_raw.lower():
+        # Limpiamos posibles redundancias de la palabra "Cotización"
+        clean_num = num_doc_raw.replace('Cotizacion_', '').replace('cotizacion_', '').replace('Cotizacion', '').replace('cotizacion', '')
+        clean_num = clean_num.replace('Cotización_', '').replace('cotización_', '').replace('Cotización', '').replace('cotización', '').strip('_ ')
+        filename = f"Cotizacion_{clean_num}_{cliente_slug}.pdf"
+        
+    else:
+        # Por las dudas, si no es ninguno, dejamos un fallback limpio usando el tipo que venga mapeado
+        prefijo = tipo_doc_attr.capitalize() if tipo_doc_attr else 'Documento'
+        filename = f"{prefijo}_{num_doc_raw.replace(' ', '_')}_{cliente_slug}.pdf"
+    
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    buffer = generar_pdf_buffer(cotizacion)
     response.write(buffer.getvalue())
     return response
 
-
+def generar_pdf_factura(factura):
+    response = HttpResponse(content_type='application/pdf')
+    
+    # Extraemos y limpiamos el nombre del cliente de la factura
+    cliente_nombre = factura.cliente.nombre if factura.cliente and factura.cliente.nombre else 'sin_nombre'
+    cliente_slug = cliente_nombre.strip().replace(' ', '_')
+    
+    # Formateamos el punto de venta y número tradicionales de la factura
+    pv = factura.punto_venta or 0
+    numero = factura.numero or 0
+    
+    # Nombre resultante: factura_0004-00000152_Juan_Perez.pdf
+    filename = f"factura_{pv:04d}-{numero:08d}_{cliente_slug}.pdf"
+    
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    buffer = generar_pdf_factura_buffer(factura)
+    response.write(buffer.getvalue())
+    return response
