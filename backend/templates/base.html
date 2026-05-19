@@ -476,6 +476,12 @@ body {
     {% if user.is_staff %}
     <div class="nav-section">Administración</div>
 
+    <a href="/admin/" target="_blank" rel="noopener"
+       class="nav-link">
+      <i class="bi bi-speedometer2"></i>
+      <span class="lbl">Admin Django</span>
+    </a>
+
     <a href="{% url 'configuracion' %}"
        class="nav-link {% if request.resolver_match.url_name == 'configuracion' %}active{% endif %}">
       <i class="bi bi-sliders"></i>
