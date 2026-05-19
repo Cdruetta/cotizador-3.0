@@ -11,7 +11,7 @@
   .num-comprobante {
     font-family: 'Courier New', Courier, monospace;
     letter-spacing: -0.5px;
-    font-size: 1.12rem;
+    font-size: 1.13rem;
     font-weight: 700;
   }
 
@@ -20,15 +20,15 @@
   }
 
   /* Alineación y anchos por columna */
-  .col-comprobante { width: 140px; min-width: 140px; }
-  .col-cliente     { width: 220px; min-width: 180px; }
+  .col-comprobante { width: 145px; min-width: 145px; }
+  .col-cliente     { width: 230px; min-width: 190px; }
   .col-tipo        { width: 130px; min-width: 110px; }
   .col-fecha       { width: 110px; min-width: 100px; text-align: center; }
   .col-desc        { width: 90px;  min-width: 80px;  text-align: center; }
   .col-total       { width: 130px; min-width: 110px; text-align: right; }
-  .col-estado      { width: 140px; min-width: 130px; text-align: center; }
+  .col-estado      { width: 145px; min-width: 130px; text-align: center; }
   .col-usuario     { width: 140px; min-width: 120px; }
-  .col-acciones    { width: 180px; min-width: 170px; text-align: center; }
+  .col-acciones    { width: 185px; min-width: 170px; text-align: center; }
 
   .estado-badge {
     font-size: 0.78rem;
@@ -109,13 +109,13 @@
       <tbody>
         {% for c in cotizaciones %}
         <tr>
-          <!-- Número limpio -->
+          <!-- Solo el número (limpio) -->
           <td class="ps-3">
-            <span class="fw-bold text-primary num-comprobante" style="font-size: 1.15rem;">
+            <span class="fw-bold text-primary num-comprobante">
               {% if c.numero %}
-                #{{ c.numero|cut:"Cotizacion N° "|cut:"Cotizacion Nº "|cut:"Cotizacion N"|cut:"N° " }}
+                #{{ c.numero|cut:"Cotizacion"|cut:"Recibo"|cut:"N°"|cut:"Nº"|cut:"#"|cut:" " }}
               {% else %}
-                #{{ c.pk|default:"---" }}
+                #{{ c.pk }}
               {% endif %}
             </span>
           </td>
@@ -162,7 +162,6 @@
 
           <td class="text-center pe-3 col-acciones">
             <div class="d-flex align-items-center justify-content-center gap-1">
-              <!-- Acciones (sin cambios) -->
               <a href="{% url 'cotizacion_detail' c.pk %}" class="btn btn-sm btn-outline-primary" title="Ver Detalle">
                 <i class="bi bi-eye"></i>
               </a>
@@ -174,21 +173,24 @@
               </a>
 
               {% if c.estado == "aprobada" or c.estado == "rechazada" %}
-                <a href="{% url 'cambiar_estado_cotizacion' c.pk 'borrador' %}" class="btn btn-sm btn-outline-secondary" title="Reabrir">
+                <a href="{% url 'cambiar_estado_cotizacion' c.pk 'borrador' %}" 
+                   class="btn btn-sm btn-outline-secondary" title="Reabrir">
                   <i class="bi bi-arrow-counterclockwise"></i>
                 </a>
               {% else %}
-                <a href="{% url 'cambiar_estado_cotizacion' c.pk 'aprobada' %}" class="btn btn-sm btn-outline-success" title="Aprobar">
+                <a href="{% url 'cambiar_estado_cotizacion' c.pk 'aprobada' %}" 
+                   class="btn btn-sm btn-outline-success" title="Aprobar">
                   <i class="bi bi-check2"></i>
                 </a>
-                <a href="{% url 'cambiar_estado_cotizacion' c.pk 'rechazada' %}" class="btn btn-sm btn-outline-danger" title="Rechazar"
+                <a href="{% url 'cambiar_estado_cotizacion' c.pk 'rechazada' %}" 
+                   class="btn btn-sm btn-outline-danger" title="Rechazar"
                    onclick="return confirm('¿Rechazar este presupuesto?')">
                   <i class="bi bi-x-lg"></i>
                 </a>
               {% endif %}
 
-              <a href="{% url 'cotizacion_delete' c.pk %}" class="btn btn-sm btn-outline-dark" title="Eliminar"
-                 onclick="return confirm('¿Eliminar registro?')">
+              <a href="{% url 'cotizacion_delete' c.pk %}" class="btn btn-sm btn-outline-dark" 
+                 title="Eliminar" onclick="return confirm('¿Eliminar registro?')">
                 <i class="bi bi-trash"></i>
               </a>
             </div>
@@ -199,7 +201,11 @@
     </table>
   </div>
   {% else %}
-  <!-- Mensaje sin registros -->
+  <div class="text-center py-5">
+    <i class="bi bi-file-earmark-x fs-1 text-muted"></i>
+    <h5 class="mt-3 text-secondary">No se encontraron registros</h5>
+    <a href="{% url 'cotizacion_create' %}" class="btn btn-primary mt-2">Crear nuevo presupuesto</a>
+  </div>
   {% endif %}
 </div>
 {% endblock %}
