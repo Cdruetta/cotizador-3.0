@@ -85,3 +85,28 @@ body:not(.auth-page) .form-select:focus {
   .page-inner { padding: 0 1rem 1.5rem !important; }
   .btn-group-sm .btn { padding: .25rem .4rem; font-size: .75rem; }
 }
+
+/* =========================
+   RESPONSIVE GLOBAL (tables)
+   - Evita desbordes horizontales inesperados
+   - Permite scroll cuando sea necesario
+========================= */
+
+/* En general: que tablas no rompan el layout */
+.table {
+  margin-bottom: 0;
+}
+
+/* Si hay contenido largo (nombres/comprobantes), permitir scroll horizontal en vez de romper */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Evitar que celdas hagan “white-space: nowrap” global sin control */
+.table td, .table th {
+  white-space: normal;
+}
+
+/* Si alguna pantalla requiere nowrap (p.ej. íconos), usar clases locales en templates */
+
