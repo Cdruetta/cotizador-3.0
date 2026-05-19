@@ -3,26 +3,38 @@
 
 {% block content %}
 <style>
-  /* Evita que el número de comprobante se parta en dos líneas */
-  .table td { white-space: nowrap; }
+  .table td, .table th { 
+    white-space: nowrap; 
+    vertical-align: middle;
+  }
+  
   .num-comprobante {
     font-family: 'Courier New', Courier, monospace;
     letter-spacing: -0.5px;
+    font-size: 1.12rem;
+    font-weight: 700;
   }
 
-  /* FIX: Asegurar que los iconos de acciones no se corten */
   .table-responsive {
-    padding-right: 20px;
     overflow-x: auto;
   }
-  
-  .acciones-column,
-  th:last-child,
-  td:last-child {
-    min-width: 150px;
-    padding-right: 20px !important;
-  }
 
+  /* Alineación y anchos por columna */
+  .col-comprobante { width: 140px; min-width: 140px; }
+  .col-cliente     { width: 220px; min-width: 180px; }
+  .col-tipo        { width: 130px; min-width: 110px; }
+  .col-fecha       { width: 110px; min-width: 100px; text-align: center; }
+  .col-desc        { width: 90px;  min-width: 80px;  text-align: center; }
+  .col-total       { width: 130px; min-width: 110px; text-align: right; }
+  .col-estado      { width: 140px; min-width: 130px; text-align: center; }
+  .col-usuario     { width: 140px; min-width: 120px; }
+  .col-acciones    { width: 180px; min-width: 170px; text-align: center; }
+
+  .estado-badge {
+    font-size: 0.78rem;
+    padding: 0.35em 0.75em;
+    min-width: 98px;
+  }
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
@@ -37,6 +49,7 @@
   </a>
 </div>
 
+<!-- Filtros -->
 <div class="filter-card p-3 mb-4 bg-light rounded shadow-sm border">
   <form method="get" id="filterForm">
     <div class="row g-2 align-items-end">
@@ -82,43 +95,42 @@
     <table class="table mb-0 align-middle">
       <thead class="table-light">
         <tr>
-          <th class="ps-3">Comprobante</th>
-          <th>Cliente</th>
-          <th>Tipo</th>
-          <th>Fecha</th>
-          <th>Desc.</th>
-          <th>Total</th>
-          <th class="text-center">Estado</th>
-          <th>Usuario</th>
-          <th class="text-center pe-3">Acciones</th>
+          <th class="ps-3 col-comprobante">Comprobante</th>
+          <th class="col-cliente">Cliente</th>
+          <th class="col-tipo">Tipo</th>
+          <th class="col-fecha">Fecha</th>
+          <th class="col-desc">Desc.</th>
+          <th class="col-total text-end">Total</th>
+          <th class="text-center col-estado">Estado</th>
+          <th class="col-usuario">Usuario</th>
+          <th class="text-center pe-3 col-acciones">Acciones</th>
         </tr>
       </thead>
       <tbody>
         {% for c in cotizaciones %}
         <tr>
+          <!-- Número limpio -->
           <td class="ps-3">
-            <span class="fw-bold text-primary num-comprobante" style="font-size: 1.05rem;">
+            <span class="fw-bold text-primary num-comprobante" style="font-size: 1.15rem;">
               {% if c.numero %}
-                #{{ c.numero }}
-              {% elif c.pk %}
-                #{{ c.pk }}
+                #{{ c.numero|cut:"Cotizacion N° "|cut:"Cotizacion Nº "|cut:"Cotizacion N"|cut:"N° " }}
               {% else %}
-                <span class="text-muted small">#---</span>
+                #{{ c.pk|default:"---" }}
               {% endif %}
             </span>
           </td>
           
-          <td>{{ c.cliente.nombre }}</td>
+          <td class="col-cliente">{{ c.cliente.nombre }}</td>
           
-          <td>
+          <td class="col-tipo">
             <span class="badge rounded-pill bg-light text-dark border small">
               {{ c.get_tipo_documento_display }}
             </span>
           </td>
           
-          <td class="small text-muted">{{ c.fecha|date:"d/m/Y" }}</td>
+          <td class="col-fecha small text-muted">{{ c.fecha|date:"d/m/Y" }}</td>
           
-          <td class="small">
+          <td class="col-desc small text-center">
             {% if c.descuento_porcentaje %}
               <span class="text-danger fw-semibold">{{ c.descuento_porcentaje }}%</span>
             {% else %}
@@ -126,30 +138,31 @@
             {% endif %}
           </td>
           
-          <td class="fw-bold">${{ c.total|floatformat:2 }}</td>
+          <td class="col-total fw-bold text-end">${{ c.total|floatformat:2 }}</td>
 
-          <td class="text-center">
+          <td class="text-center col-estado">
             {% if c.estado == "aprobada" %}
-              <span class="badge rounded-pill bg-success px-3">
+              <span class="badge estado-badge bg-success">
                 <i class="bi bi-check2-circle me-1"></i> Aprobado
               </span>
             {% elif c.estado == "rechazada" %}
-              <span class="badge rounded-pill bg-danger px-3">
+              <span class="badge estado-badge bg-danger">
                 <i class="bi bi-x-circle me-1"></i> Rechazado
               </span>
             {% else %}
-              <span class="badge rounded-pill bg-warning text-dark px-3">
+              <span class="badge estado-badge bg-warning text-dark">
                 <i class="bi bi-clock me-1"></i> Pendiente
               </span>
             {% endif %}
           </td>
 
-          <td class="small text-muted">
+          <td class="col-usuario small text-muted">
             {{ c.usuario.get_full_name|default:c.usuario.username }}
           </td>
 
-          <td class="text-center pe-3">
+          <td class="text-center pe-3 col-acciones">
             <div class="d-flex align-items-center justify-content-center gap-1">
+              <!-- Acciones (sin cambios) -->
               <a href="{% url 'cotizacion_detail' c.pk %}" class="btn btn-sm btn-outline-primary" title="Ver Detalle">
                 <i class="bi bi-eye"></i>
               </a>
@@ -161,24 +174,21 @@
               </a>
 
               {% if c.estado == "aprobada" or c.estado == "rechazada" %}
-                <a href="{% url 'cambiar_estado_cotizacion' c.pk 'borrador' %}" 
-                   class="btn btn-sm btn-outline-secondary" title="Reabrir">
+                <a href="{% url 'cambiar_estado_cotizacion' c.pk 'borrador' %}" class="btn btn-sm btn-outline-secondary" title="Reabrir">
                   <i class="bi bi-arrow-counterclockwise"></i>
                 </a>
               {% else %}
-                <a href="{% url 'cambiar_estado_cotizacion' c.pk 'aprobada' %}" 
-                   class="btn btn-sm btn-outline-success" title="Aprobar">
+                <a href="{% url 'cambiar_estado_cotizacion' c.pk 'aprobada' %}" class="btn btn-sm btn-outline-success" title="Aprobar">
                   <i class="bi bi-check2"></i>
                 </a>
-                <a href="{% url 'cambiar_estado_cotizacion' c.pk 'rechazada' %}" 
-                   class="btn btn-sm btn-outline-danger" title="Rechazar"
+                <a href="{% url 'cambiar_estado_cotizacion' c.pk 'rechazada' %}" class="btn btn-sm btn-outline-danger" title="Rechazar"
                    onclick="return confirm('¿Rechazar este presupuesto?')">
                   <i class="bi bi-x-lg"></i>
                 </a>
               {% endif %}
 
-              <a href="{% url 'cotizacion_delete' c.pk %}" class="btn btn-sm btn-outline-dark" 
-                 title="Eliminar" onclick="return confirm('¿Eliminar registro?')">
+              <a href="{% url 'cotizacion_delete' c.pk %}" class="btn btn-sm btn-outline-dark" title="Eliminar"
+                 onclick="return confirm('¿Eliminar registro?')">
                 <i class="bi bi-trash"></i>
               </a>
             </div>
@@ -189,11 +199,7 @@
     </table>
   </div>
   {% else %}
-  <div class="text-center py-5">
-    <i class="bi bi-file-earmark-x fs-1 text-muted"></i>
-    <h5 class="mt-3 text-secondary">No se encontraron registros</h5>
-    <a href="{% url 'cotizacion_create' %}" class="btn btn-primary mt-2">Crear nuevo presupuesto</a>
-  </div>
+  <!-- Mensaje sin registros -->
   {% endif %}
 </div>
 {% endblock %}
