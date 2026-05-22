@@ -191,3 +191,5 @@ def enviar_cotizacion_email(request, cotizacion_id):
             except Exception as e:
                 messages.error(request, f"Error al enviar: {str(e)}")
     return redirect("cotizacion_detail", pk=cotizacion_id)
+
+

@@ -6,14 +6,15 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
+
 # ==============================================================================
 # 📚 CONFIGURACIÓN DE SWAGGER (DOCUMENTACIÓN INTERACTIVA)
 # ==============================================================================
 schema_view = get_schema_view(
    openapi.Info(
-        title="API de Cotizaciones y Facturación",
-        default_version='v3.0',
-        description="Documentación interactiva de endpoints, filtros y autenticación JWT",
+       title="API de Cotizaciones y Facturación",
+       default_version='v3.0',
+       description="Documentación interactiva de endpoints, filtros y autenticación JWT",
    ),
    public=True,
    permission_classes=(permissions.AllowAny,),
