@@ -20,11 +20,11 @@ from .views import (
     generar_pdf,
     cambiar_estado_cotizacion,
     enviar_cotizacion_email,
-
-    # Quitamos 'reportes' de aquí si estaba en views/__init__.py
     configuracion,
-    get_producto_precio,
 )
+
+# 🚀 IMPORTACIÓN DE LA API: Traemos get_producto_precio desde donde quedó alojada
+from .views.api import get_producto_precio
 
 # Importamos la nueva vista de reportes desde su archivo específico
 from .views.reportes import reportes_view
@@ -63,7 +63,7 @@ urlpatterns = [
     path('clientes/<int:pk>/editar/', views.ClienteUpdateView.as_view(), name='cliente_update'),
     path('clientes/<int:pk>/eliminar/', views.ClienteDeleteView.as_view(), name='cliente_delete'),
 
-    # Proveedores
+    # Proveedores (✨ Esto es lo que revive tu Dashboard sin errores)
     path('proveedores/', views.ProveedorListView.as_view(), name='proveedor_list'),
     path('proveedores/crear/', views.ProveedorCreateView.as_view(), name='proveedor_create'),
     path('proveedores/<int:pk>/', views.ProveedorDetailView.as_view(), name='proveedor_detail'),
@@ -85,81 +85,37 @@ urlpatterns = [
     path('cotizaciones/<int:pk>/eliminar/', CotizacionDeleteView.as_view(), name='cotizacion_delete'),
 
     # PDF
-    path(
-        'cotizaciones/<int:cotizacion_id>/pdf/',
-        generar_pdf,
-        name='generar_pdf'
-    ),
+    path('cotizaciones/<int:cotizacion_id>/pdf/', generar_pdf, name='generar_pdf'),
 
     # Estado
-    path(
-        'cotizaciones/<int:cotizacion_id>/estado/<str:estado>/',
-        cambiar_estado_cotizacion,
-        name='cambiar_estado_cotizacion'
-    ),
+    path('cotizaciones/<int:cotizacion_id>/estado/<str:estado>/', cambiar_estado_cotizacion, name='cambiar_estado_cotizacion'),
 
     # Factura desde cotización
-    path(
-        'cotizaciones/<int:cotizacion_id>/crear-factura/',
-        crear_factura_desde_cotizacion,
-        name='crear_factura_desde_cotizacion'
-    ),
+    path('cotizaciones/<int:cotizacion_id>/crear-factura/', crear_factura_desde_cotizacion, name='crear_factura_desde_cotizacion'),
 
     # Items cotización
-    path(
-        'cotizaciones/<int:cotizacion_id>/agregar-item/',
-        agregar_item_cotizacion,
-        name='agregar_item_cotizacion'
-    ),
-
-    path(
-        'items/<int:item_id>/eliminar/',
-        eliminar_item_cotizacion,
-        name='eliminar_item_cotizacion'
-    ),
+    path('cotizaciones/<int:cotizacion_id>/agregar-item/', agregar_item_cotizacion, name='agregar_item_cotizacion'),
+    path('items/<int:item_id>/eliminar/', eliminar_item_cotizacion, name='eliminar_item_cotizacion'),
 
     # Email
-    path(
-        'cotizaciones/<int:cotizacion_id>/enviar-email/',
-        enviar_cotizacion_email,
-        name='enviar_cotizacion_email'
-    ),
+    path('cotizaciones/<int:cotizacion_id>/enviar-email/', enviar_cotizacion_email, name='enviar_cotizacion_email'),
 
-    # Reportes (Actualizado para usar la nueva vista)
+    # Reportes
     path('reportes/', reportes_view, name='reportes'),
 
     # Configuración
     path('configuracion/', configuracion, name='configuracion'),
 
-    # API
-    path(
-        'api/producto/<int:producto_id>/precio/',
-        get_producto_precio,
-        name='get_producto_precio'
-    ),
+    # API Tradicional Interna (Mapeada a .views.api)
+    path('api/producto/<int:producto_id>/precio/', get_producto_precio, name='get_producto_precio'),
 
     # Facturación
     path('facturacion/', FacturaListView.as_view(), name='factura_list'),
     path('facturacion/nueva/', FacturaCreateView.as_view(), name='factura_create'),
     path('facturacion/<int:pk>/', FacturaDetailView.as_view(), name='factura_detail'),
-
-    path(
-        'facturacion/<int:factura_id>/items/',
-        agregar_item_factura,
-        name='factura_agregar_item'
-    ),
-
-    path(
-        'facturacion/<int:factura_id>/autorizar/',
-        autorizar_factura_view,
-        name='factura_autorizar'
-    ),
-
-    path(
-        'facturacion/<int:factura_id>/pdf/',
-        generar_pdf_factura_view,
-        name='generar_pdf_factura'
-    ),
+    path('facturacion/<int:factura_id>/items/', agregar_item_factura, name='factura_agregar_item'),
+    path('facturacion/<int:factura_id>/autorizar/', autorizar_factura_view, name='factura_autorizar'),
+    path('facturacion/<int:factura_id>/pdf/', generar_pdf_factura_view, name='generar_pdf_factura'),
 
     # AFIP
     path('facturacion/configuracion/', configuracion_afip, name='facturacion_config'),

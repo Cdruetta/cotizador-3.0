@@ -44,3 +44,13 @@ from .cotizaciones import (  # noqa: F401
 from .api import get_producto_precio  # noqa: F401
 from .config import configuracion  # noqa: F401
 
+# ==============================================================================
+# 🔌 RE-EXPORTACIÓN DE LA NUEVA API REST (Punto 4: CRUD, Roles y Filtros)
+# ==============================================================================
+from .api import (  # noqa: F401
+    ClienteViewSet,
+    ProductoViewSet,
+    CotizacionViewSet,
+    CotizacionItemViewSet,  # <-- Nombre real corregido
+    FacturaViewSet,
+)

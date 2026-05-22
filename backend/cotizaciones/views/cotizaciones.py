@@ -16,9 +16,9 @@ from ..services.communication.email import enviar_cotizacion_por_email
 from ..services.documents.pdf import build_cotizacion_pdf_response
 
 
-# =========================
-# LISTADO
-# =========================
+# ==============================================================================
+# 📊 LISTADO TRADICIONAL HTML
+# ==============================================================================
 class CotizacionListView(LoginRequiredMixin, ListView):
     model = Cotizacion
     template_name = "cotizaciones/cotizacion/list.html"
@@ -34,9 +34,11 @@ class CotizacionListView(LoginRequiredMixin, ListView):
             estado = form.cleaned_data.get("estado")
             fecha_desde = form.cleaned_data.get("fecha_desde")
             fecha_hasta = form.cleaned_data.get("fecha_hasta")
+            
             if search:
+                # ✨ CORREGIDO: Usamos 'nro_cotizacion' en sintonía con la base de datos
                 qs = qs.filter(
-                    Q(numero__icontains=search) | Q(cliente__nombre__icontains=search)
+                    Q(nro_cotizacion__icontains=search) | Q(cliente__razon_social__icontains=search)
                 )
             if tipo:
                 qs = qs.filter(tipo_documento=tipo)
@@ -54,9 +56,9 @@ class CotizacionListView(LoginRequiredMixin, ListView):
         return ctx
 
 
-# =========================
-# ACCIONES (C.R.U.D)
-# =========================
+# ==============================================================================
+# 🛠️ ACCIONES (C.R.U.D WEB)
+# ==============================================================================
 class CotizacionCreateView(LoginRequiredMixin, CreateView):
     model = Cotizacion
     form_class = CotizacionForm
@@ -78,7 +80,8 @@ class CotizacionUpdateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        self.object.calcular_total()
+        if hasattr(self.object, 'calcular_total'):
+            self.object.calcular_total()
         messages.success(self.request, "Cotización actualizada exitosamente.")
         return response
 
@@ -105,19 +108,24 @@ class CotizacionDetailView(LoginRequiredMixin, DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx["items"] = self.object.items.select_related("producto")
         ctx["item_form"] = CotizacionItemForm()
+        
+        # ✨ CORREGIDO: Ajustamos el campo 'nro_cotizacion' y 'razon_social' para el autocompletado
+        cliente_nombre = getattr(self.object.cliente, 'razon_social', getattr(self.object.cliente, 'nombre', 'Cliente'))
+        nro = getattr(self.object, 'nro_cotizacion', self.object.id)
+        
         ctx["email_form"] = EnviarEmailForm(
             initial={
                 "email_destino": self.object.cliente.email or "",
-                "asunto": f"Cotización {self.object.numero} - GCinsumos",
-                "mensaje": f"Estimado/a {self.object.cliente.nombre},\n\nAdjuntamos su cotización.\n\nSaludos,\nGCinsumos",
+                "asunto": f"Cotización {nro} - GCinsumos",
+                "mensaje": f"Estimado/a {cliente_nombre},\n\nAdjuntamos su cotización.\n\nSaludos,\nGCinsumos",
             }
         )
         return ctx
 
 
-# =========================
-# GESTIÓN DE ITEMS Y ESTADOS
-# =========================
+# ==============================================================================
+# 📦 GESTIÓN DE ITEMS Y ESTADOS (Vistas de función tradicionales)
+# ==============================================================================
 @login_required
 def agregar_item_cotizacion(request, cotizacion_id):
     cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
@@ -155,9 +163,9 @@ def cambiar_estado_cotizacion(request, cotizacion_id, estado):
     return redirect(next_url if next_url else "cotizacion_list")
 
 
-# =========================
-# SALIDA (PDF / EMAIL)
-# =========================
+# ==============================================================================
+# 🖨️ ACCIONES DE SALIDA (PDF / EMAIL)
+# ==============================================================================
 @login_required
 def generar_pdf(request, cotizacion_id):
     cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)

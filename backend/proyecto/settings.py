@@ -1,9 +1,11 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 from urllib.parse import urlparse
 from django.contrib.messages import constants as messages
 from dotenv import load_dotenv
 import dj_database_url
+import sentry_sdk  # <-- Nueva Importación para Sentry
 
 # --------------------------
 # Base del proyecto
@@ -16,6 +18,18 @@ REPO_ROOT = BASE_DIR.parent
 # --------------------------
 load_dotenv(REPO_ROOT / ".env")
 load_dotenv(BASE_DIR / ".env")
+
+# --------------------------
+# Monitoreo de Errores (Sentry)
+# --------------------------
+# El SDK se inicializa leyendo el DSN de tus variables de entorno (.env)
+SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+    )
 
 # --------------------------
 # Seguridad
@@ -36,6 +50,10 @@ CSRF_TRUSTED_ORIGINS = [
     "https://cotizador-gcinsumos.onrender.com",
 ]
 
+# Configuración de CORS necesaria para que el Frontend consuma la API sin bloqueos
+CORS_ALLOW_ALL_ORIGINS = DEBUG  # En desarrollo permite todo, en producción configuralo si es necesario
+CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",") if not DEBUG else []
+
 # --------------------------
 # Aplicaciones instaladas
 # --------------------------
@@ -46,6 +64,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    
+    # Librerías de Terceros agregadas para la API
+    "corsheaders",          # Manejo de CORS
+    "rest_framework",       # Django Rest Framework
+    "django_filters",       # Filtros avanzados
+    "drf_yasg",             # Documentación automática Swagger
+    
+    # Aplicación local
     "cotizaciones",
 ]
 
@@ -56,12 +82,42 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",  # <-- Agregado antes de CommonMiddleware para CORS
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+# --------------------------
+# Configuración de Django Rest Framework (DRF)
+# --------------------------
+REST_FRAMEWORK = {
+    # Sistema Seguro de Autenticación Global (Exige JWT por defecto)
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    # Permisos Globales: Endpoints cerrados por defecto a menos que se especifique lo contrario
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    # Motores de Búsqueda y Filtrado Avanzado integrados a nivel global
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ),
+}
+
+# Configuración del comportamiento y expiración de los JWT Tokens
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),   # Duración del Token de acceso
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Duración del Token de refresco
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),                # Formato en cabecera: Authorization: Bearer <token>
+}
 
 # --------------------------
 # URLs
@@ -91,18 +147,13 @@ TEMPLATES = [
 WSGI_APPLICATION = "proyecto.wsgi.application"
 
 # --------------------------
-# Base de datos (Railway / Render)
+# Base de datos (Railway / Render / SQLite local)
 # --------------------------
-#DATABASE_URL = os.environ.get(
-    #"DATABASE_URL",
-    #"postgresql://postgres:dEdklnigRETeZrpUrppxCWqNnGQnUqab@shuttle.proxy.rlwy.net:23030/railway?sslmode=require",
-    #"postgresql://cristian:GiseCris2026@gcsoft.duckdns.org:39742/cotizador")
 def env_bool(name: str, default: bool = False) -> bool:
     value = os.environ.get(name)
     if value is None:
         return default
     return value.strip().lower() in {"1", "true", "yes", "on"}
-
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
 DB_SSL_REQUIRE = env_bool("DB_SSL_REQUIRE", default=False)
@@ -138,7 +189,6 @@ elif all(os.environ.get(key) for key in ("DB_NAME", "DB_USER", "DB_PASSWORD", "D
         }
     }
 elif DEBUG:
-    # Evita romper el entorno local si no se definió una DB remota.
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -156,16 +206,6 @@ else:
         f"{invalid_database_url_msg} "
         "Definí DATABASE_URL o DB_NAME/DB_USER/DB_PASSWORD/DB_HOST."
     )
-
-#DATABASES = {
-    #"default": dj_database_url.parse(
-        #DATABASE_URL,
-        #conn_max_age=600,
-        #ssl_require="railway" in DATABASE_URL
-       # or os.environ.get("RAILWAY_ENVIRONMENT") is not None,
-    #)
-#}
-
 
 # --------------------------
 # Validadores de contraseña
@@ -199,9 +239,6 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# En producción usamos el storage con manifest para cache-busting.
-# En desarrollo y tests (DEBUG=True) evitamos el manifest para no exigir
-# que los estáticos hayan sido recolectados previamente.
 if DEBUG:
     STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 else:
