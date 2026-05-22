@@ -1,0 +1,29 @@
+name: Django CI
+
+on:
+  push:
+    branches: [ "main", "Cd" ]
+  pull_request:
+    branches: [ "main", "Cd" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Descargar codigo del repositorio
+      uses: actions/checkout@v4
+
+    - name: Configurar Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11' # <-- Corregido acá (version en lugar de node)
+
+    - name: Instalar dependencias
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Correr la suite de pruebas
+      run: |
+        python manage.py test cotizaciones.tests
