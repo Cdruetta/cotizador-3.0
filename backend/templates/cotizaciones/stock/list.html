@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% block title %}Stock · GCinsumos{% endblock %}
+
+{% block content %}
+<style>
+  .st-page .page-title { font-size: 1.65rem; font-weight: 700; color: #1e3c72; margin-bottom: 0.15rem; }
+  .st-page .breadcrumb-line { font-size: 0.82rem; color: #64748b; }
+  .st-page .breadcrumb-line a { color: #2563eb; text-decoration: none; }
+  .st-page .breadcrumb-line a:hover { text-decoration: underline; }
+  .badge-stock { font-size: 0.75rem; font-weight: 600; padding: 0.3rem 0.65rem; border-radius: 20px; }
+  .badge-stock-ok { background: #dcfce7; color: #166534; }
+  .badge-stock-low { background: #fef9c3; color: #854d0e; }
+  .badge-stock-empty { background: #fee2e2; color: #991b1b; }
+</style>
+
+<div class="st-page">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="page-title"><i class="bi bi-database text-primary me-2"></i>Stock</h2>
+      <div class="breadcrumb-line">
+        <a href="{% url 'dashboard' %}">Dashboard</a> / Stock
+      </div>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary d-flex align-items-center gap-1 px-3 py-2 fw-semibold" style="border-radius: 10px;" data-bs-toggle="dropdown">
+          <i class="bi bi-download"></i> Exportar
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+          <li><a class="dropdown-item" href="{% url 'stock_exportar_excel' %}"><i class="bi bi-file-earmark-excel text-success me-2"></i>Excel</a></li>
+          <li><a class="dropdown-item" href="{% url 'stock_exportar_pdf' %}"><i class="bi bi-file-earmark-pdf text-danger me-2"></i>PDF</a></li>
+        </ul>
+      </div>
+      <form method="post" action="{% url 'stock_importar_excel' %}" enctype="multipart/form-data" class="d-inline">
+        {% csrf_token %}
+        <label class="btn btn-outline-secondary d-flex align-items-center gap-1 px-3 py-2 fw-semibold" style="border-radius: 10px; cursor: pointer;">
+          <i class="bi bi-upload"></i> Importar
+          <input type="file" name="archivo" accept=".xlsx,.csv" class="d-none" onchange="this.form.submit()">
+        </label>
+      </form>
+      <a href="{% url 'producto_create' %}" class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 fw-semibold" style="border-radius: 10px;">
+        <i class="bi bi-plus-lg"></i> Nuevo producto
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-4 col-md-3">
+      <div class="card border-0 shadow-sm rounded-3 p-3">
+        <small class="text-muted fw-semibold">Productos</small>
+        <span class="fs-4 fw-bold text-dark">{{ total_productos }}</span>
+      </div>
+    </div>
+    <div class="col-4 col-md-3">
+      <div class="card border-0 shadow-sm rounded-3 p-3">
+        <small class="text-muted fw-semibold">Unidades totales</small>
+        <span class="fs-4 fw-bold text-primary">{{ total_stock }}</span>
+      </div>
+    </div>
+    <div class="col-4 col-md-3">
+      <div class="card border-0 shadow-sm rounded-3 p-3">
+        <small class="text-muted fw-semibold">Sin stock</small>
+        <span class="fs-4 fw-bold text-danger">{{ sin_stock }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-3 mb-3">
+    <div class="card-body pb-2">
+      <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-5">
+          <label class="form-label small fw-semibold text-muted">Buscar</label>
+          <input type="text" name="q" class="form-control form-control-sm" placeholder="Nombre o descripción…" value="{{ filtro_q }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-semibold text-muted">Proveedor</label>
+          <select name="proveedor" class="form-select form-select-sm">
+            <option value="">Todos</option>
+            {% for p in proveedores %}
+            <option value="{{ p.id }}" {% if filtro_proveedor|stringformat:"s" == p.id|stringformat:"s" %}selected{% endif %}>{{ p.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small fw-semibold text-muted">Estado</label>
+          <select name="activo" class="form-select form-select-sm">
+            <option value="">Todos</option>
+            <option value="1" {% if filtro_activo == "1" %}selected{% endif %}>Activos</option>
+            <option value="0" {% if filtro_activo == "0" %}selected{% endif %}>Inactivos</option>
+          </select>
+        </div>
+        <div class="col-md-2 d-flex gap-1">
+          <button type="submit" class="btn btn-primary btn-sm w-100 fw-semibold">Filtrar</button>
+          <a href="{% url 'stock_list' %}" class="btn btn-outline-secondary btn-sm w-100 fw-semibold">Limpiar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr class="text-muted small fw-bold">
+              <th class="ps-3">Producto</th>
+              <th>Proveedor</th>
+              <th>Tipo</th>
+              <th>Stock</th>
+              <th>Estado</th>
+              <th class="text-end pe-3">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in productos %}
+            <tr>
+              <td class="ps-3 fw-semibold">{{ p.nombre }}</td>
+              <td class="small">{{ p.proveedor.nombre }}</td>
+              <td class="small text-muted">{{ p.get_tipo_display }}</td>
+              <td class="fw-bold">{{ p.stock }}</td>
+              <td>
+                {% if p.stock == 0 %}
+                  <span class="badge-stock badge-stock-empty">Sin stock</span>
+                {% elif p.stock <= 5 %}
+                  <span class="badge-stock badge-stock-low">Bajo</span>
+                {% else %}
+                  <span class="badge-stock badge-stock-ok">OK</span>
+                {% endif %}
+              </td>
+              <td class="text-end pe-3">
+                <a href="{% url 'producto_detail' p.id %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Ver">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a href="{% url 'producto_update' p.id %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <a href="{% url 'movimiento_stock_create' %}?producto={{ p.id }}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Mover stock">
+                  <i class="bi bi-arrow-left-right"></i>
+                </a>
+                <form method="post" action="{% url 'producto_delete' p.id %}" class="d-inline" onsubmit="return confirm('¿Eliminar {{ p.nombre }}?')">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-action btn-outline-danger border-0" title="Eliminar"><i class="bi bi-trash"></i></button>
+                </form>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="bi bi-database opacity-25" style="font-size: 3rem;"></i>
+                <p class="mt-2 fw-semibold">No hay productos.</p>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {% if page_obj.paginator.count > 0 %}
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <small class="text-muted">{{ page_start }}–{{ page_end }} de {{ page_total }} productos</small>
+    <nav>
+      <ul class="pagination pagination-sm mb-0">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if filtro_q %}&q={{ filtro_q }}{% endif %}{% if filtro_proveedor %}&proveedor={{ filtro_proveedor }}{% endif %}{% if filtro_activo %}&activo={{ filtro_activo }}{% endif %}">Anterior</a></li>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if filtro_q %}&q={{ filtro_q }}{% endif %}{% if filtro_proveedor %}&proveedor={{ filtro_proveedor }}{% endif %}{% if filtro_activo %}&activo={{ filtro_activo }}{% endif %}">Siguiente</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

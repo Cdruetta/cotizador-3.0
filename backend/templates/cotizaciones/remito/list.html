@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Remitos · GCinsumos{% endblock %}
+
+{% block content %}
+<style>
+  .remitos-page .page-title { font-size: 1.65rem; font-weight: 700; color: #1e3c72; margin-bottom: 0.15rem; }
+  .remitos-page .breadcrumb-line { font-size: 0.82rem; color: #64748b; }
+  .remitos-page .breadcrumb-line a { color: #2563eb; text-decoration: none; }
+  .remitos-page .breadcrumb-line a:hover { text-decoration: underline; }
+  .badge-remito { font-size: 0.75rem; font-weight: 600; padding: 0.3rem 0.65rem; border-radius: 20px; }
+  .badge-pendiente { background: #fef3c7; color: #92400e; }
+  .badge-entregado { background: #dcfce7; color: #166534; }
+  .badge-cancelado { background: #fee2e2; color: #991b1b; }
+</style>
+
+<div class="remitos-page">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="page-title"><i class="bi bi-truck text-primary me-2"></i>Remitos</h2>
+      <div class="breadcrumb-line">
+        <a href="{% url 'dashboard' %}">Dashboard</a> / Remitos
+      </div>
+    </div>
+    <a href="{% url 'remito_create' %}" class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 fw-semibold" style="border-radius: 10px;">
+      <i class="bi bi-plus-lg"></i> Nuevo Remito
+    </a>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-md-4">
+      <div class="card border-0 shadow-sm rounded-3 p-3">
+        <small class="text-muted fw-semibold">Total Remitos</small>
+        <span class="fs-4 fw-bold text-dark">{{ total_remitos }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-md-4">
+      <div class="card border-0 shadow-sm rounded-3 p-3">
+        <small class="text-muted fw-semibold">Pendientes</small>
+        <span class="fs-4 fw-bold text-warning">{{ remitos_pendientes }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr class="text-muted small fw-bold">
+              <th class="ps-3">Remito</th>
+              <th>Cliente</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th>Usuario</th>
+              <th class="text-end pe-3">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in remitos %}
+            <tr>
+              <td class="ps-3 fw-semibold text-dark">{{ r.numero }}</td>
+              <td>{{ r.cliente.nombre }}</td>
+              <td>{{ r.fecha|date:"d/m/Y" }}</td>
+              <td>
+                <span class="badge-remito badge-{{ r.estado }}">{{ r.get_estado_display }}</span>
+              </td>
+              <td><small class="text-muted">{{ r.usuario.get_full_name|default:r.usuario.username|default:"-" }}</small></td>
+              <td class="text-end pe-3">
+                <a href="{% url 'remito_update' r.pk %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Ver"><i class="bi bi-eye"></i></a>
+                <a href="{% url 'remito_update' r.pk %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Editar"><i class="bi bi-pencil"></i></a>
+                <form method="post" action="{% url 'remito_delete' r.pk %}" class="d-inline" onsubmit="return confirm('¿Eliminar este remito?')">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-action btn-outline-danger border-0" title="Eliminar"><i class="bi bi-trash"></i></button>
+                </form>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="bi bi-truck opacity-25" style="font-size: 3rem;"></i>
+                <p class="mt-2 fw-semibold">No hay remitos registrados.</p>
+                <a href="{% url 'remito_create' %}" class="btn btn-primary btn-sm">Crear primer remito</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {% if page_obj.paginator.count > 0 %}
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <small class="text-muted">{{ page_start }}–{{ page_end }} de {{ page_total }} remitos</small>
+    <nav>
+      <ul class="pagination pagination-sm mb-0">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

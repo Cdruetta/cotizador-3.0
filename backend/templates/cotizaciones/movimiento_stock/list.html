@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}Mover stock · GCinsumos{% endblock %}
+
+{% block content %}
+<style>
+  .ms-page .page-title { font-size: 1.65rem; font-weight: 700; color: #1e3c72; margin-bottom: 0.15rem; }
+  .ms-page .breadcrumb-line { font-size: 0.82rem; color: #64748b; }
+  .ms-page .breadcrumb-line a { color: #2563eb; text-decoration: none; }
+  .ms-page .breadcrumb-line a:hover { text-decoration: underline; }
+  .badge-ms { font-size: 0.75rem; font-weight: 600; padding: 0.3rem 0.65rem; border-radius: 20px; }
+  .badge-entrada { background: #dcfce7; color: #166534; }
+  .badge-salida { background: #fee2e2; color: #991b1b; }
+  .badge-ajuste { background: #eef2ff; color: #4338ca; }
+</style>
+
+<div class="ms-page">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="page-title"><i class="bi bi-arrow-left-right text-primary me-2"></i>Mover stock</h2>
+      <div class="breadcrumb-line">
+        <a href="{% url 'dashboard' %}">Dashboard</a> / Mover stock
+      </div>
+    </div>
+    <a href="{% url 'movimiento_stock_create' %}" class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 fw-semibold" style="border-radius: 10px;">
+      <i class="bi bi-plus-lg"></i> Nuevo movimiento
+    </a>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-3 p-3">
+        <small class="text-muted fw-semibold">Total</small>
+        <span class="fs-4 fw-bold text-dark">{{ total_movimientos }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-3 p-3">
+        <small class="text-muted fw-semibold">Entradas</small>
+        <span class="fs-4 fw-bold text-success">{{ total_entradas }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-3 p-3">
+        <small class="text-muted fw-semibold">Salidas</small>
+        <span class="fs-4 fw-bold text-danger">{{ total_salidas }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr class="text-muted small fw-bold">
+              <th class="ps-3">Fecha</th>
+              <th>Producto</th>
+              <th>Tipo</th>
+              <th>Cantidad</th>
+              <th>Stock resultante</th>
+              <th>Motivo</th>
+              <th>Usuario</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in movimientos %}
+            <tr>
+              <td class="ps-3 small text-muted">{{ m.created_at|date:"d/m/Y H:i" }}</td>
+              <td class="fw-semibold">{{ m.producto.nombre }}</td>
+              <td><span class="badge-ms badge-{{ m.tipo }}">{{ m.get_tipo_display }}</span></td>
+              <td>{{ m.cantidad }}</td>
+              <td class="fw-bold">{{ m.stock_resultante }}</td>
+              <td class="small text-muted">{{ m.motivo|default:"—"|truncatechars:40 }}</td>
+              <td class="small text-muted">{{ m.usuario.get_full_name|default:m.usuario.username|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="bi bi-arrow-left-right opacity-25" style="font-size: 3rem;"></i>
+                <p class="mt-2 fw-semibold">No hay movimientos registrados.</p>
+                <a href="{% url 'movimiento_stock_create' %}" class="btn btn-primary btn-sm">Primer movimiento</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {% if page_obj.paginator.count > 0 %}
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <small class="text-muted">{{ page_start }}–{{ page_end }} de {{ page_total }} movimientos</small>
+    <nav>
+      <ul class="pagination pagination-sm mb-0">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

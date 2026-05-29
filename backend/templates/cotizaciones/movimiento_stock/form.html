@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Nuevo movimiento · GCinsumos{% endblock %}
+
+{% block content %}
+<style>
+  .ms-form .page-title { font-size: 1.65rem; font-weight: 700; color: #1e3c72; margin-bottom: 0.15rem; }
+  .ms-form .breadcrumb-line { font-size: 0.82rem; color: #64748b; }
+  .ms-form .breadcrumb-line a { color: #2563eb; text-decoration: none; }
+  .ms-form .breadcrumb-line a:hover { text-decoration: underline; }
+</style>
+
+<div class="ms-form">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="page-title"><i class="bi bi-arrow-left-right text-primary me-2"></i>Nuevo movimiento</h2>
+      <div class="breadcrumb-line">
+        <a href="{% url 'dashboard' %}">Dashboard</a> /
+        <a href="{% url 'movimiento_stock_list' %}">Mover stock</a> /
+        Nuevo
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-3 p-4">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="{{ form.producto.id_for_label }}" class="form-label fw-semibold small">Producto *</label>
+          {{ form.producto }}
+          {% if form.producto.errors %}<div class="text-danger small mt-1">{{ form.producto.errors|striptags }}</div>{% endif %}
+        </div>
+        <div class="col-md-3">
+          <label for="{{ form.tipo.id_for_label }}" class="form-label fw-semibold small">Tipo *</label>
+          {{ form.tipo }}
+          {% if form.tipo.errors %}<div class="text-danger small mt-1">{{ form.tipo.errors|striptags }}</div>{% endif %}
+        </div>
+        <div class="col-md-3">
+          <label for="{{ form.cantidad.id_for_label }}" class="form-label fw-semibold small">Cantidad *</label>
+          {{ form.cantidad }}
+          {% if form.cantidad.errors %}<div class="text-danger small mt-1">{{ form.cantidad.errors|striptags }}</div>{% endif %}
+        </div>
+        <div class="col-12">
+          <label for="{{ form.motivo.id_for_label }}" class="form-label fw-semibold small">Motivo</label>
+          {{ form.motivo }}
+          {% if form.motivo.errors %}<div class="text-danger small mt-1">{{ form.motivo.errors|striptags }}</div>{% endif %}
+        </div>
+      </div>
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-primary px-4 fw-semibold">
+          <i class="bi bi-check-lg"></i> Registrar
+        </button>
+        <a href="{% url 'movimiento_stock_list' %}" class="btn btn-outline-secondary px-4 fw-semibold">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

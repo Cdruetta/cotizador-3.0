@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}Comprobantes · GCinsumos{% endblock %}
+
+{% block content %}
+<style>
+  .comprobantes-page .page-title { font-size: 1.65rem; font-weight: 700; color: #1e3c72; margin-bottom: 0.15rem; }
+  .comprobantes-page .breadcrumb-line { font-size: 0.82rem; color: #64748b; }
+  .comprobantes-page .breadcrumb-line a { color: #2563eb; text-decoration: none; }
+  .comprobantes-page .breadcrumb-line a:hover { text-decoration: underline; }
+  .badge-comp { font-size: 0.75rem; font-weight: 600; padding: 0.3rem 0.65rem; border-radius: 20px; }
+  .badge-borrador { background: #eef2ff; color: #4338ca; }
+  .badge-autorizada { background: #dcfce7; color: #166534; }
+  .badge-anulada { background: #fee2e2; color: #991b1b; }
+</style>
+
+<div class="comprobantes-page">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="page-title"><i class="bi bi-receipt text-primary me-2"></i>Comprobantes</h2>
+      <div class="breadcrumb-line">
+        <a href="{% url 'dashboard' %}">Dashboard</a> / Comprobantes
+      </div>
+    </div>
+    <a href="{% url 'factura_create' %}" class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 fw-semibold" style="border-radius: 10px;">
+      <i class="bi bi-plus-lg"></i> Nuevo Comprobante
+    </a>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-md-4">
+      <div class="card border-0 shadow-sm rounded-3 p-3">
+        <small class="text-muted fw-semibold">Total</small>
+        <span class="fs-4 fw-bold text-dark">{{ total_comprobantes }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-md-4">
+      <div class="card border-0 shadow-sm rounded-3 p-3">
+        <small class="text-muted fw-semibold">Pendientes / Borrador</small>
+        <span class="fs-4 fw-bold text-primary">{{ comprobantes_pendientes }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-md-4">
+      <div class="card border-0 shadow-sm rounded-3 p-3">
+        <small class="text-muted fw-semibold">Autorizados</small>
+        <span class="fs-4 fw-bold text-success">{{ comprobantes_autorizados }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr class="text-muted small fw-bold">
+              <th class="ps-3">Comprobante</th>
+              <th>Cliente</th>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th class="text-end pe-3">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in comprobantes %}
+            <tr>
+              <td class="ps-3 fw-semibold text-dark">{{ c.tipo }} {{ c.punto_venta|stringformat:"04d" }}-{{ c.numero|stringformat:"08d" }}</td>
+              <td>{{ c.cliente.nombre }}</td>
+              <td>{{ c.fecha|date:"d/m/Y" }}</td>
+              <td>{{ c.get_tipo_display }}</td>
+              <td class="fw-bold">${{ c.total|floatformat:2 }}</td>
+              <td>
+                <span class="badge-comp badge-{{ c.estado }}">{{ c.get_estado_display }}</span>
+              </td>
+              <td class="text-end pe-3">
+                <a href="{% url 'factura_detail' c.pk %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Ver"><i class="bi bi-eye"></i></a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="bi bi-receipt opacity-25" style="font-size: 3rem;"></i>
+                <p class="mt-2 fw-semibold">No hay comprobantes registrados.</p>
+                <a href="{% url 'factura_create' %}" class="btn btn-primary btn-sm">Crear primer comprobante</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {% if page_obj.paginator.count > 0 %}
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <small class="text-muted">{{ page_start }}–{{ page_end }} de {{ page_total }} comprobantes</small>
+    <nav>
+      <ul class="pagination pagination-sm mb-0">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

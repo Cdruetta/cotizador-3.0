@@ -1,0 +1,2 @@
+class Afip:
+    pass

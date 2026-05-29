@@ -1,14 +1,18 @@
+import json
+from decimal import Decimal
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import (
     ListView, CreateView, UpdateView, DeleteView, DetailView,
 )
 
-from ..models import Cotizacion, CotizacionItem
+from ..models import Cotizacion, CotizacionItem, Producto
 from ..forms import (
     CotizacionForm, CotizacionItemForm, CotizacionFilterForm, EnviarEmailForm,
 )
@@ -66,8 +70,30 @@ class CotizacionCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.usuario = self.request.user
+        self.object = form.save()
+
+        descuento = Decimal(self.request.POST.get("descuento_pct", "0"))
+        self.object.descuento_porcentaje = descuento
+
+        raw = self.request.POST.get("items")
+        if raw:
+            try:
+                for itm in json.loads(raw):
+                    pid = itm.get("producto_id")
+                    if not pid:
+                        continue
+                    CotizacionItem.objects.create(
+                        cotizacion=self.object,
+                        producto_id=pid,
+                        cantidad=Decimal(itm.get("cantidad", "1")),
+                        precio_unitario=Decimal(itm.get("precio_unitario", "0")),
+                    )
+            except (json.JSONDecodeError, ValueError):
+                pass
+
+        self.object.calcular_total()
         messages.success(self.request, "Cotización creada exitosamente.")
-        return super().form_valid(form)
+        return redirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse_lazy("cotizacion_detail", kwargs={"pk": self.object.pk})
@@ -79,11 +105,11 @@ class CotizacionUpdateView(LoginRequiredMixin, UpdateView):
     template_name = "cotizaciones/cotizacion/form.html"
 
     def form_valid(self, form):
-        response = super().form_valid(form)
+        self.object = form.save()
         if hasattr(self.object, 'calcular_total'):
             self.object.calcular_total()
         messages.success(self.request, "Cotización actualizada exitosamente.")
-        return response
+        return redirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse_lazy("cotizacion_detail", kwargs={"pk": self.object.pk})
@@ -99,6 +125,31 @@ class CotizacionDeleteView(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+@login_required
+def buscar_productos_ajax(request):
+    q = request.GET.get("q", "").strip()
+    productos = Producto.objects.filter(activo=True)
+    if q:
+        productos = productos.filter(
+            Q(nombre__icontains=q) | Q(proveedor__nombre__icontains=q)
+        )
+    productos = productos.select_related("proveedor")
+    if q:
+        productos = productos[:50]
+    # sin q se devuelven todos
+    data = [
+        {
+            "id": p.id,
+            "nombre": p.nombre,
+            "precio": float(p.precio_unitario),
+            "proveedor": p.proveedor.nombre if p.proveedor else "",
+            "stock": p.stock,
+        }
+        for p in productos
+    ]
+    return JsonResponse({"productos": data})
+
+
 class CotizacionDetailView(LoginRequiredMixin, DetailView):
     model = Cotizacion
     template_name = "cotizaciones/cotizacion/detail.html"
@@ -107,7 +158,6 @@ class CotizacionDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["items"] = self.object.items.select_related("producto")
-        ctx["item_form"] = CotizacionItemForm()
         
         # ✨ CORREGIDO: Ajustamos el campo 'nro_cotizacion' y 'razon_social' para el autocompletado
         cliente_nombre = getattr(self.object.cliente, 'razon_social', getattr(self.object.cliente, 'nombre', 'Cliente'))
@@ -166,6 +216,25 @@ def cambiar_estado_cotizacion(request, cotizacion_id, estado):
 # ==============================================================================
 # 🖨️ ACCIONES DE SALIDA (PDF / EMAIL)
 # ==============================================================================
+@login_required
+def actualizar_descuento_cotizacion(request, cotizacion_id):
+    cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
+    if request.method == "POST":
+        raw = request.POST.get("descuento_pct", "0").strip()
+        if not raw:
+            raw = "0"
+        try:
+            raw = raw.replace(",", ".")
+            pct = Decimal(raw)
+            cotizacion.descuento_porcentaje = pct
+            cotizacion.save(update_fields=["descuento_porcentaje"])
+            cotizacion.calcular_total()
+            messages.success(request, f"Descuento actualizado a {pct}%.")
+        except Exception:
+            messages.error(request, "Valor de descuento inválido.")
+    return redirect("cotizacion_detail", pk=cotizacion_id)
+
+
 @login_required
 def generar_pdf(request, cotizacion_id):
     cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)

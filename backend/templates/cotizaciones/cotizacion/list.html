@@ -38,16 +38,6 @@
     padding: 0.25em 0.5em;
   }
 
-  .acciones-btn {
-    padding: 0.2rem;
-    font-size: 0.75rem;
-    width: 24px; 
-    height: 24px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   /* Responsividad para ocultar columnas en pantallas más chicas antes de romper el layout */
   @media (max-width: 1400px) {
     .col-usuario { display: none; } 
@@ -185,22 +175,22 @@
           </td>
 
           <td class="text-center pe-2 col-acciones">
-            <div class="d-flex align-items-center justify-content-center gap-1">
-              <a href="{% url 'cotizacion_detail' c.pk %}" class="btn btn-sm btn-outline-primary acciones-btn" title="Ver"><i class="bi bi-eye"></i></a>
-              <a href="{% url 'generar_pdf' c.pk %}" class="btn btn-sm btn-outline-danger acciones-btn" title="PDF" target="_blank"><i class="bi bi-file-pdf"></i></a>
-              <a href="{% url 'cotizacion_update' c.pk %}" class="btn btn-sm btn-outline-warning acciones-btn" title="Editar"><i class="bi bi-pencil"></i></a>
-              
-              {% if c.estado == "aprobada" or c.estado == "rechazada" %}
-                <a href="{% url 'cambiar_estado_cotizacion' c.pk 'borrador' %}" class="btn btn-sm btn-outline-secondary acciones-btn" title="Reabrir"><i class="bi bi-arrow-counterclockwise"></i></a>
-              {% else %}
-                <a href="{% url 'cambiar_estado_cotizacion' c.pk 'aprobada' %}" class="btn btn-sm btn-outline-success acciones-btn" title="Aprobar"><i class="bi bi-check2"></i></a>
-                <a href="{% url 'cambiar_estado_cotizacion' c.pk 'rechazada' %}" class="btn btn-sm btn-outline-danger acciones-btn" title="Rechazar"
-                   onclick="return confirm('¿Rechazar?')"><i class="bi bi-x-lg"></i></a>
-              {% endif %}
+            <a href="{% url 'cotizacion_detail' c.pk %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Ver"><i class="bi bi-eye"></i></a>
+            <a href="{% url 'generar_pdf' c.pk %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="PDF" target="_blank"><i class="bi bi-file-pdf"></i></a>
+            <a href="{% url 'cotizacion_update' c.pk %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Editar"><i class="bi bi-pencil"></i></a>
+            
+            {% if c.estado == "aprobada" or c.estado == "rechazada" %}
+              <a href="{% url 'cambiar_estado_cotizacion' c.pk 'borrador' %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Reabrir"><i class="bi bi-arrow-counterclockwise"></i></a>
+            {% else %}
+              <a href="{% url 'cambiar_estado_cotizacion' c.pk 'aprobada' %}" class="btn btn-sm btn-action btn-outline-success border-0" title="Aprobar"><i class="bi bi-check2"></i></a>
+              <a href="{% url 'cambiar_estado_cotizacion' c.pk 'rechazada' %}" class="btn btn-sm btn-action btn-outline-danger border-0" title="Rechazar"
+                onclick="return confirm('¿Rechazar?')"><i class="bi bi-x-lg"></i></a>
+            {% endif %}
 
-              <a href="{% url 'cotizacion_delete' c.pk %}" class="btn btn-sm btn-outline-dark acciones-btn" title="Eliminar"
-                 onclick="return confirm('¿Eliminar?')"><i class="bi bi-trash"></i></a>
-            </div>
+            <form method="post" action="{% url 'cotizacion_delete' c.pk %}" class="d-inline" onsubmit="return confirm('¿Eliminar?')">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-action btn-outline-danger border-0" title="Eliminar"><i class="bi bi-trash"></i></button>
+            </form>
           </td>
         </tr>
         {% endfor %}

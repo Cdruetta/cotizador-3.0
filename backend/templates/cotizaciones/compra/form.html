@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}{{ view.object.pk|yesno:"Editar,Nueva" }} Compra · GCinsumos{% endblock %}
+
+{% block content %}
+<style>
+  .compra-form .page-title { font-size: 1.65rem; font-weight: 700; color: #1e3c72; margin-bottom: 0.15rem; }
+  .compra-form .breadcrumb-line { font-size: 0.82rem; color: #64748b; }
+  .compra-form .breadcrumb-line a { color: #2563eb; text-decoration: none; }
+  .compra-form .breadcrumb-line a:hover { text-decoration: underline; }
+</style>
+
+<div class="compra-form">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="page-title">
+        <i class="bi bi-cart text-primary me-2"></i>
+        {% if object %}Editar Compra{% else %}Nueva Compra{% endif %}
+      </h2>
+      <div class="breadcrumb-line">
+        <a href="{% url 'dashboard' %}">Dashboard</a> /
+        <a href="{% url 'compra_list' %}">Compras</a> /
+        {% if object %}Editar{% else %}Nueva{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-3 p-4">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="row g-3">
+        {% for field in form %}
+        <div class="col-md-6">
+          <label for="{{ field.id_for_label }}" class="form-label fw-semibold small">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|striptags }}</div>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-primary px-4 fw-semibold">
+          <i class="bi bi-check-lg"></i> Guardar
+        </button>
+        <a href="{% url 'compra_list' %}" class="btn btn-outline-secondary px-4 fw-semibold">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

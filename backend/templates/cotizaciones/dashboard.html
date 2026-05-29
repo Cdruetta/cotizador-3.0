@@ -4,107 +4,376 @@
 {% block title %}Dashboard · GCinsumos{% endblock %}
 
 {% block content %}
+<style>
+  /* Premium Stat Cards */
+  .stat-card {
+    border-radius: 16px;
+    border: none;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    min-height: 125px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  }
+  .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  }
+  .stat-card-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.85;
+    margin: 0;
+  }
+  .stat-card-value {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0.25rem 0;
+  }
+  .stat-card-subtext {
+    font-size: 0.78rem;
+    opacity: 0.75;
+    margin: 0;
+  }
+  .stat-card-icon {
+    position: absolute;
+    right: 1.25rem;
+    bottom: 1rem;
+    font-size: 3.8rem;
+    opacity: 0.2;
+    pointer-events: none;
+  }
 
+  /* Specific Card Gradients */
+  .bg-grad-indigo {
+    background: linear-gradient(135deg, #3c2bb3 0%, #584cd4 100%);
+  }
+  .bg-grad-teal {
+    background: linear-gradient(135deg, #0e9f6e 0%, #10b981 100%);
+  }
+  .bg-grad-orange {
+    background: linear-gradient(135deg, #e02424 0%, #f97316 100%);
+  }
+  .bg-grad-purple {
+    background: linear-gradient(135deg, #5850ec 0%, #7e57c2 100%);
+  }
+
+  /* Clean white container cards */
+  .dashboard-box {
+    background: #fff;
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+  .dashboard-box-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .dashboard-box-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .dashboard-box-body {
+    padding: 1.5rem;
+  }
+
+  /* Quick Access Grid */
+  .quick-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  .quick-btn {
+    display: flex;
+    align-items: center;
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    text-decoration: none;
+    background: #fff;
+    transition: all 0.2s ease;
+  }
+  .quick-btn i {
+    font-size: 1.15rem;
+    margin-right: 0.5rem;
+  }
+
+  .quick-btn-blue { border: 1.5px solid #3b82f6; color: #2563eb; }
+  .quick-btn-blue:hover { background: #eff6ff; transform: translateY(-2px); }
+
+  .quick-btn-green { border: 1.5px solid #10b981; color: #059669; }
+  .quick-btn-green:hover { background: #ecfdf5; transform: translateY(-2px); }
+
+  .quick-btn-yellow { border: 1.5px solid #f59e0b; color: #d97706; }
+  .quick-btn-yellow:hover { background: #fffbeb; transform: translateY(-2px); }
+
+  .quick-btn-grey { border: 1.5px solid #6b7280; color: #4b5563; }
+  .quick-btn-grey:hover { background: #f9fafb; transform: translateY(-2px); }
+
+  .quick-btn-teal { border: 1.5px solid #14b8a6; color: #0d9488; }
+  .quick-btn-teal:hover { background: #f0fdfa; transform: translateY(-2px); }
+
+  .quick-btn-black { border: 1.5px solid #1f2937; color: #111827; }
+  .quick-btn-black:hover { background: #f3f4f6; transform: translateY(-2px); }
+</style>
+
+<!-- Header Section -->
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
-    <h4 class="fw-bold mb-0" style="color:#1e3c72">Dashboard</h4>
-    <small class="text-muted">Resumen general del sistema</small>
+    <h2 class="fw-bold mb-0 d-flex align-items-center gap-2 text-dark" style="font-size: 1.75rem;">
+      <i class="bi bi-speedometer2 text-primary" style="font-size: 1.85rem;"></i> Dashboard
+    </h2>
+    <small class="text-muted fw-medium ms-1" style="font-size: 0.82rem;">Inicio</small>
   </div>
-  <a href="{% url 'cotizacion_create' %}" class="btn btn-primary btn-sm px-3 shadow-sm">
-    <i class="bi bi-plus-circle me-1"></i> Nueva Cotización
-  </a>
+  <div class="d-flex align-items-center gap-2">
+    <!-- Guía de inicio button trigger modal -->
+    <button type="button" class="btn btn-light border d-flex align-items-center gap-1.5 px-3 py-2 fw-semibold text-secondary" style="border-radius: 10px; font-size: 0.88rem;" data-bs-toggle="modal" data-bs-target="#guiaInicioModal">
+      <i class="bi bi-rocket-takeoff text-primary"></i> Guía de inicio
+    </button>
+
+  </div>
 </div>
 
+<!-- Stat Cards Grid -->
 <div class="row g-3 mb-4">
-  <!-- ... (las tarjetas estadísticas se mantienen igual) ... -->
-</div>
-
-{% if cotizaciones_recientes %}
-<div class="card shadow-sm border-0" style="border-radius: 12px;">
-  <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 px-4 border-0">
-    <h6 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2 text-primary"></i> Cotizaciones Recientes</h6>
-    <a href="{% url 'cotizacion_list' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Ver todas</a>
+  <!-- Card 1: Ventas de Hoy -->
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="stat-card bg-grad-indigo">
+      <div>
+        <h6 class="stat-card-title">Ventas de Hoy</h6>
+        <div class="stat-card-value">$ {{ ventas_hoy|floatformat:2 }}</div>
+      </div>
+      <p class="stat-card-subtext">{{ transacciones_hoy }} transacciones</p>
+      <i class="bi bi-cart stat-card-icon"></i>
+    </div>
   </div>
 
-  <div class="table-responsive">
-    <table class="table mb-0 align-middle">
-      <thead class="bg-light">
-        <tr>
-          <th class="px-4 py-3 text-muted small fw-bold">Comprobante</th>
-          <th class="py-3 text-muted small fw-bold">CLIENTE</th>
-          <th class="py-3 text-muted small fw-bold">TOTAL</th>
-          <th class="text-center py-3 text-muted small fw-bold">ESTADO</th>
-          <th class="text-center py-3 text-muted small fw-bold">ACCIONES</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for c in cotizaciones_recientes %}
-        <tr class="border-bottom">
-          <!-- ✅ Cambiado aquí -->
-          <td class="px-4 fw-bold text-primary">
-            {% if c.numero %}
-              #{{ c.numero }}
-            {% else %}
-              #{{ c.pk }}
-            {% endif %}
-          </td>
-          
-          <td>{{ c.cliente.nombre }}</td>
-          <td class="fw-bold">${{ c.total|floatformat:2 }}</td>
-          
-          <td class="text-center">
-            {% if c.estado == "aprobada" %}
-              <span class="badge" style="background-color: #198754; color: white; padding: 0.5em 1em; border-radius: 8px; font-weight: bold; min-width: 100px;">
-                <i class="bi bi-check2 me-1"></i> Aprobada
-              </span>
-            {% elif c.estado == "rechazada" %}
-              <span class="badge" style="background-color: #dc3545; color: white; padding: 0.5em 1em; border-radius: 8px; font-weight: bold; min-width: 100px;">
-                <i class="bi bi-x-circle me-1"></i> Rechazada
-              </span>
-            {% else %}
-              <span class="badge" style="background-color: #ffc107; color: black; padding: 0.5em 1em; border-radius: 8px; font-weight: bold; min-width: 100px;">
-                <i class="bi bi-clock me-1"></i> Pendiente
-              </span>
-            {% endif %}
-          </td>
+  <!-- Card 2: Ventas del Mes -->
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="stat-card bg-grad-teal">
+      <div>
+        <h6 class="stat-card-title">Ventas del Mes</h6>
+        <div class="stat-card-value">$ {{ ventas_mes|floatformat:2 }}</div>
+      </div>
+      <p class="stat-card-subtext" id="month-year-label">Cargando...</p>
+      <i class="bi bi-graph-up-arrow stat-card-icon"></i>
+    </div>
+  </div>
 
-          <td class="text-center">
-            <div class="d-flex justify-content-center align-items-center gap-1">
-              <a href="{% url 'cotizacion_detail' c.pk %}" class="btn btn-sm btn-outline-primary" title="Ver">
-                <i class="bi bi-eye"></i>
-              </a>
+  <!-- Card 3: Cantidad de Productos -->
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="stat-card bg-grad-orange">
+      <div>
+        <h6 class="stat-card-title">Cantidad de Productos</h6>
+        <div class="stat-card-value">{{ cantidad_productos }}</div>
+      </div>
+      <p class="stat-card-subtext">Productos activos en catálogo</p>
+      <i class="bi bi-box-seam stat-card-icon"></i>
+    </div>
+  </div>
 
-              {% if c.estado == "aprobada" or c.estado == "rechazada" %}
-                <a href="{% url 'cambiar_estado_cotizacion' cotizacion_id=c.pk estado='borrador' %}" 
-                   class="btn btn-sm btn-outline-secondary" title="Reabrir">
-                  <i class="bi bi-arrow-counterclockwise"></i>
-                </a>
-              {% else %}
-                <a href="{% url 'cambiar_estado_cotizacion' cotizacion_id=c.pk estado='aprobada' %}" 
-                   class="btn btn-sm btn-outline-success" title="Aprobar">
-                  <i class="bi bi-check2"></i>
-                </a>
-                <a href="{% url 'cambiar_estado_cotizacion' cotizacion_id=c.pk estado='rechazada' %}" 
-                   class="btn btn-sm btn-outline-danger" title="Rechazar"
-                   onclick="return confirm('¿Rechazar?')">
-                  <i class="bi bi-x-lg"></i>
-                </a>
-              {% endif %}
+  <!-- Card 4: Clientes Activos -->
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="stat-card bg-grad-purple">
+      <div>
+        <h6 class="stat-card-title">Clientes Activos</h6>
+        <div class="stat-card-value">{{ clientes_activos }}</div>
+      </div>
+      <p class="stat-card-subtext">{{ leads_progreso }} leads en progreso</p>
+      <i class="bi bi-people stat-card-icon"></i>
+    </div>
+  </div>
+</div>
+
+<!-- Main Panels Row -->
+<div class="row g-4">
+  <!-- Left Panel: Últimas Ventas -->
+  <div class="col-12 col-lg-7">
+    <div class="dashboard-box">
+      <div class="dashboard-box-header">
+        <h3 class="dashboard-box-title">
+          <i class="bi bi-file-earmark-text text-primary"></i> Últimas ventas
+        </h3>
+        <a href="{% url 'factura_list' %}" class="btn btn-outline-primary btn-sm px-3 rounded-pill fw-bold" style="font-size: 0.82rem; border-width: 1px;">Ver todas</a>
+      </div>
+      <div class="dashboard-box-body">
+        {% if facturas_recientes_hoy %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr class="text-muted small fw-bold">
+                  <th>Comprobante</th>
+                  <th>Cliente</th>
+                  <th>Total</th>
+                  <th class="text-center">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for f in facturas_recientes_hoy %}
+                  <tr>
+                    <td class="fw-bold text-primary">
+                      #{{ f.numero|default:f.pk }}
+                    </td>
+                    <td class="text-dark fw-semibold">{{ f.cliente.nombre }}</td>
+                    <td class="fw-bold text-dark">${{ f.total|floatformat:2 }}</td>
+                    <td class="text-center">
+                      {% if f.estado == "autorizada" %}
+                        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-bold">
+                          <i class="bi bi-check2 me-1"></i> Autorizada
+                        </span>
+                      {% elif f.estado == "borrador" %}
+                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill px-2.5 py-1 fw-bold">
+                          <i class="bi bi-clock me-1"></i> Borrador
+                        </span>
+                      {% else %}
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2.5 py-1 fw-bold">
+                          <i class="bi bi-x-circle me-1"></i> Anulada
+                        </span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center py-5">
+            <i class="bi bi-cart-x text-muted opacity-25" style="font-size: 4.5rem;"></i>
+            <p class="text-muted mt-3 mb-0 fw-semibold" style="font-size: 1.05rem;">No hay ventas registradas hoy.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="col-12 col-lg-5">
+    <!-- Accesos rápidos -->
+    <div class="dashboard-box">
+      <div class="dashboard-box-header">
+        <h3 class="dashboard-box-title">
+          <i class="bi bi-lightning-charge text-primary"></i> Accesos rápidos
+        </h3>
+      </div>
+      <div class="dashboard-box-body">
+        <div class="quick-grid">
+          <a href="{% url 'factura_create' %}" class="quick-btn quick-btn-blue">
+            <i class="bi bi-cart-plus"></i> Nueva venta
+          </a>
+          <a href="{% url 'cliente_create' %}" class="quick-btn quick-btn-green">
+            <i class="bi bi-person-plus"></i> Nuevo cliente
+          </a>
+          <a href="{% url 'proveedor_list' %}" class="quick-btn quick-btn-yellow">
+            <i class="bi bi-bag-plus"></i> Pedido compra
+          </a>
+          <a href="{% url 'reportes' %}" class="quick-btn quick-btn-grey">
+            <i class="bi bi-bar-chart"></i> Reportes
+          </a>
+          <a href="{% url 'user_list' %}" class="quick-btn quick-btn-teal">
+            <i class="bi bi-people"></i> Usuarios
+          </a>
+          <a href="{% url 'factura_list' %}" class="quick-btn quick-btn-black">
+            <i class="bi bi-cash-coin"></i> Caja
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Guía de Inicio -->
+<div class="modal fade" id="guiaInicioModal" tabindex="-1" aria-labelledby="guiaInicioModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+      <div class="modal-header bg-primary text-white border-0 py-3" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+        <h5 class="modal-title fw-bold d-flex align-items-center gap-2" id="guiaInicioModalLabel">
+          <i class="bi bi-rocket-takeoff"></i> Guía de Inicio Rápido
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <h6 class="fw-bold mb-3" style="color: #1e3c72;">¡Bienvenido al Sistema de Cotizaciones GCinsumos!</h6>
+        <p class="text-muted">Aquí tienes un resumen rápido de las acciones más comunes que puedes realizar:</p>
+        
+        <div class="row g-3 mt-2">
+          <div class="col-12 col-md-6">
+            <div class="p-3 border rounded-3 bg-light h-100">
+              <h6 class="fw-bold d-flex align-items-center gap-2 text-primary">
+                <i class="bi bi-file-earmark-text"></i> Presupuestos / Cotizaciones
+              </h6>
+              <p class="small text-muted mb-0">Genera cotizaciones formales para tus clientes, agrega ítems, calcula totales automáticamente y expórtalas en formato PDF para enviar por email.</p>
             </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="p-3 border rounded-3 bg-light h-100">
+              <h6 class="fw-bold d-flex align-items-center gap-2 text-success">
+                <i class="bi bi-receipt"></i> Ventas / Facturación
+              </h6>
+              <p class="small text-muted mb-0">Registra tus ventas directamente y conéctate con ARCA (ex-AFIP) para autorizar facturas de forma electrónica en un solo clic.</p>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="p-3 border rounded-3 bg-light h-100">
+              <h6 class="fw-bold d-flex align-items-center gap-2 text-warning">
+                <i class="bi bi-box-seam"></i> Gestión de Inventario
+              </h6>
+              <p class="small text-muted mb-0">Controla tu catálogo de productos y servicios. El sistema te alertará en la sección "Stock Crítico" cuando sea necesario reponer mercadería.</p>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="p-3 border rounded-3 bg-light h-100">
+              <h6 class="fw-bold d-flex align-items-center gap-2 text-info">
+                <i class="bi bi-graph-up-arrow"></i> Reportes y Análisis
+              </h6>
+              <p class="small text-muted mb-0">Accede a las métricas del negocio, ventas mensuales, cotizaciones aprobadas y estadísticas de crecimiento financiero en tiempo real.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 p-3 bg-light" style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+        <button type="button" class="btn btn-primary px-4 fw-bold" data-bs-dismiss="modal">Entendido</button>
+      </div>
+    </div>
   </div>
 </div>
-{% else %}
-<div class="card shadow-sm border-0 py-5 text-center">
-  <div class="card-body">
-    <i class="bi bi-inbox fs-1 text-muted opacity-25"></i>
-    <p class="text-muted mt-3 mb-0">No hay cotizaciones recientes.</p>
-  </div>
-</div>
-{% endif %}
 
+<!-- Dynamic Formatting Script -->
+<script>
+  (function() {
+    const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    const monthsFull = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    
+    const d = new Date();
+    const day = d.getDate();
+    const monthIndex = d.getMonth();
+    const month = months[monthIndex];
+    const monthFull = monthsFull[monthIndex];
+    const year = d.getFullYear();
+    
+    const monthYearStr = month + ' ' + year;
+    const monthYearEl = document.getElementById('month-year-label');
+    if (monthYearEl) {
+      monthYearEl.textContent = monthYearStr;
+    }
+  })();
+</script>
 {% endblock %}

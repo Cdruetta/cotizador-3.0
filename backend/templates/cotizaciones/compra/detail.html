@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ compra.numero }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <h4 class="fw-bold mb-0 text-primary">{{ compra.numero }}</h4>
+    <small class="text-muted">{{ compra.fecha|date:"d/m/Y" }} · {{ compra.get_estado_display }}</small>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <a href="{% url 'compra_update' compra.pk %}" class="btn btn-sm btn-warning"><i class="bi bi-pencil me-1"></i> Editar</a>
+    <a href="{% url 'compra_list' %}" class="btn btn-sm btn-light"><i class="bi bi-arrow-left me-1"></i> Volver</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-12 col-lg-6">
+    <div class="card stat-card h-100">
+      <div class="card-header bg-white fw-semibold small py-2 px-3">
+        <i class="bi bi-truck me-2 text-primary"></i> Proveedor
+      </div>
+      <div class="card-body py-2 px-3">
+        <table class="table table-borderless table-sm mb-0">
+          <tr><td class="text-muted small w-35">Nombre</td><td class="fw-semibold">{{ compra.proveedor.nombre }}</td></tr>
+          <tr><td class="text-muted small">Teléfono</td><td>{{ compra.proveedor.telefono|default:"—" }}</td></tr>
+          <tr><td class="text-muted small">Email</td><td>{{ compra.proveedor.email|default:"—" }}</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-6">
+    <div class="card stat-card h-100">
+      <div class="card-header bg-white fw-semibold small py-2 px-3">
+        <i class="bi bi-file-text me-2 text-info"></i> Documento
+      </div>
+      <div class="card-body py-2 px-3">
+        <table class="table table-borderless table-sm mb-0">
+          <tr><td class="text-muted small w-35">Número</td><td class="fw-semibold">{{ compra.numero }}</td></tr>
+          <tr><td class="text-muted small">Fecha</td><td>{{ compra.fecha|date:"d/m/Y" }}</td></tr>
+          <tr><td class="text-muted small">Estado</td><td><span class="badge-c badge-{{ compra.estado }}">{{ compra.get_estado_display }}</span></td></tr>
+          <tr><td class="text-muted small">Usuario</td><td>{{ compra.usuario.get_full_name|default:compra.usuario.username }}</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card stat-card mb-3">
+  <div class="card-header bg-white fw-semibold small py-2 px-3">
+    <i class="bi bi-plus-circle me-2 text-success"></i> Agregar producto
+  </div>
+  <div class="card-body py-3 px-3">
+    <form method="post" action="{% url 'compra_add_item' compra.pk %}" id="addItemForm">
+      {% csrf_token %}
+      <div class="row g-2 align-items-end">
+        <div class="col-12 col-md-5">
+          <label class="form-label small mb-1">Producto</label>
+          {{ item_form.producto }}
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small mb-1">Cantidad</label>
+          {{ item_form.cantidad }}
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-label small mb-1">Precio Unitario</label>
+          {{ item_form.precio_unitario }}
+        </div>
+        <div class="col-12 col-md-2 d-grid">
+          <button type="submit" class="btn btn-success btn-sm"><i class="bi bi-plus"></i> Agregar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card table-card mb-3">
+  <div class="card-header bg-white fw-semibold small py-2 px-3">
+    <i class="bi bi-list me-2 text-warning"></i> Productos
+  </div>
+  {% if items %}
+  <div class="table-responsive">
+    <table class="table mb-0 align-middle">
+      <thead>
+        <tr><th>Producto</th><th>Cant.</th><th>Precio Unit.</th><th>Subtotal</th><th class="text-end"></th></tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td class="fw-semibold">{{ item.producto.nombre }}</td>
+          <td>{{ item.cantidad }}</td>
+          <td>${{ item.precio_unitario|floatformat:2 }}</td>
+          <td class="fw-bold">${{ item.subtotal|floatformat:2 }}</td>
+          <td class="text-end">
+            <form method="post" action="{% url 'compra_delete_item' item.pk %}" class="d-inline" onsubmit="return confirm('¿Eliminar este producto?')">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        {% if compra.total %}
+        <tr style="background:var(--card-header-bg,#f0f4ff)">
+          <td colspan="3" class="text-end fw-bold">TOTAL:</td>
+          <td class="fw-bold fs-5 text-primary">${{ compra.total|floatformat:2 }}</td>
+          <td></td>
+        </tr>
+        {% endif %}
+      </tfoot>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center py-4">
+    <i class="bi bi-inbox" style="font-size:2.5rem;color:#ccd"></i>
+    <p class="text-muted mt-2 mb-0 small">Aún no hay productos. Usá el formulario de arriba.</p>
+  </div>
+  {% endif %}
+</div>
+
+{% if compra.observaciones %}
+<div class="card stat-card">
+  <div class="card-header bg-white fw-semibold small py-2 px-3">
+    <i class="bi bi-chat-text me-2"></i> Observaciones
+  </div>
+  <div class="card-body py-3 px-3">
+    <p class="mb-0">{{ compra.observaciones }}</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -35,11 +35,12 @@
           <td class="small">{{ p.telefono|default:"—" }}</td>
           <td class="small">{{ p.contacto|default:"—" }}</td>
           <td class="text-center">
-            <div class="btn-group btn-group-sm">
-              <a href="{% url 'proveedor_detail' p.pk %}" class="btn btn-outline-primary"><i class="bi bi-eye"></i></a>
-              <a href="{% url 'proveedor_update' p.pk %}" class="btn btn-outline-warning"><i class="bi bi-pencil"></i></a>
-              <a href="{% url 'proveedor_delete' p.pk %}" class="btn btn-outline-danger"><i class="bi bi-trash"></i></a>
-            </div>
+            <a href="{% url 'proveedor_detail' p.pk %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Ver"><i class="bi bi-eye"></i></a>
+            <a href="{% url 'proveedor_update' p.pk %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Editar"><i class="bi bi-pencil"></i></a>
+            <form method="post" action="{% url 'proveedor_delete' p.pk %}" class="d-inline" onsubmit="return confirm('¿Eliminar {{ p.nombre }}?')">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-action btn-outline-danger border-0" title="Eliminar"><i class="bi bi-trash"></i></button>
+            </form>
           </td>
         </tr>
         {% endfor %}

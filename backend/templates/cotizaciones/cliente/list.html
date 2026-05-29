@@ -1,66 +1,738 @@
 {% extends 'base.html' %}
-{% block title %}Clientes{% endblock %}
-{% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <div>
-    <h4 class="fw-bold mb-0" style="color:#1e3c72"><i class="bi bi-people me-2"></i>Clientes</h4>
-    <small class="text-muted">Administrá tu cartera de clientes</small>
-  </div>
-  <a href="{% url 'cliente_create' %}" class="btn btn-primary btn-sm px-3"><i class="bi bi-plus-circle me-1"></i>Nuevo</a>
-</div>
+{% block title %}Clientes · GCinsumos{% endblock %}
 
-<div class="filter-card">
-  <form method="get">
-    <div class="row g-2 align-items-end">
-      <div class="col-md-10">
-        <input type="text" name="search" class="form-control form-control-sm" placeholder="Buscar por nombre, teléfono o localidad..." value="{{ request.GET.search }}">
-      </div>
-      <div class="col-md-2 d-grid">
-        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-search me-1"></i>Buscar</button>
+{% block content %}
+<style>
+  .clientes-page { --cl-primary: #1e3c72; --cl-blue: #2563eb; }
+
+  .clientes-page .page-title {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: var(--cl-primary);
+    margin-bottom: 0.15rem;
+  }
+  .clientes-page .breadcrumb-line {
+    font-size: 0.82rem;
+    color: #64748b;
+  }
+  .clientes-page .breadcrumb-line a {
+    color: var(--cl-blue);
+    text-decoration: none;
+  }
+  .clientes-page .breadcrumb-line a:hover { text-decoration: underline; }
+
+  .btn-import-excel {
+    border: 1px solid #22c55e;
+    color: #16a34a;
+    background: #fff;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 0.45rem 1rem;
+    font-size: 0.875rem;
+  }
+  .btn-import-excel:hover {
+    background: #f0fdf4;
+    color: #15803d;
+    border-color: #16a34a;
+  }
+  .btn-nuevo-cliente {
+    background: var(--cl-blue);
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 0.45rem 1.1rem;
+    font-size: 0.875rem;
+  }
+  .btn-nuevo-cliente:hover { background: #1d4ed8; }
+
+  .kpi-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.15rem 1.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: none;
+    height: 100%;
+    text-align: center;
+  }
+  .kpi-value {
+    font-size: 2rem;
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 0.2rem;
+  }
+  .kpi-label {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 500;
+    margin: 0;
+  }
+  .kpi-total .kpi-value { color: var(--cl-blue); }
+  .kpi-activos .kpi-value { color: #16a34a; }
+  .kpi-saldo .kpi-value { color: #ca8a04; }
+  .kpi-deuda .kpi-value { color: #dc2626; font-size: 1.65rem; }
+
+  /* ── Barra de filtros delicada (input-group búsqueda + selects) ── */
+  .filters-panel {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  }
+  .filters-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+  @media (max-width: 991px) {
+    .filters-row { flex-wrap: wrap; }
+  }
+
+  /* Búsqueda: ícono en casilla + separador vertical + input */
+  .filter-search-group {
+    display: flex;
+    align-items: stretch;
+    flex: 1 1 42%;
+    min-width: 220px;
+    max-width: 520px;
+    height: 34px;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .filter-search-group:focus-within {
+    border-color: #b6d4fe;
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.1);
+  }
+  .filter-search-addon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    flex-shrink: 0;
+    background: #fff;
+    border-right: 1px solid #dee2e6;
+    color: #adb5bd;
+    font-size: 13px;
+    line-height: 1;
+  }
+  .filter-search-input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0 10px;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 400;
+    color: #495057;
+  }
+  .filter-search-input::placeholder {
+    color: #adb5bd;
+    font-weight: 400;
+  }
+
+  /* Selects y controles auxiliares */
+  .filter-ctl {
+    display: block;
+    width: 100%;
+    height: 34px;
+    padding: 0 28px 0 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 400;
+    color: #495057;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    box-shadow: none;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
+  .filter-ctl:focus {
+    border-color: #b6d4fe;
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.1);
+  }
+  .filter-select-wrap { flex: 0 0 auto; }
+  .filter-select-wrap.categorias { width: 162px; }
+  .filter-select-wrap.estado { width: 100px; }
+  .filter-select-wrap .filter-ctl {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23adb5bd' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 9px center;
+    background-size: 11px;
+  }
+  .filter-select-wrap .filter-ctl:disabled {
+    background-color: #fff;
+    color: #6c757d;
+    cursor: not-allowed;
+    opacity: 1;
+  }
+
+  .filter-check-wrap {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 2px;
+    white-space: nowrap;
+  }
+  .filter-check-wrap input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    border: 1px solid #ced4da;
+    border-radius: 3px;
+    cursor: not-allowed;
+    accent-color: #0d6efd;
+  }
+  .filter-check-wrap label {
+    font-size: 13px;
+    font-weight: 400;
+    color: #6c757d;
+    margin: 0;
+    cursor: default;
+  }
+
+  .btn-filtrar {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    height: 34px;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #fff;
+    background: #0d6efd;
+    border: 1px solid #0d6efd;
+    border-radius: 6px;
+    white-space: nowrap;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .btn-filtrar:hover {
+    background: #0b5ed7;
+    border-color: #0a58ca;
+    color: #fff;
+  }
+  .btn-filtrar .bi-funnel { font-size: 12px; }
+
+  .btn-limpiar-filtro {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    color: #adb5bd;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    text-decoration: none;
+    line-height: 1;
+  }
+  .btn-limpiar-filtro:hover {
+    background: #f8f9fa;
+    color: #6c757d;
+    border-color: #ced4da;
+  }
+  .btn-limpiar-filtro .bi-x-lg { font-size: 12px; font-weight: 700; }
+
+  .table-panel {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+  .table-toolbar {
+    padding: 0.85rem 1.15rem;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .btn-export {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid transparent;
+    color: #fff;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  a.btn-export { text-decoration: none; }
+  .btn-export:hover { filter: brightness(0.88); transform: translateY(-1px); }
+  .btn-export:active { transform: translateY(0); }
+  .btn-export-excel {
+    background: #16a34a;
+    border-color: #15803d;
+  }
+  .btn-export-pdf {
+    background: #dc2626;
+    border-color: #b91c1c;
+  }
+  .btn-export-print {
+    background: #64748b;
+    border-color: #475569;
+  }
+
+  .clientes-table thead th {
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0.75rem 0.65rem;
+    white-space: nowrap;
+  }
+  .clientes-table tbody td {
+    vertical-align: middle;
+    font-size: 0.85rem;
+    padding: 0.7rem 0.65rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+  }
+  .clientes-table tbody tr:hover { background: #f8fafc; }
+
+  .cliente-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .cliente-nombre { font-weight: 600; color: #1e293b; }
+
+  .contacto-stack { line-height: 1.35; }
+  .contacto-stack .email { color: #64748b; font-size: 0.8rem; }
+  .contacto-stack .tel { font-size: 0.8rem; }
+
+  .badge-tipo {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.25em 0.55em;
+    border-radius: 6px;
+    background: #eff6ff;
+    color: #2563eb;
+  }
+
+  .saldo-cero { color: #94a3b8; }
+  .saldo-badge {
+    font-size: 0.72rem;
+    background: #f1f5f9;
+    color: #64748b;
+    padding: 0.2em 0.5em;
+    border-radius: 4px;
+  }
+
+  /* Toggle estado — píldora fina (label + track, sin estilos Bootstrap) */
+  .toggle-pill {
+    position: relative;
+    display: inline-block;
+    width: 22px;
+    height: 10px;
+    flex-shrink: 0;
+    vertical-align: middle;
+    cursor: pointer;
+  }
+  .toggle-pill input.cliente-toggle-estado {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+    pointer-events: none;
+  }
+  .toggle-pill .toggle-pill-track {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: #cbd5e1;
+    border-radius: 999px;
+    transition: background-color 0.2s ease;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+  }
+  .toggle-pill .toggle-pill-track::after {
+    content: "";
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.22);
+    transition: transform 0.2s ease;
+  }
+  .toggle-pill input.cliente-toggle-estado:checked + .toggle-pill-track {
+    background: #3b82f6;
+  }
+  .toggle-pill input.cliente-toggle-estado:checked + .toggle-pill-track::after {
+    transform: translateX(12px);
+  }
+  .toggle-pill input.cliente-toggle-estado:focus-visible + .toggle-pill-track {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+  }
+  .toggle-pill.is-busy {
+    opacity: 0.55;
+    pointer-events: none;
+    cursor: wait;
+  }
+
+  .table-footer {
+    padding: 0.85rem 1.15rem;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-size: 0.82rem;
+    color: #64748b;
+  }
+  .pagination-clientes .page-link {
+    border-radius: 6px;
+    margin: 0 2px;
+    font-size: 0.82rem;
+    color: #64748b;
+    border-color: #e2e8f0;
+  }
+  .pagination-clientes .page-item.active .page-link {
+    background: var(--cl-blue);
+    border-color: var(--cl-blue);
+  }
+
+  .empty-state {
+    padding: 3.5rem 1.5rem;
+    text-align: center;
+  }
+  .empty-state i { font-size: 3.5rem; color: #cbd5e1; }
+
+  @media print {
+    .filters-panel, .table-toolbar, .acciones-col, .btn-nuevo-cliente, .btn-import-excel { display: none !important; }
+  }
+</style>
+
+<div class="clientes-page">
+  <!-- Encabezado -->
+  <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+    <div>
+      <h1 class="page-title mb-1"><i class="bi bi-people-fill me-2" style="color:#2563eb; font-size:1.5rem; vertical-align:middle;"></i>Clientes</h1>
+      <div class="breadcrumb-line">
+        <a href="{% url 'dashboard' %}">Dashboard</a>
+        <span class="mx-1">/</span>
+        <span>Clientes</span>
       </div>
     </div>
-  </form>
+    <div class="d-flex flex-wrap gap-2">
+      <button type="button" class="btn btn-import-excel" data-bs-toggle="modal" data-bs-target="#modalImportarClientes">
+        <i class="bi bi-file-earmark-excel me-1"></i> Importar Excel
+      </button>
+      <a href="{% url 'cliente_create' %}" class="btn btn-primary btn-nuevo-cliente">
+        <i class="bi bi-plus-lg me-1"></i> Nuevo cliente
+      </a>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="kpi-card kpi-total">
+        <div class="kpi-value">{{ total_clientes }}</div>
+        <p class="kpi-label">Total</p>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="kpi-card kpi-activos">
+        <div class="kpi-value">{{ clientes_activos }}</div>
+        <p class="kpi-label">Activos</p>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="kpi-card kpi-saldo">
+        <div class="kpi-value">{{ clientes_con_saldo }}</div>
+        <p class="kpi-label">Con saldo deudor</p>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="kpi-card kpi-deuda">
+        <div class="kpi-value">$ {{ deuda_total|floatformat:2 }}</div>
+        <p class="kpi-label">Deuda total</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-panel">
+    <form method="get" id="filtrosClientes">
+      <div class="filters-row">
+        <div class="filter-search-group">
+          <span class="filter-search-addon" aria-hidden="true">
+            <i class="bi bi-search"></i>
+          </span>
+          <input type="text" name="search" class="filter-search-input"
+                 placeholder="Nombre, email, DNI/CUIT, teléfono..."
+                 value="{{ request.GET.search }}"
+                 autocomplete="off"
+                 aria-label="Buscar clientes">
+        </div>
+        <div class="filter-select-wrap categorias">
+          <select class="filter-ctl" disabled title="Próximamente">
+            <option>Todas las categorías</option>
+          </select>
+        </div>
+        <div class="filter-select-wrap estado">
+          <select name="estado" class="filter-ctl">
+            <option value="activos" {% if filtro_estado == 'activos' %}selected{% endif %}>Activos</option>
+            <option value="inactivos" {% if filtro_estado == 'inactivos' %}selected{% endif %}>Inactivos</option>
+            <option value="todos" {% if filtro_estado == 'todos' %}selected{% endif %}>Todos</option>
+          </select>
+        </div>
+        <div class="filter-check-wrap">
+          <input type="checkbox" id="conSaldo" disabled>
+          <label for="conSaldo">Con saldo</label>
+        </div>
+        <button type="submit" class="btn-filtrar">
+          <i class="bi bi-funnel"></i>
+          <span>Filtrar</span>
+        </button>
+        <a href="{% url 'cliente_list' %}" class="btn-limpiar-filtro" title="Limpiar filtros">
+          <i class="bi bi-x-lg"></i>
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-panel">
+    <div class="table-toolbar">
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'cliente_exportar_excel' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}"
+           class="btn-export btn-export-excel" title="Descargar listado en Excel">
+          <i class="bi bi-file-earmark-excel"></i><span>Excel</span>
+        </a>
+        <a href="{% url 'cliente_exportar_pdf' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}"
+           class="btn-export btn-export-pdf" title="Descargar listado en PDF">
+          <i class="bi bi-file-earmark-pdf"></i><span>PDF</span>
+        </a>
+        <button type="button" class="btn-export btn-export-print" onclick="window.print()">
+          <i class="bi bi-printer"></i><span>Imprimir</span>
+        </button>
+      </div>
+    </div>
+
+    {% if clientes %}
+    <div class="table-responsive">
+      <table class="table clientes-table mb-0" id="tablaClientes">
+        <thead>
+          <tr>
+            <th>Cliente <i class="bi bi-arrow-down-up ms-1 opacity-50" style="font-size:.65rem"></i></th>
+            <th>Tipo</th>
+            <th>DNI/CUIT</th>
+            <th>Contacto</th>
+            <th>Localidad</th>
+            <th>Lista de precios</th>
+            <th class="text-end">Saldo CC</th>
+            <th>Cat.</th>
+            <th class="text-center">Estado</th>
+            <th class="text-center acciones-col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in clientes %}
+          <tr data-search="{{ c.nombre|lower }} {{ c.email|default:''|lower }} {{ c.telefono|default:'' }} {{ c.localidad|default:''|lower }}">
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <span class="cliente-avatar">{{ c.iniciales }}</span>
+                <span class="cliente-nombre">{{ c.nombre }}</span>
+              </div>
+            </td>
+            <td><span class="badge-tipo">Consumidor</span></td>
+            <td class="text-muted">—</td>
+            <td>
+              <div class="contacto-stack">
+                {% if c.email %}
+                <div class="email"><i class="bi bi-envelope me-1 opacity-50"></i>{{ c.email }}</div>
+                {% endif %}
+                {% if c.telefono %}
+                <div class="tel"><i class="bi bi-telephone me-1 opacity-50"></i>{{ c.telefono }}</div>
+                {% elif not c.email %}
+                <span class="text-muted">—</span>
+                {% endif %}
+              </div>
+            </td>
+            <td>{{ c.localidad|default:"—" }}</td>
+            <td class="text-muted">—</td>
+            <td class="text-end saldo-cero">$ 0,00</td>
+            <td><span class="saldo-badge">—</span></td>
+            <td class="text-center">
+              <label class="toggle-pill" title="{% if c.activo %}Activo — clic para desactivar{% else %}Inactivo — clic para activar{% endif %}">
+                <input class="cliente-toggle-estado" type="checkbox" role="switch"
+                       data-url="{% url 'cliente_toggle_activo' c.pk %}"
+                       {% if c.activo %}checked{% endif %}>
+                <span class="toggle-pill-track" aria-hidden="true"></span>
+              </label>
+            </td>
+            <td class="text-center acciones-col">
+              <a href="{% url 'cliente_detail' c.pk %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Ver"><i class="bi bi-eye"></i></a>
+              <a href="{% url 'cliente_update' c.pk %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Editar"><i class="bi bi-pencil"></i></a>
+              <form method="post" action="{% url 'cliente_delete' c.pk %}" class="d-inline" onsubmit="return confirm('¿Eliminar {{ c.nombre }}?')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-action btn-outline-danger border-0" title="Eliminar"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer">
+      <span id="contadorFilas">
+        {% if page_total %}
+        Mostrando {{ page_start }} a {{ page_end }} de {{ page_total }} entradas
+        {% else %}
+        Sin resultados
+        {% endif %}
+      </span>
+      {% if is_paginated %}
+      <nav>
+        <ul class="pagination pagination-sm pagination-clientes mb-0">
+          <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+            <a class="page-link" href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}{% if filtro_estado and filtro_estado != 'activos' %}&estado={{ filtro_estado }}{% endif %}{% else %}#{% endif %}">Anterior</a>
+          </li>
+          {% for num in page_obj.paginator.page_range %}
+          <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+            <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}{% if filtro_estado and filtro_estado != 'activos' %}&estado={{ filtro_estado }}{% endif %}">{{ num }}</a>
+          </li>
+          {% endfor %}
+          <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+            <a class="page-link" href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search|urlencode }}{% endif %}{% if filtro_estado and filtro_estado != 'activos' %}&estado={{ filtro_estado }}{% endif %}{% else %}#{% endif %}">Siguiente</a>
+          </li>
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      <i class="bi bi-people d-block mb-3"></i>
+      <h5 class="text-muted">No hay clientes</h5>
+      <p class="text-muted small mb-3">Creá el primero o importá desde Excel.</p>
+      <a href="{% url 'cliente_create' %}" class="btn btn-primary btn-nuevo-cliente">
+        <i class="bi bi-plus-lg me-1"></i> Nuevo cliente
+      </a>
+    </div>
+    {% endif %}
+  </div>
 </div>
 
-<div class="card table-card">
-  {% if clientes %}
-  <div class="table-responsive">
-    <table class="table mb-0">
-      <thead><tr><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Localidad</th><th class="text-center">Acciones</th></tr></thead>
-      <tbody>
-        {% for c in clientes %}
-        <tr>
-          <td class="fw-semibold">{{ c.nombre }}</td>
-          <td class="text-muted small">{{ c.email|default:"—" }}</td>
-          <td class="small">{{ c.telefono|default:"—" }}</td>
-          <td class="small">{{ c.localidad|default:"—" }}</td>
-          <td class="text-center">
-            <div class="btn-group btn-group-sm">
-              <a href="{% url 'cliente_detail' c.pk %}" class="btn btn-outline-primary"><i class="bi bi-eye"></i></a>
-              <a href="{% url 'cliente_update' c.pk %}" class="btn btn-outline-warning"><i class="bi bi-pencil"></i></a>
-              <a href="{% url 'cliente_delete' c.pk %}" class="btn btn-outline-danger"><i class="bi bi-trash"></i></a>
-            </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+<!-- Modal importar Excel -->
+<div class="modal fade" id="modalImportarClientes" tabindex="-1" aria-labelledby="modalImportarLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="modalImportarLabel">
+          <i class="bi bi-file-earmark-excel text-success me-2"></i>Importar clientes
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form method="post" action="{% url 'cliente_importar_excel' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-body">
+          <p class="text-muted small mb-3">
+            Subí un archivo <strong>.xlsx</strong> o <strong>.csv</strong> con encabezados en la primera fila.
+          </p>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">Archivo</label>
+            {{ import_form.archivo }}
+          </div>
+          <div class="bg-light rounded p-3 small text-muted">
+            <strong>Columnas reconocidas:</strong> nombre (obligatorio), email, teléfono, dirección, localidad, activo.<br>
+            Si el email ya existe, se actualiza el cliente.
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-upload me-1"></i> Importar
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
-  {% if is_paginated %}
-  <div class="card-footer bg-white">
-    <nav><ul class="pagination pagination-sm justify-content-center mb-0">
-      {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ request.GET.search }}">‹</a></li>{% endif %}
-      <li class="page-item active"><span class="page-link">{{ page_obj.number }}/{{ page_obj.paginator.num_pages }}</span></li>
-      {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ request.GET.search }}">›</a></li>{% endif %}
-    </ul></nav>
-  </div>
-  {% endif %}
-  {% else %}
-  <div class="text-center py-5">
-    <i class="bi bi-people" style="font-size:4rem;color:#c5d3e8"></i>
-    <h5 class="mt-3 text-muted">No hay clientes</h5>
-    <a href="{% url 'cliente_create' %}" class="btn btn-primary mt-2"><i class="bi bi-plus-circle me-1"></i>Agregar cliente</a>
-  </div>
-  {% endif %}
 </div>
+
+<script>
+function getCookie(name) {
+  const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+  return m ? m.pop() : '';
+}
+
+document.querySelectorAll('.cliente-toggle-estado').forEach(function (el) {
+  el.addEventListener('change', function () {
+    const url = this.dataset.url;
+    const checked = this.checked;
+    const input = this;
+    const pill = input.closest('.toggle-pill');
+    if (pill) pill.classList.add('is-busy');
+    const body = new URLSearchParams();
+    body.append('activo', checked ? 'true' : 'false');
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: body.toString(),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data.ok) throw new Error('Error');
+        input.checked = data.activo;
+        if (pill) {
+          pill.title = data.activo
+            ? 'Activo — clic para desactivar'
+            : 'Inactivo — clic para activar';
+        }
+      })
+      .catch(function () {
+        input.checked = !checked;
+        alert('No se pudo actualizar el estado. Intentá de nuevo.');
+      })
+      .finally(function () {
+        if (pill) pill.classList.remove('is-busy');
+      });
+  });
+});
+
+</script>
 {% endblock %}

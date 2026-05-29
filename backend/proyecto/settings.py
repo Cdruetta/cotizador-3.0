@@ -5,7 +5,6 @@ from urllib.parse import urlparse
 from django.contrib.messages import constants as messages
 from dotenv import load_dotenv
 import dj_database_url
-import sentry_sdk  # <-- Nueva Importación para Sentry
 
 # --------------------------
 # Base del proyecto
@@ -22,14 +21,19 @@ load_dotenv(BASE_DIR / ".env")
 # --------------------------
 # Monitoreo de Errores (Sentry)
 # --------------------------
-# El SDK se inicializa leyendo el DSN de tus variables de entorno (.env)
-SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
-if SENTRY_DSN:
-    sentry_sdk.init(
-        dsn=SENTRY_DSN,
-        traces_sample_rate=1.0,
-        profiles_sample_rate=1.0,
-    )
+try:
+    import sentry_sdk
+except ImportError:
+    sentry_sdk = None
+
+if sentry_sdk:
+    SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
+    if SENTRY_DSN:
+        sentry_sdk.init(
+            dsn=SENTRY_DSN,
+            traces_sample_rate=1.0,
+            profiles_sample_rate=1.0,
+        )
 
 # --------------------------
 # Seguridad
@@ -46,9 +50,10 @@ ALLOWED_HOSTS = os.environ.get(
     "localhost,127.0.0.1,gcsof.duckdns.org,cotizador-gcinsumos.onrender.com"
 ).split(",")
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://cotizador-gcinsumos.onrender.com",
-]
+CSRF_TRUSTED_ORIGINS = os.environ.get(
+    "CSRF_TRUSTED_ORIGINS",
+    "https://cotizador-gcinsumos.onrender.com"
+).split(",")
 
 # Configuración de CORS necesaria para que el Frontend consuma la API sin bloqueos
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # En desarrollo permite todo, en producción configuralo si es necesario
@@ -239,10 +244,11 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-if DEBUG:
-    STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
-else:
-    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # --------------------------
 # Archivos media

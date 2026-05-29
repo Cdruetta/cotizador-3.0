@@ -213,63 +213,6 @@
 
 </div>
 
-<!-- Agregar producto -->
-<div class="card stat-card mb-3">
-
-  <div class="card-header bg-white fw-semibold small py-2 px-3">
-    <i class="bi bi-plus-circle me-2 text-success"></i>
-    Agregar producto
-  </div>
-
-  <div class="card-body py-3 px-3">
-
-    <form method="post"
-          action="{% url 'agregar_item_cotizacion' cotizacion.pk %}"
-          id="addItemForm">
-
-      {% csrf_token %}
-
-      <div class="row g-2 align-items-end">
-
-        <div class="col-12 col-md-5">
-          <label class="form-label small mb-1">
-            Producto
-          </label>
-
-          {{ item_form.producto }}
-        </div>
-
-        <div class="col-6 col-md-2">
-          <label class="form-label small mb-1">
-            Cantidad
-          </label>
-
-          {{ item_form.cantidad }}
-        </div>
-
-        <div class="col-6 col-md-3">
-          <label class="form-label small mb-1">
-            Precio Unitario
-          </label>
-
-          {{ item_form.precio_unitario }}
-        </div>
-
-        <div class="col-12 col-md-2 d-grid">
-          <button type="submit" class="btn btn-success btn-sm">
-            <i class="bi bi-plus"></i>
-            Agregar
-          </button>
-        </div>
-
-      </div>
-
-    </form>
-
-  </div>
-
-</div>
-
 <!-- Productos -->
 <div class="card table-card mb-3">
 
@@ -349,21 +292,28 @@
             <td></td>
           </tr>
 
-          {% if cotizacion.descuento_porcentaje %}
           <tr class="table-light">
-
-            <td colspan="4" class="text-end text-danger small fw-semibold">
-              Descuento ({{ cotizacion.descuento_porcentaje }}%)
+            <td colspan="4" class="text-end text-muted small fw-semibold">
+              <form method="post" action="{% url 'actualizar_descuento_cotizacion' cotizacion.pk %}"
+                    class="d-inline-flex align-items-center gap-1" id="descuentoForm">
+                {% csrf_token %}
+                <span class="me-1">Descuento:</span>
+                <input type="number" name="descuento_pct"
+                       class="form-control form-control-sm d-inline-block"
+                       style="width:65px;height:28px;font-size:.8rem"
+                       step="0.01" min="0" max="100"
+                       value="{{ cotizacion.descuento_porcentaje|floatformat:2 }}">
+                <span>%</span>
+                <button type="submit" class="btn btn-sm btn-outline-primary border-0 py-0 px-1">
+                  <i class="bi bi-check-lg"></i>
+                </button>
+              </form>
             </td>
-
-            <td class="text-danger fw-semibold">
+            <td class="text-danger fw-semibold" id="descuentoMonto">
               -${{ cotizacion.monto_descuento|floatformat:2 }}
             </td>
-
             <td></td>
-
           </tr>
-          {% endif %}
 
           <tr style="background:#f0f4ff">
 
@@ -393,7 +343,7 @@
          style="font-size:2.5rem;color:#ccd"></i>
 
       <p class="text-muted mt-2 mb-0 small">
-        Aún no hay productos. Usá el formulario de arriba.
+        Esta cotización no tiene productos.
       </p>
 
     </div>
@@ -506,35 +456,4 @@
 
 {% endblock %}
 
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-  const productoSelect = document.getElementById(
-    '{{ item_form.producto.id_for_label }}'
-  );
-
-  const precioInput = document.getElementById(
-    '{{ item_form.precio_unitario.id_for_label }}'
-  );
-
-  productoSelect?.addEventListener('change', function () {
-
-    if (!this.value) return;
-
-    fetch(`/api/producto/${this.value}/precio/`)
-      .then(response => response.json())
-      .then(data => {
-
-        if (data.precio) {
-          precioInput.value = Number(data.precio).toFixed(2);
-        }
-
-      })
-      .catch(error => console.error(error));
-
-  });
-
-});
-</script>
-{% endblock %}
+{% block extra_js %}{% endblock %}

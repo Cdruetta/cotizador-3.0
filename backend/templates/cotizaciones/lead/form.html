@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}{% if form.instance.pk %}Editar Lead{% else %}Nuevo Lead{% endif %} · GCinsumos{% endblock %}
+
+{% block content %}
+<style>
+  .lead-form-page { --cl-primary: #1e3c72; }
+  .lead-form-page .page-title { font-size: 1.65rem; font-weight: 700; color: var(--cl-primary); }
+  .lead-form-page .breadcrumb-line { font-size: 0.82rem; color: #64748b; }
+  .lead-form-page .breadcrumb-line a { color: #2563eb; text-decoration: none; }
+  .lead-form-page .breadcrumb-line a:hover { text-decoration: underline; }
+</style>
+
+<div class="lead-form-page">
+  <div class="mb-3">
+    <h2 class="page-title">
+      <i class="bi bi-funnel text-primary me-2"></i>
+      {% if form.instance.pk %}Editar Lead{% else %}Nuevo Lead{% endif %}
+    </h2>
+    <div class="breadcrumb-line">
+      <a href="{% url 'dashboard' %}">Dashboard</a> /
+      <a href="{% url 'lead_list' %}">Leads</a> /
+      {% if form.instance.pk %}Editar{% else %}Nuevo{% endif %}
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-body p-4">
+      <form method="post">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold small">Nombre</label>
+            {{ form.nombre }}
+            {{ form.nombre.errors }}
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold small">Email</label>
+            {{ form.email }}
+            {{ form.email.errors }}
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold small">Teléfono</label>
+            {{ form.telefono }}
+            {{ form.telefono.errors }}
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold small">Empresa</label>
+            {{ form.empresa }}
+            {{ form.empresa.errors }}
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold small">Cargo</label>
+            {{ form.cargo }}
+            {{ form.cargo.errors }}
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold small">Estado</label>
+            {{ form.estado }}
+            {{ form.estado.errors }}
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold small">Fuente</label>
+            {{ form.fuente }}
+            {{ form.fuente.errors }}
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label fw-semibold small">Asignado a</label>
+            {{ form.asignado_a }}
+            {{ form.asignado_a.errors }}
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold small">Notas</label>
+            {{ form.notas }}
+            {{ form.notas.errors }}
+          </div>
+          <div class="col-12">
+            <div class="form-check">
+              {{ form.activo }}
+              <label class="form-check-label small">Activo</label>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 d-flex gap-2">
+          <button type="submit" class="btn btn-primary px-4 fw-semibold">
+            {% if form.instance.pk %}Guardar cambios{% else %}Crear Lead{% endif %}
+          </button>
+          <a href="{% url 'lead_list' %}" class="btn btn-outline-secondary px-3 fw-semibold">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

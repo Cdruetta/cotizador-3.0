@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.urls import reverse
 from rest_framework import viewsets, permissions
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -33,6 +34,35 @@ def get_producto_precio(request, producto_id):
         )
     except Producto.DoesNotExist:
         return JsonResponse({"error": "Producto no encontrado"}, status=404)
+
+# ---------------------------------------------------------------------------
+# 🚨 Endpoint: Count pending (draft) cotizaciones
+# ---------------------------------------------------------------------------
+@login_required
+def pending_cotizaciones_count(request):
+    """Return JSON with count of cotizaciones in 'borrador' state.
+    This is used by the notification bell to indicate unfinished quotes.
+    """
+    count = Cotizacion.objects.filter(estado='borrador').count()
+    return JsonResponse({"count": count})
+
+@login_required
+def pending_cotizaciones_list(request):
+    """Return JSON list of pending (borrador) cotizaciones.
+    Each item includes id, numero, cliente_nombre, fecha, total, and URL to detail.
+    """
+    cotizaciones = Cotizacion.objects.filter(estado='borrador').order_by('-fecha')
+    data = []
+    for cot in cotizaciones:
+        data.append({
+            "id": cot.id,
+            "numero": cot.numero,
+            "cliente": cot.cliente.nombre,
+            "fecha": cot.fecha.strftime('%Y-%m-%d') if cot.fecha else None,
+            "total": str(cot.total),
+            "url": reverse('cotizacion_detail', kwargs={'pk': cot.pk}),
+        })
+    return JsonResponse({"cotizaciones": data})
 
 
 # ==============================================================================

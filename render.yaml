@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: cotizador-3-0
+    runtime: python
+    buildCommand: "pip install -r requirements.txt && cd backend && python manage.py migrate && python manage.py collectstatic --noinput"
+    startCommand: "cd backend && gunicorn proyecto.wsgi:application"
+    disk:
+      name: django-disk
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1

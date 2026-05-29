@@ -151,28 +151,8 @@ Facturas
             <!-- Acciones -->
             <td class="text-center">
 
-              <div class="d-flex align-items-center justify-content-center flex-wrap gap-1">
-
-                <!-- Ver -->
-                <a href="{% url 'factura_detail' f.pk %}"
-                   class="btn btn-sm btn-outline-primary"
-                   title="Ver detalle">
-
-                  <i class="bi bi-eye"></i>
-
-                </a>
-
-                <!-- PDF -->
-                <a href="{% url 'generar_pdf_factura' f.pk %}"
-                   class="btn btn-sm btn-outline-danger"
-                   title="Descargar PDF"
-                   target="_blank">
-
-                  <i class="bi bi-file-earmark-pdf"></i>
-
-                </a>
-
-              </div>
+                <a href="{% url 'factura_detail' f.pk %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Ver"><i class="bi bi-eye"></i></a>
+                <a href="{% url 'generar_pdf_factura' f.pk %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="PDF" target="_blank"><i class="bi bi-file-earmark-pdf"></i></a>
 
             </td>
 

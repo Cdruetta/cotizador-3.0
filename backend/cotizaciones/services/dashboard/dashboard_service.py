@@ -20,63 +20,41 @@ def build_dashboard_context():
 
     db_percent, db_mb, db_max_mb = get_db_usage_percent()
 
-    total_facturado = (
-        Factura.objects.filter(
-            fecha__gte=inicio_mes,
-            estado="autorizada",
-        ).aggregate(total=Sum("total"))["total"]
-        or Decimal("0")
-    )
+    # Ventas de hoy
+    facturas_hoy = Factura.objects.filter(fecha=hoy)
+    ventas_hoy = facturas_hoy.filter(estado="autorizada").aggregate(total=Sum("total"))["total"] or Decimal("0")
+    transacciones_hoy = facturas_hoy.filter(estado="autorizada").count()
 
-    ultima_cotizacion = Cotizacion.objects.select_related("cliente").order_by("-fecha", "-id").first()
+    # Ventas del mes
+    facturas_mes = Factura.objects.filter(fecha__gte=inicio_mes)
+    ventas_mes = facturas_mes.filter(estado="autorizada").aggregate(total=Sum("total"))["total"] or Decimal("0")
+    transacciones_mes = facturas_mes.filter(estado="autorizada").count()
 
-    if ultima_cotizacion:
-        estado_sistema = ultima_cotizacion.get_estado_display()
-        numero_ultima = ultima_cotizacion.numero
-    else:
-        estado_sistema = "Sin cotizaciones"
-        numero_ultima = "-"
+    # Cantidad de productos activos
+    cantidad_productos = Producto.objects.filter(activo=True).count()
+
+    # Clientes activos (total de clientes)
+    clientes_activos = Cliente.objects.count()
+    leads_progreso = 0
+
+    # Cotizaciones recientes
+    cotizaciones_recientes = Cotizacion.objects.select_related(
+        "cliente",
+        "usuario",
+    ).order_by("-fecha")[:5]
+
+    # Facturas recientes de hoy
+    facturas_recientes_hoy = facturas_hoy.select_related("cliente").order_by("-fecha")[:10]
 
     return {
-        "total_clientes": Cliente.objects.count(),
-
-        "total_proveedores": Proveedor.objects.count(),
-
-        "total_productos": Producto.objects.filter(
-            activo=True
-        ).count(),
-
-        "total_cotizaciones": Cotizacion.objects.count(),
-
-        "cotizaciones_mes": Cotizacion.objects.filter(
-            fecha__gte=inicio_mes
-        ).count(),
-
-        "cotizaciones_pendientes": Cotizacion.objects.exclude(
-            estado="facturada"
-        ).count(),
-
-        "facturas_borrador": Factura.objects.filter(
-            estado="borrador"
-        ).count(),
-
-        "total_facturado_mes": total_facturado,
-
-        "cotizaciones_recientes": Cotizacion.objects.select_related(
-            "cliente",
-            "usuario",
-        ).order_by("-fecha")[:5],
-
-        "facturas_recientes": Factura.objects.select_related(
-            "cliente",
-            "usuario",
-        ).order_by("-creada")[:5],
-
-        "estado_sistema": estado_sistema,
-        "numero_ultima_cotizacion": numero_ultima,
-
-        "db_percent": db_percent,
-        "db_mb": db_mb,
-        "db_max_mb": db_max_mb,
+        "ventas_hoy": ventas_hoy,
+        "transacciones_hoy": transacciones_hoy,
+        "ventas_mes": ventas_mes,
+        "transacciones_mes": transacciones_mes,
+        "cantidad_productos": cantidad_productos,
+        "clientes_activos": clientes_activos,
+        "leads_progreso": leads_progreso,
+        "cotizaciones_recientes": cotizaciones_recientes,
+        "facturas_recientes_hoy": facturas_recientes_hoy,
     }
 

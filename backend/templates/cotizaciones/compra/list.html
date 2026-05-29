@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Compras · GCinsumos{% endblock %}
+
+{% block content %}
+<style>
+  .compra-page .page-title { font-size: 1.65rem; font-weight: 700; color: #1e3c72; margin-bottom: 0.15rem; }
+  .compra-page .breadcrumb-line { font-size: 0.82rem; color: #64748b; }
+  .compra-page .breadcrumb-line a { color: #2563eb; text-decoration: none; }
+  .compra-page .breadcrumb-line a:hover { text-decoration: underline; }
+  .badge-c { font-size: 0.75rem; font-weight: 600; padding: 0.3rem 0.65rem; border-radius: 20px; }
+  .badge-pendiente { background: #eef2ff; color: #4338ca; }
+  .badge-recibida { background: #dcfce7; color: #166534; }
+  .badge-cancelada { background: #fee2e2; color: #991b1b; }
+</style>
+
+<div class="compra-page">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="page-title"><i class="bi bi-cart text-primary me-2"></i>Compras</h2>
+      <div class="breadcrumb-line">
+        <a href="{% url 'dashboard' %}">Dashboard</a> / Compras
+      </div>
+    </div>
+    <a href="{% url 'compra_create' %}" class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 fw-semibold" style="border-radius: 10px;">
+      <i class="bi bi-plus-lg"></i> Nueva Compra
+    </a>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-md-4">
+      <div class="card border-0 shadow-sm rounded-3 p-3">
+        <small class="text-muted fw-semibold">Total</small>
+        <span class="fs-4 fw-bold text-dark">{{ total_compras }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-md-4">
+      <div class="card border-0 shadow-sm rounded-3 p-3">
+        <small class="text-muted fw-semibold">Pendientes</small>
+        <span class="fs-4 fw-bold text-primary">{{ compras_pendientes }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr class="text-muted small fw-bold">
+              <th class="ps-3">Nº Compra</th>
+              <th>Proveedor</th>
+              <th>Fecha</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th class="text-end pe-3">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in compras %}
+            <tr>
+              <td class="ps-3 fw-semibold text-dark">{{ c.numero }}</td>
+              <td>{{ c.proveedor.nombre }}</td>
+              <td>{{ c.fecha|date:"d/m/Y" }}</td>
+              <td class="fw-bold">${{ c.total|floatformat:2 }}</td>
+              <td>
+                <span class="badge-c badge-{{ c.estado }}">{{ c.get_estado_display }}</span>
+              </td>
+              <td class="text-end pe-3">
+                <a href="{% url 'compra_detail' c.pk %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Ver"><i class="bi bi-eye"></i></a>
+                <a href="{% url 'compra_update' c.pk %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Editar"><i class="bi bi-pencil"></i></a>
+                <form method="post" action="{% url 'compra_delete' c.pk %}" class="d-inline" onsubmit="return confirm('¿Eliminar esta compra?')">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-action btn-outline-danger border-0" title="Eliminar"><i class="bi bi-trash"></i></button>
+                </form>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="bi bi-cart opacity-25" style="font-size: 3rem;"></i>
+                <p class="mt-2 fw-semibold">No hay compras registradas.</p>
+                <a href="{% url 'compra_create' %}" class="btn btn-primary btn-sm">Crear primera compra</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {% if page_obj.paginator.count > 0 %}
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <small class="text-muted">{{ page_start }}–{{ page_end }} de {{ page_total }} compras</small>
+    <nav>
+      <ul class="pagination pagination-sm mb-0">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -7,13 +7,10 @@ from .common import WIDGET_CLASS, SELECT_CLASS
 class CotizacionForm(forms.ModelForm):
     class Meta:
         model = Cotizacion
-        fields = ["cliente", "tipo_documento", "descuento_porcentaje", "observaciones"]
+        fields = ["cliente", "tipo_documento", "observaciones"]
         widgets = {
             "cliente": forms.Select(attrs=SELECT_CLASS),
             "tipo_documento": forms.Select(attrs=SELECT_CLASS),
-            "descuento_porcentaje": forms.NumberInput(
-                attrs={**WIDGET_CLASS, "step": "0.01", "min": "0", "max": "100", "placeholder": "0.00"}
-            ),
             "observaciones": forms.Textarea(attrs={**WIDGET_CLASS, "rows": 3}),
         }
 

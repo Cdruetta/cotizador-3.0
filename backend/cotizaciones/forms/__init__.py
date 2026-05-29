@@ -9,4 +9,11 @@ from .cotizaciones import (  # noqa: F401
 )
 from .usuarios import CustomUserCreationForm  # noqa: F401
 from .config import ConfiguracionForm  # noqa: F401
+from .leads import LeadForm  # noqa: F401
+from .remitos import RemitoForm  # noqa: F401
+from .recibos import ReciboForm  # noqa: F401
+from .categorias import CategoriaForm  # noqa: F401
+from .marcas import MarcaForm  # noqa: F401
+from .compras import CompraForm, CompraItemForm  # noqa: F401
+from .movimientos_stock import MovimientoStockForm  # noqa: F401
 
