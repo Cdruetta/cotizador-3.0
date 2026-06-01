@@ -582,16 +582,16 @@ def _build_elements_factura(factura):
     s_empresa = ParagraphStyle('FEmp', fontName='Helvetica-Bold', fontSize=14, textColor=COLOR_PRIMARY, leading=17)
     s_label = ParagraphStyle('FLbl', fontName='Helvetica', fontSize=8, textColor=COLOR_TEXT_MUTED, leading=10)
     s_value = ParagraphStyle('FVal', fontName='Helvetica', fontSize=9, textColor=COLOR_TEXT, leading=11)
-    s_title = ParagraphStyle('FTit', fontName='Helvetica-Bold', fontSize=18, textColor=COLOR_PRIMARY, alignment=TA_CENTER, leading=22)
-    s_meta = ParagraphStyle('FMeta', fontName='Helvetica', fontSize=9, textColor=COLOR_TEXT, alignment=TA_CENTER, leading=11)
+    s_title = ParagraphStyle('FTit', fontName='Helvetica-Bold', fontSize=18, textColor=COLOR_PRIMARY, alignment=TA_LEFT, leading=22)
+    s_meta = ParagraphStyle('FMeta', fontName='Helvetica', fontSize=9, textColor=COLOR_TEXT, alignment=TA_LEFT, leading=11)
     s_cli_tit = ParagraphStyle('FCliT', fontName='Helvetica-Bold', fontSize=10, textColor=COLOR_PRIMARY, leading=13)
     s_th = ParagraphStyle('FTh', fontName='Helvetica-Bold', fontSize=8, textColor=COLOR_HEADER_TEXT, alignment=TA_CENTER, leading=10)
     s_td = ParagraphStyle('FTd', fontName='Helvetica', fontSize=8, textColor=COLOR_TEXT, leading=10)
     s_tdr = ParagraphStyle('FTdr', fontName='Helvetica', fontSize=8, textColor=COLOR_TEXT, alignment=TA_RIGHT, leading=10)
     s_tdc = ParagraphStyle('FTdc', fontName='Helvetica', fontSize=8, textColor=COLOR_TEXT, alignment=TA_CENTER, leading=10)
     s_tot = ParagraphStyle('FTot', fontName='Helvetica-Bold', fontSize=9, textColor=COLOR_PRIMARY, alignment=TA_RIGHT, leading=11)
-    s_cae = ParagraphStyle('FCae', fontName='Helvetica', fontSize=9, textColor=COLOR_TEXT, alignment=TA_CENTER, leading=11)
-    s_arca = ParagraphStyle('FArca', fontName='Helvetica', fontSize=8, textColor=COLOR_TEXT_MUTED, alignment=TA_CENTER, leading=10)
+    s_cae = ParagraphStyle('FCae', fontName='Helvetica', fontSize=9, textColor=COLOR_TEXT, alignment=TA_LEFT, leading=11)
+    s_arca = ParagraphStyle('FArca', fontName='Helvetica', fontSize=8, textColor=COLOR_TEXT_MUTED, alignment=TA_LEFT, leading=10)
 
     # ── Header: logo + datos del emisor ───────────────────
     logo_path = _factura_logo_path()
@@ -600,9 +600,7 @@ def _build_elements_factura(factura):
         iw, ih = ir.getSize()
         logo_w = 1.0 * inch
         logo = Image(logo_path, width=logo_w, height=logo_w * (ih / iw))
-        logo_par = Table([[logo]], colWidths=[pw])
-        logo_par.setStyle(TableStyle([('ALIGN', (0, 0), (-1, -1), 'CENTER'), ('TOPPADDING', (0, 0), (-1, -1), 0)]))
-        elements.append(logo_par)
+        elements.append(logo)
         elements.append(Spacer(1, 4))
 
     elements.append(Paragraph(escape(razon_social), s_empresa))
@@ -754,9 +752,7 @@ def _build_elements_factura(factura):
         qr_buf = _factura_qr_image(factura)
         if qr_buf:
             qr_img = Image(qr_buf, width=0.8 * inch, height=0.8 * inch)
-            qr_tbl = Table([[qr_img]], colWidths=[pw])
-            qr_tbl.setStyle(TableStyle([('ALIGN', (0, 0), (-1, -1), 'CENTER'), ('TOPPADDING', (0, 0), (-1, -1), 0)]))
-            elements.append(qr_tbl)
+            elements.append(qr_img)
         elements.append(Spacer(1, 6))
         elements.append(Paragraph('Comprobante autorizado por ARCA (ex AFIP)', s_arca))
     else:
@@ -797,7 +793,7 @@ def _factura_watermark_and_frame(canvas, doc):
             target_h = target_w * (ih / iw) if iw else target_w
 
             cx = x + w / 2
-            cy = y + h / 2 - (0.18 * h)
+            cy = y + h / 2
             img_x = cx - target_w / 2
             img_y = cy - target_h / 2
 
