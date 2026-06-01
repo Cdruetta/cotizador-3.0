@@ -47,9 +47,7 @@ def autorizar_factura(config, factura):
             doc_nro = 0
         data = {
             'CbteTipo': 11,  # Factura C
-            'PtoVta': config.punto_venta,
-            'CbteDesde': None,  # afip-py lo resuelve solo
-            'CbteHasta': None,
+            'PtoVta': factura.punto_venta,
             'CbteFch': factura.fecha.strftime('%Y%m%d'),
             'Concepto': 1,  # 1=Productos, 2=Servicios, 3=Ambos
             'DocTipo': 80,  # CUIT
@@ -60,10 +58,10 @@ def autorizar_factura(config, factura):
             'MonId': 'PES',
             'MonCotiz': 1,
         }
-        resultado = afip.ElectronicBilling.createVoucher(data)
+        resultado = afip.ElectronicBilling.createNextVoucher(data)
         factura.cae = resultado['CAE']
         factura.cae_vencimiento = resultado['CAEFchVto']
-        factura.numero = resultado['CbteDesde']
+        factura.numero = resultado['voucherNumber']
         factura.estado = 'autorizada'
         factura.save()
         return True, "Factura autorizada correctamente."
