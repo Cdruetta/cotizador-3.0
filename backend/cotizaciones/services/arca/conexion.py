@@ -42,8 +42,10 @@ def autorizar_factura(config, factura):
         cliente = factura.cliente
         cuit_cliente = getattr(cliente, 'cuit', None)
         if cuit_cliente:
+            doc_tipo = 80  # CUIT
             doc_nro = int(cuit_cliente.replace('-', ''))
         else:
+            doc_tipo = 96  # DNI (Consumidor Final)
             doc_nro = 0
         data = {
             'CantReg': 1,  # createNextVoucher genera un unico comprobante
@@ -51,7 +53,7 @@ def autorizar_factura(config, factura):
             'PtoVta': factura.punto_venta,
             'CbteFch': factura.fecha.strftime('%Y%m%d'),
             'Concepto': 1,  # 1=Productos, 2=Servicios, 3=Ambos
-            'DocTipo': 80,  # CUIT
+            'DocTipo': doc_tipo,
             'DocNro': doc_nro,
             'ImpNeto': float(factura.neto),
             'ImpIVA': 0,
