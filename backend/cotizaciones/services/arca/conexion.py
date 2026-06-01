@@ -45,7 +45,7 @@ def autorizar_factura(config, factura):
             doc_tipo = 80  # CUIT
             doc_nro = int(cuit_cliente.replace('-', ''))
         else:
-            doc_tipo = 96  # DNI (Consumidor Final)
+            doc_tipo = 99  # Consumidor Final
             doc_nro = 0
         data = {
             'CantReg': 1,  # createNextVoucher genera un unico comprobante
