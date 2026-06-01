@@ -1,3 +1,4 @@
+import os
 from afip import Afip
 
 def get_afip(config):
@@ -6,6 +7,7 @@ def get_afip(config):
         'cert': config.certificado.path,
         'key': config.clave_privada.path,
         'production': config.ambiente == 'produccion',
+        'access_token': os.environ.get('AFIP_ACCESS_TOKEN', ''),
     })
 
 def probar_conexion(config):
