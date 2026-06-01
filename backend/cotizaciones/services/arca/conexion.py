@@ -37,13 +37,24 @@ def autorizar_factura(config, factura):
             }
             for i in factura.items.all()
         ]
+        cliente = factura.cliente
+        cuit_cliente = getattr(cliente, 'cuit', None)
+        if cuit_cliente:
+            doc_nro = int(cuit_cliente.replace('-', ''))
+        else:
+            doc_nro = 0
         data = {
+            'CbteTipo': 11,  # Factura C
+            'PtoVta': config.punto_venta,
             'CbteDesde': None,  # afip-py lo resuelve solo
             'CbteHasta': None,
             'CbteFch': factura.fecha.strftime('%Y%m%d'),
-            'ImpTotal': float(factura.total),
+            'Concepto': 1,  # 1=Productos, 2=Servicios, 3=Ambos
+            'DocTipo': 80,  # CUIT
+            'DocNro': doc_nro,
             'ImpNeto': float(factura.neto),
             'ImpIVA': 0,
+            'ImpTotal': float(factura.total),
             'MonId': 'PES',
             'MonCotiz': 1,
         }
