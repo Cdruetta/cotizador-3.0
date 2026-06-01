@@ -44,9 +44,11 @@ def autorizar_factura(config, factura):
         if cuit_cliente:
             doc_tipo = 80  # CUIT
             doc_nro = int(cuit_cliente.replace('-', ''))
+            cond_iva = 6  # Responsable Monotributo
         else:
             doc_tipo = 99  # Consumidor Final
             doc_nro = 0
+            cond_iva = 5  # Consumidor Final
         data = {
             'CantReg': 1,  # createNextVoucher genera un unico comprobante
             'CbteTipo': 11,  # Factura C
@@ -55,6 +57,7 @@ def autorizar_factura(config, factura):
             'Concepto': 1,  # 1=Productos, 2=Servicios, 3=Ambos
             'DocTipo': doc_tipo,
             'DocNro': doc_nro,
+            'CondicionIVAReceptor': cond_iva,
             'ImpNeto': float(factura.neto),
             'ImpIVA': 0,
             'ImpTotal': float(factura.total),
