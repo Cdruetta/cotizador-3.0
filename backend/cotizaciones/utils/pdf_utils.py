@@ -11,9 +11,12 @@ from reportlab.lib.utils import ImageReader
 from django.http import HttpResponse
 from django.conf import settings
 import os
+import json
+import base64
 from io import BytesIO
 from decimal import Decimal
 from xml.sax.saxutils import escape
+import qrcode
 
 from cotizaciones.models import ConfiguracionAFIP
 
@@ -524,6 +527,47 @@ def _factura_logo_path():
     return None
 
 
+def _factura_qr_image(factura):
+    """Genera imagen QR compatible AFIP/ARCA."""
+    config = ConfiguracionAFIP.get_config()
+    if not config or not config.cuit:
+        return None
+    cuit = config.cuit.replace('-', '').replace(' ', '')
+    cuit_int = int(cuit)
+    letra = (factura.tipo or 'C').upper()
+    cod_afip = _tipo_factura_afip(letra)
+    doc_tipo = 99
+    doc_nro = 0
+    if factura.cliente:
+        cuit_cli = getattr(factura.cliente, 'cuit', None)
+        if cuit_cli:
+            doc_tipo = 80
+            doc_nro = int(cuit_cli.replace('-', '').replace(' ', ''))
+    payload = {
+        'ver': 1,
+        'fecha': factura.fecha.strftime('%Y-%m-%d'),
+        'cuit': cuit_int,
+        'ptoVta': factura.punto_venta or 0,
+        'tipoCmp': cod_afip,
+        'nroCmp': factura.numero or 0,
+        'importe': float(factura.total or 0),
+        'moneda': 'PES',
+        'ctz': 1,
+        'tipoDocRec': doc_tipo,
+        'nroDocRec': doc_nro,
+        'tipoCodAut': 'E',
+        'codAut': int(factura.cae) if factura.cae else 0,
+    }
+    json_str = json.dumps(payload, separators=(',', ':'))
+    b64 = base64.urlsafe_b64encode(json_str.encode()).rstrip(b'=').decode()
+    url = f'https://www.afip.gob.ar/fe/qr/?p={b64}'
+    img = qrcode.make(url, box_size=4, border=1)
+    buf = BytesIO()
+    img.save(buf, format='PNG')
+    buf.seek(0)
+    return buf
+
+
 def _build_elements_factura(factura):
     """PDF factura horizontal: cabecera GCinsumos, barra monotributo, tabla ítems tipo comprobante AR."""
     st = _styles_factura()
@@ -608,7 +652,7 @@ def _build_elements_factura(factura):
     fiscal_extra = []
     if cuit_emitter:
         fiscal_extra.append(f'C.U.I.T.: {cuit_emitter}')
-    fiscal_extra.append('INGRESOS BRUTOS — | ESTABLEC.: — | INICIO ACT.: —')
+    fiscal_extra.append('INICIO ACT.: 01/01/2014')
     fiscal_html = '<br/>'.join(escape(x) for x in fiscal_extra)
     col_right = Table([
         [Paragraph('FACTURA', titulo_doc)],
@@ -769,12 +813,26 @@ def _build_elements_factura(factura):
     )
     elements.append(neto_line)
 
-    # ── CAE ───────────────────────────────────────────────
+    # ── CAE + QR ─────────────────────────────────────────
     if factura.estado == 'autorizada' and factura.cae:
-        elements.append(Spacer(1, 10))
+        elements.append(Spacer(1, 12))
         vto = factura.cae_vencimiento.strftime('%d/%m/%Y') if factura.cae_vencimiento else '—'
-        cae_txt = f'CAE Nº {factura.cae} — Fecha de vencimiento CAE: {vto}'
-        elements.append(Paragraph(cae_txt, st['cae_small']))
+        qr_buf = _factura_qr_image(factura)
+        if qr_buf:
+            qr_img = Image(qr_buf, width=0.9 * inch, height=0.9 * inch)
+            cae_txt = f'CAE Nº {factura.cae} — Fecha de vencimiento CAE: {vto}'
+            cae_par = Paragraph(cae_txt, st['cae_small'])
+            bottom_tbl = Table(
+                [[qr_img, cae_par]],
+                colWidths=[1.1 * inch, 8.45 * inch],
+            )
+            bottom_tbl.setStyle(TableStyle([
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 0),
+            ]))
+            elements.append(bottom_tbl)
+        else:
+            elements.append(Paragraph(cae_txt, st['cae_small']))
     else:
         elements.append(Spacer(1, 6))
         elements.append(Paragraph('<i>Borrador — pendiente de autorización ARCA</i>', st['cae_small']))
