@@ -644,21 +644,17 @@ def _build_elements_factura(factura):
     pv = factura.punto_venta or 0
     num = factura.numero or 0
     fecha_txt = factura.fecha.strftime('%d/%m/%Y')
+    s_meta_line = ParagraphStyle('FML2', fontName='Helvetica', fontSize=9, textColor=COLOR_TEXT, alignment=TA_RIGHT, leading=13)
     right_inner = Table([
-        [Paragraph('Punto de Venta', s_meta_lbl)],
-        [Paragraph(f'<b>{pv:04d}</b>', s_meta_val)],
-        [Spacer(1, 5)],
-        [Paragraph('Comp. N°', s_meta_lbl)],
-        [Paragraph(f'<b>{num:08d}</b>', s_meta_val)],
-        [Spacer(1, 5)],
-        [Paragraph('Fecha de Emisión', s_meta_lbl)],
-        [Paragraph(f'<b>{fecha_txt}</b>', s_meta_val)],
+        [Paragraph(f'Punto de Venta: <b>{pv:04d}</b>', s_meta_line)],
+        [Paragraph(f'Comp. N°: <b>{num:08d}</b>', s_meta_line)],
+        [Paragraph(f'Fecha de Emisión: <b>{fecha_txt}</b>', s_meta_line)],
     ], colWidths=[2.2 * inch])
     right_inner.setStyle(TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('TOPPADDING', (0, 0), (-1, -1), 1),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
     ]))
 
     header_tbl = Table([[col_left, right_inner]], colWidths=[4.1 * inch, 2.4 * inch])
@@ -756,23 +752,6 @@ def _build_elements_factura(factura):
     descuento = neto - total if neto > total else Decimal('0')
 
     data_rows = len(table_data)
-    table_data.append([
-        Paragraph('', s_td), Paragraph('', s_td),
-        Paragraph('SUBTOTAL', s_sub_lbl),
-        Paragraph(f'${_fmt_ar_num(neto, 2)}', s_sub_val),
-    ])
-    table_data.append([
-        Paragraph('', s_td), Paragraph('', s_td),
-        Paragraph('DESCUENTO', s_sub_lbl),
-        Paragraph(f'${_fmt_ar_num(descuento, 2)}', s_sub_val),
-    ])
-    table_data.append([
-        Paragraph('', s_td), Paragraph('', s_td),
-        Paragraph('TOTAL', s_tot_lbl),
-        Paragraph(f'${_fmt_ar_num(total, 2)}', s_tot_val),
-    ])
-
-    last_row = len(table_data) - 1
     items_table = Table(table_data, colWidths=cw_items, repeatRows=1)
 
     body_bg = []
@@ -786,20 +765,38 @@ def _build_elements_factura(factura):
         ('TOPPADDING', (0, 0), (-1, 0), 6),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
         *body_bg,
-        ('BOX', (0, 0), (-1, last_row), 0.5, COLOR_BORDER),
-        ('INNERGRID', (0, 0), (-1, data_rows - 1), 0.25, COLOR_BORDER),
+        ('BOX', (0, 0), (-1, -1), 0.5, COLOR_BORDER),
+        ('INNERGRID', (0, 0), (-1, -1), 0.25, COLOR_BORDER),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 1), (-1, data_rows - 1), 4),
-        ('BOTTOMPADDING', (0, 1), (-1, data_rows - 1), 4),
+        ('TOPPADDING', (0, 1), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
         ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-        ('LINEABOVE', (0, last_row), (-1, last_row), 1.5, COLOR_SECONDARY),
-        ('BACKGROUND', (0, last_row), (-1, last_row), COLOR_TOTAL_BG),
-        ('TOPPADDING', (0, last_row), (-1, last_row), 6),
-        ('BOTTOMPADDING', (0, last_row), (-1, last_row), 6),
     ]
     items_table.setStyle(TableStyle(ts))
     elements.append(items_table)
+
+    # ── Totales a ancho completo ────────────────────────────
+    elements.append(Spacer(1, 6))
+    s_total_line = ParagraphStyle('FTL2', fontName='Helvetica', fontSize=10, textColor=COLOR_TEXT, alignment=TA_RIGHT, leading=14)
+    s_total_num = ParagraphStyle('FTN2', fontName='Helvetica-Bold', fontSize=14, textColor=COLOR_PRIMARY, alignment=TA_RIGHT, leading=17)
+    tot_data = [
+        [Paragraph(f'SUBTOTAL:  ${_fmt_ar_num(neto, 2)}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', s_total_line),
+         Paragraph(f'DESCUENTO:  ${_fmt_ar_num(descuento, 2)}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', s_total_line),
+         Paragraph(f'TOTAL:  ${_fmt_ar_num(total, 2)}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', s_total_num)],
+    ]
+    tot_col_w = [pw * 0.3, pw * 0.3, pw * 0.4]
+    tot_tbl = Table(tot_data, colWidths=tot_col_w)
+    tot_tbl.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LINEABOVE', (0, 0), (-1, -1), 1.5, COLOR_SECONDARY),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('BACKGROUND', (0, 0), (-1, -1), COLOR_TOTAL_BG),
+        ('BOX', (0, 0), (-1, -1), 0.5, COLOR_BORDER),
+    ]))
+    elements.append(tot_tbl)
 
     # ══════════════════════════════════════════════════════
     # MONEDA
