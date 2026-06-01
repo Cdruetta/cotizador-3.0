@@ -581,14 +581,12 @@ def _build_elements_factura(factura):
     # ── Estilos ───────────────────────────────────────────
     s_emp = ParagraphStyle('FE', fontName='Helvetica-Bold', fontSize=13, textColor=COLOR_PRIMARY, leading=16)
     s_info = ParagraphStyle('FI', fontName='Helvetica', fontSize=8, textColor=COLOR_TEXT, leading=10)
-    s_info_bold = ParagraphStyle('FIB', fontName='Helvetica-Bold', fontSize=8, textColor=COLOR_TEXT, leading=10)
-    s_info_muted = ParagraphStyle('FIM', fontName='Helvetica', fontSize=8, textColor=COLOR_TEXT_MUTED, leading=10)
-    s_factura_tit = ParagraphStyle('FFT', fontName='Helvetica-Bold', fontSize=18, textColor=COLOR_HEADER_TEXT, alignment=TA_CENTER, leading=22)
-    s_factura_meta = ParagraphStyle('FFM', fontName='Helvetica', fontSize=8, textColor=COLOR_HEADER_TEXT, alignment=TA_CENTER, leading=10)
-    s_factura_meta_b = ParagraphStyle('FFMB', fontName='Helvetica-Bold', fontSize=11, textColor=COLOR_HEADER_TEXT, alignment=TA_CENTER, leading=14)
+    s_factura_tit = ParagraphStyle('FFT', fontName='Helvetica-Bold', fontSize=20, textColor=COLOR_PRIMARY, alignment=TA_CENTER, leading=24)
+    s_factura_letra = ParagraphStyle('FFL', fontName='Helvetica-Bold', fontSize=14, textColor=COLOR_SECONDARY, alignment=TA_CENTER, leading=17)
+    s_meta_lbl = ParagraphStyle('FML', fontName='Helvetica', fontSize=7, textColor=COLOR_TEXT_MUTED, alignment=TA_RIGHT, leading=9)
+    s_meta_val = ParagraphStyle('FMV', fontName='Helvetica-Bold', fontSize=10, textColor=COLOR_TEXT, alignment=TA_RIGHT, leading=13)
     s_cli_tit = ParagraphStyle('FCT', fontName='Helvetica-Bold', fontSize=9, textColor=COLOR_PRIMARY, leading=12)
     s_cli_val = ParagraphStyle('FCV', fontName='Helvetica', fontSize=9, textColor=COLOR_TEXT, leading=12)
-    s_cli_val_b = ParagraphStyle('FCVB', fontName='Helvetica-Bold', fontSize=9, textColor=COLOR_TEXT, leading=12)
     s_th = ParagraphStyle('FTH', fontName='Helvetica-Bold', fontSize=8, textColor=COLOR_HEADER_TEXT, alignment=TA_CENTER, leading=10)
     s_th_l = ParagraphStyle('FTHL', fontName='Helvetica-Bold', fontSize=8, textColor=COLOR_HEADER_TEXT, leading=10)
     s_td = ParagraphStyle('FTD', fontName='Helvetica', fontSize=8, textColor=COLOR_TEXT, leading=10)
@@ -598,26 +596,33 @@ def _build_elements_factura(factura):
     s_tot_val = ParagraphStyle('FTV', fontName='Helvetica-Bold', fontSize=14, textColor=COLOR_PRIMARY, alignment=TA_RIGHT, leading=17)
     s_sub_lbl = ParagraphStyle('FSL', fontName='Helvetica', fontSize=9, textColor=COLOR_TEXT, alignment=TA_RIGHT, leading=11)
     s_sub_val = ParagraphStyle('FSV', fontName='Helvetica', fontSize=9, textColor=COLOR_TEXT, alignment=TA_RIGHT, leading=11)
-    s_cae = ParagraphStyle('FCAE', fontName='Helvetica', fontSize=8, textColor=COLOR_TEXT, alignment=TA_CENTER, leading=10)
-    s_arca = ParagraphStyle('FARCA', fontName='Helvetica', fontSize=7, textColor=COLOR_TEXT_MUTED, alignment=TA_CENTER, leading=9)
+    s_cae = ParagraphStyle('FCAE', fontName='Helvetica', fontSize=8, textColor=COLOR_TEXT, leading=10)
+    s_cae_bold = ParagraphStyle('FCAEB', fontName='Helvetica-Bold', fontSize=8, textColor=COLOR_TEXT, leading=10)
+    s_arca = ParagraphStyle('FARCA', fontName='Helvetica', fontSize=7, textColor=COLOR_TEXT_MUTED, leading=9)
     s_footer = ParagraphStyle('FPT', fontName='Helvetica', fontSize=7, textColor=COLOR_TEXT_MUTED, alignment=TA_CENTER, leading=9)
+    s_moneda = ParagraphStyle('FMON', fontName='Helvetica', fontSize=8, textColor=COLOR_TEXT_MUTED, alignment=TA_CENTER, leading=10)
 
     # ══════════════════════════════════════════════════════
-    # ENCABEZADO: dos columnas
+    # "FACTURA C" CENTRADO
     # ══════════════════════════════════════════════════════
-    # ── Columna izquierda: logo + datos del emisor ───────
+    elements.append(Paragraph('FACTURA', s_factura_tit))
+    elements.append(Paragraph(f'<b>{letra}</b>', s_factura_letra))
+    elements.append(Spacer(1, 8))
+
+    # ══════════════════════════════════════════════════════
+    # FILA: Izquierda (logo+datos) | Derecha (PV, N°, Fecha)
+    # ══════════════════════════════════════════════════════
     left_cells = []
     logo_path = _factura_logo_path()
     if logo_path:
         ir = ImageReader(logo_path)
         iw, ih = ir.getSize()
-        logo_w = 0.95 * inch
+        logo_w = 0.9 * inch
         left_cells.append(Image(logo_path, width=logo_w, height=logo_w * (ih / iw)))
         left_cells.append(Spacer(1, 4))
 
     left_cells.append(Paragraph(escape(razon_social), s_emp))
     left_cells.append(Spacer(1, 2))
-
     emit_lines = []
     if config and config.razon_social:
         emit_lines.append(f'<b>Razón Social:</b> {escape(config.razon_social)}')
@@ -628,7 +633,7 @@ def _build_elements_factura(factura):
         emit_lines.append(f'<b>Domicilio:</b> {escape(domicilio_emitter)}')
     left_cells.append(Paragraph('<br/>'.join(emit_lines), s_info))
 
-    col_left = Table([[c] for c in left_cells], colWidths=[3.5 * inch])
+    col_left = Table([[c] for c in left_cells], colWidths=[3.8 * inch])
     col_left.setStyle(TableStyle([
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('LEFTPADDING', (0, 0), (-1, -1), 0),
@@ -636,36 +641,27 @@ def _build_elements_factura(factura):
         ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
     ]))
 
-    # ── Columna derecha: recuadro FACTURA ─────────────────
     pv = factura.punto_venta or 0
     num = factura.numero or 0
     fecha_txt = factura.fecha.strftime('%d/%m/%Y')
     right_inner = Table([
-        [Paragraph('FACTURA', s_factura_tit)],
-        [Paragraph(letra, ParagraphStyle('FFL', fontName='Helvetica-Bold', fontSize=32, textColor=COLOR_HEADER_TEXT, alignment=TA_CENTER, leading=36))],
-        [Spacer(1, 6)],
-        [Paragraph(f'Punto de Venta<br/><b>{pv:04d}</b>', s_factura_meta)],
-        [Spacer(1, 3)],
-        [Paragraph(f'Comp. N°<br/><b>{num:08d}</b>', s_factura_meta)],
-        [Spacer(1, 3)],
-        [Paragraph(f'Fecha<br/><b>{fecha_txt}</b>', s_factura_meta)],
-    ], colWidths=[2.35 * inch])
+        [Paragraph('Punto de Venta', s_meta_lbl)],
+        [Paragraph(f'<b>{pv:04d}</b>', s_meta_val)],
+        [Spacer(1, 5)],
+        [Paragraph('Comp. N°', s_meta_lbl)],
+        [Paragraph(f'<b>{num:08d}</b>', s_meta_val)],
+        [Spacer(1, 5)],
+        [Paragraph('Fecha de Emisión', s_meta_lbl)],
+        [Paragraph(f'<b>{fecha_txt}</b>', s_meta_val)],
+    ], colWidths=[2.2 * inch])
     right_inner.setStyle(TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('TOPPADDING', (0, 0), (-1, -1), 2),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+        ('TOPPADDING', (0, 0), (-1, -1), 1),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
     ]))
 
-    col_right = Table([[right_inner]], colWidths=[2.65 * inch])
-    col_right.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), COLOR_PRIMARY),
-        ('BOX', (0, 0), (-1, -1), 0, colors.white),
-        ('TOPPADDING', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
-    ]))
-
-    header_tbl = Table([[col_left, col_right]], colWidths=[3.75 * inch, 2.75 * inch])
+    header_tbl = Table([[col_left, right_inner]], colWidths=[4.1 * inch, 2.4 * inch])
     header_tbl.setStyle(TableStyle([
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('TOPPADDING', (0, 0), (-1, -1), 0),
@@ -759,7 +755,6 @@ def _build_elements_factura(factura):
     neto = factura.neto or Decimal('0')
     descuento = neto - total if neto > total else Decimal('0')
 
-    # Add subtotal/descuento/total rows
     data_rows = len(table_data)
     table_data.append([
         Paragraph('', s_td), Paragraph('', s_td),
@@ -798,7 +793,6 @@ def _build_elements_factura(factura):
         ('BOTTOMPADDING', (0, 1), (-1, data_rows - 1), 4),
         ('LEFTPADDING', (0, 0), (-1, -1), 4),
         ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-        # Total row highlight
         ('LINEABOVE', (0, last_row), (-1, last_row), 1.5, COLOR_SECONDARY),
         ('BACKGROUND', (0, last_row), (-1, last_row), COLOR_TOTAL_BG),
         ('TOPPADDING', (0, last_row), (-1, last_row), 6),
@@ -808,49 +802,42 @@ def _build_elements_factura(factura):
     elements.append(items_table)
 
     # ══════════════════════════════════════════════════════
-    # MONEDA + ADVERTENCIA $10M
+    # MONEDA
     # ══════════════════════════════════════════════════════
     elements.append(Spacer(1, 6))
-    elements.append(Paragraph('Moneda: PESOS ($) — Todos los importes están expresados en Pesos Argentinos', s_cae))
+    elements.append(Paragraph('Moneda: PESOS ($) — Todos los importes están expresados en Pesos Argentinos', s_moneda))
     if not cuit_cli and total >= Decimal('10000000'):
         elements.append(Spacer(1, 2))
         elements.append(Paragraph(
             '<i>Importe >= $10.000.000 — obligatorio informar DNI/CUIT/CUIL/CDI del comprador</i>',
-            s_cae,
+            s_moneda,
         ))
 
     # ══════════════════════════════════════════════════════
-    # CAE + QR + PIE
+    # QR + CAE + PIE
     # ══════════════════════════════════════════════════════
     elements.append(Spacer(1, 10))
-    elements.append(HRFlowable(width='100%', thickness=0.5, color=COLOR_BORDER, spaceAfter=6))
+    elements.append(HRFlowable(width='100%', thickness=0.5, color=COLOR_BORDER, spaceAfter=8))
 
     if factura.estado == 'autorizada' and factura.cae:
         vto = factura.cae_vencimiento.strftime('%d/%m/%Y') if factura.cae_vencimiento else '—'
-        # QR + CAE side by side
         qr_buf = _factura_qr_image(factura)
         if qr_buf:
             qr_img = Image(qr_buf, width=0.7 * inch, height=0.7 * inch)
-            cae_block = [
-                [Paragraph(f'CAE: <b>{factura.cae}</b>', s_cae)],
-                [Paragraph(f'Vto. CAE: <b>{vto}</b>', s_cae)],
-                [Spacer(1, 4)],
-                [Paragraph('Comprobante autorizado por ARCA (ex AFIP)', s_arca)],
+            cae_lines = [
+                f'CAE: <b>{factura.cae}</b>',
+                f'Vto. CAE: <b>{vto}</b>',
+                '<br/>',
+                'Comprobante autorizado por ARCA (ex AFIP)',
             ]
             if domicilio_emitter:
-                cae_block.append([Spacer(1, 2)])
-                cae_block.append([Paragraph(escape(domicilio_emitter), s_arca)])
-
-            cae_tbl = Table(cae_block, colWidths=[pw - 1.0 * inch])
-            cae_tbl.setStyle(TableStyle([
-                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                ('TOPPADDING', (0, 0), (-1, -1), 1),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
-            ]))
-            footer_row = Table([[qr_img, cae_tbl]], colWidths=[0.9 * inch, pw - 0.9 * inch])
+                cae_lines.append(f'<br/>{escape(domicilio_emitter)}')
+            cae_par = Paragraph('<br/>'.join(cae_lines), s_cae)
+            footer_row = Table([[qr_img, cae_par]], colWidths=[0.85 * inch, pw - 0.85 * inch])
             footer_row.setStyle(TableStyle([
                 ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
                 ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 0),
             ]))
             elements.append(footer_row)
         else:
@@ -917,11 +904,7 @@ def generar_pdf_factura_buffer(factura):
     )
 
     elements = _build_elements_factura(factura)
-    doc.build(
-        elements,
-        onFirstPage=_factura_watermark_and_frame,
-        onLaterPages=_factura_watermark_and_frame,
-    )
+    doc.build(elements)
     buffer.seek(0)
     return buffer
 
