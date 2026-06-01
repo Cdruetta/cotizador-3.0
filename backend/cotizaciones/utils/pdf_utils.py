@@ -695,9 +695,12 @@ def _build_elements_factura(factura):
     prov = getattr(cliente, 'provincia', None) or '—'
     dom = (cliente.direccion or '').replace('\n', ' ').strip() or '—'
     loc = cliente.localidad or '—'
-    cond_iva_receptor = 'CONSUMIDOR FINAL' if letra == 'C' else '—'
     cuit_cli = getattr(cliente, 'cuit', None)
     cuit_cli_txt = _format_cuit_afip(cuit_cli) if cuit_cli else '—'
+    if cuit_cli:
+        cond_iva_receptor = 'RESPONSABLE MONOTRIBUTO'
+    else:
+        cond_iva_receptor = 'CONSUMIDOR FINAL'
 
     cell = st['cliente_linea']
     cli_tbl = Table([
@@ -812,6 +815,13 @@ def _build_elements_factura(factura):
         st['cae_small'],
     )
     elements.append(neto_line)
+    elements.append(Spacer(1, 4))
+    elements.append(Paragraph('Moneda: PESOS ($)', st['cae_small']))
+    if not cuit_cli and total >= Decimal('10000000'):
+        elements.append(Paragraph(
+            '<i>Importe >= $10.000.000 — obligatorio informar DNI/CUIT/CUIL/CDI del comprador</i>',
+            st['cae_small'],
+        ))
 
     # ── CAE + QR ─────────────────────────────────────────
     if factura.estado == 'autorizada' and factura.cae:
