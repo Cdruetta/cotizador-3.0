@@ -46,6 +46,7 @@ def autorizar_factura(config, factura):
         else:
             doc_nro = 0
         data = {
+            'CantReg': 1,  # createNextVoucher genera un unico comprobante
             'CbteTipo': 11,  # Factura C
             'PtoVta': factura.punto_venta,
             'CbteFch': factura.fecha.strftime('%Y%m%d'),
