@@ -7,12 +7,14 @@ def get_afip(config):
         'production': config.ambiente == 'produccion',
         'access_token': os.environ.get('AFIP_ACCESS_TOKEN', ''),
     }
-    if config.certificado and config.certificado.path:
-        with open(config.certificado.path) as f:
-            opts['cert'] = f.read()
-    if config.clave_privada and config.clave_privada.path:
-        with open(config.clave_privada.path) as f:
-            opts['key'] = f.read()
+    for campo, clave in [('certificado', 'cert'), ('clave_privada', 'key')]:
+        f = getattr(config, campo, None)
+        if f and f.path:
+            try:
+                with open(f.path) as fh:
+                    opts[clave] = fh.read()
+            except (FileNotFoundError, OSError):
+                pass  # archivo no disponible, se omite
     return Afip(opts)
 
 def probar_conexion(config):
