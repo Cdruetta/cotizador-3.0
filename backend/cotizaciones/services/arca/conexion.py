@@ -53,14 +53,20 @@ def autorizar_factura(config, factura):
             'CantReg': 1,  # createNextVoucher genera un unico comprobante
             'CbteTipo': 11,  # Factura C
             'PtoVta': factura.punto_venta,
-            'CbteFch': factura.fecha.strftime('%Y%m%d'),
+            'CbteFch': int(factura.fecha.strftime('%Y%m%d')),
             'Concepto': 1,  # 1=Productos, 2=Servicios, 3=Ambos
             'DocTipo': doc_tipo,
             'DocNro': doc_nro,
-            'CondicionIVAReceptor': cond_iva,
-            'ImpNeto': float(factura.neto),
-            'ImpIVA': 0,
+            'CondicionIVAReceptorId': cond_iva,
+            'FchServDesde': None,  # solo para conceptos 2 y 3
+            'FchServHasta': None,
+            'FchVtoPago': None,
             'ImpTotal': float(factura.total),
+            'ImpTotConc': 0,  # Importe neto no gravado
+            'ImpNeto': float(factura.neto),
+            'ImpOpEx': 0,  # Importe exento al IVA
+            'ImpIVA': 0,
+            'ImpTrib': 0,  # Importe total de tributos
             'MonId': 'PES',
             'MonCotiz': 1,
         }
