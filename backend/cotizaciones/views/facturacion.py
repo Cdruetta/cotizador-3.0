@@ -60,8 +60,8 @@ def generar_csr_view(request):
 def test_conexion_afip(request):
     """Prueba la comunicación con los servidores de AFIP."""
     config = ConfiguracionAFIP.get_config()
-    if not config or not config.certificado or not config.clave_privada:
-        messages.error(request, 'Primero completá la configuración y subí los certificados.')
+    if not config:
+        messages.error(request, 'Primero completá la configuración.')
     else:
         ok, msg = probar_conexion(config)
         if ok:
