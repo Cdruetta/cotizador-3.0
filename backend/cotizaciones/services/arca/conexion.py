@@ -2,13 +2,18 @@ import os
 from afip import Afip
 
 def get_afip(config):
-    return Afip({
+    opts = {
         'CUIT': int(config.cuit.replace('-', '')),
-        'cert': config.certificado.path,
-        'key': config.clave_privada.path,
         'production': config.ambiente == 'produccion',
         'access_token': os.environ.get('AFIP_ACCESS_TOKEN', ''),
-    })
+    }
+    if config.certificado and config.certificado.path:
+        with open(config.certificado.path) as f:
+            opts['cert'] = f.read()
+    if config.clave_privada and config.clave_privada.path:
+        with open(config.clave_privada.path) as f:
+            opts['key'] = f.read()
+    return Afip(opts)
 
 def probar_conexion(config):
     try:
