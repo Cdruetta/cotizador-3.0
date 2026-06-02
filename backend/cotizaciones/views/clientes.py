@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models.deletion import ProtectedError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -76,9 +77,19 @@ class ClienteDeleteView(LoginRequiredMixin, DeleteView):
     template_name = "cotizaciones/cliente/confirm_delete.html"
     success_url = reverse_lazy("cliente_list")
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(request, "Cliente eliminado exitosamente.")
-        return super().delete(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        try:
+            self.object.delete()
+            messages.success(request, "Cliente eliminado exitosamente.")
+            return redirect(self.success_url)
+        except ProtectedError:
+            messages.warning(
+                request,
+                "No se puede eliminar este cliente porque tiene facturas, cotizaciones, remitos o recibos asociados. "
+                "Desactivá el cliente en su lugar."
+            )
+            return redirect("cliente_list")
 
 
 class ClienteDetailView(LoginRequiredMixin, DetailView):
