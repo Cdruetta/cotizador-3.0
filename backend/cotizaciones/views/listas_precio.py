@@ -108,7 +108,15 @@ def importar_csv_lista_precio(request, pk):
             return redirect("listaprecio_detail", pk=pk)
 
         try:
-            decoded = archivo.read().decode("utf-8-sig")
+            raw = archivo.read()
+            for enc in ("utf-8-sig", "utf-8", "windows-1252", "latin-1"):
+                try:
+                    decoded = raw.decode(enc)
+                    break
+                except (UnicodeDecodeError, UnicodeError):
+                    continue
+            else:
+                raise UnicodeDecodeError("No se pudo decodificar el archivo con ninguna codificación conocida.")
             reader = csv.DictReader(io.StringIO(decoded))
             required = {"Categoría", "Servicio", "Precio (ARS)"}
             if not required.issubset(reader.fieldnames):
