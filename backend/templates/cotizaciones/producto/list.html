@@ -54,22 +54,35 @@
   {% if productos %}
   <div class="table-responsive">
     <table class="table mb-0">
+      <colgroup>
+        <col><col><col>
+        <col><col><col>
+        <col class="text-center">
+      </colgroup>
       <thead>
-        <tr><th>Nombre</th><th>Tipo</th><th>Proveedor</th><th>Precio</th><th>Stock</th><th>Estado</th><th class="text-center">Acciones</th></tr>
+        <tr>
+          <th>Nombre</th>
+          <th style="width:12%">Tipo</th>
+          <th style="width:14%">Proveedor</th>
+          <th style="width:12%">Precio</th>
+          <th style="width:7%">Stock</th>
+          <th style="width:10%">Estado</th>
+          <th style="width:20%" class="text-center">Acciones</th>
+        </tr>
       </thead>
       <tbody>
         {% for p in productos %}
         <tr>
-          <td class="fw-semibold">{{ p.nombre }}</td>
-          <td class="text-muted small">{{ p.get_tipo_display }}</td>
-          <td class="text-muted small">{{ p.proveedor.nombre }}</td>
-          <td class="fw-bold">${{ p.precio_unitario|floatformat:2 }}</td>
-          <td>
+          <td class="fw-semibold" style="white-space:normal">{{ p.nombre }}</td>
+          <td class="text-muted small" style="white-space:nowrap">{{ p.get_tipo_display }}</td>
+          <td class="text-muted small" style="white-space:nowrap">{{ p.proveedor.nombre }}</td>
+          <td class="fw-bold" style="white-space:nowrap">${{ p.precio_unitario|floatformat:2 }}</td>
+          <td style="white-space:nowrap">
             <span class="badge {% if p.stock == 0 %}bg-danger{% elif p.stock < 5 %}bg-warning text-dark{% else %}bg-light text-dark{% endif %} rounded-pill">
               {{ p.stock }}
             </span>
           </td>
-          <td>
+          <td style="white-space:nowrap">
             {% if p.activo %}
             <span class="badge rounded-pill" style="background:#e8fdf0;color:#1a7f4b">Activo</span>
             {% else %}
