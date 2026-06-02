@@ -23,6 +23,23 @@ from ..models.proveedores import Proveedor
 from ..forms.listas_precio import ListaPrecioForm
 
 
+def _parsear_precio(valor):
+    """Convierte un string de precio a float.
+    Ej: '15870' → 15870, '$15.870,50' → 15870.50, '15,870' → 15870.0"""
+    import re
+    valor = re.sub(r"[^0-9.,\-]", "", valor).strip()
+    if not valor:
+        return None
+    if "," in valor and "." in valor:
+        valor = valor.replace(".", "").replace(",", ".")
+    elif "," in valor:
+        valor = valor.replace(",", ".")
+    try:
+        return float(valor)
+    except ValueError:
+        return None
+
+
 def _detectar_columnas(fieldnames):
     """Busca columnas Categoría, Servicio, Precio (ARS) con variaciones de nombre."""
     lower = [f.strip().lower().replace(" ", "").replace("(", "").replace(")", "").replace("á", "a").replace("í", "i")
@@ -151,12 +168,12 @@ def importar_csv_lista_precio(request, pk):
             for i, row in enumerate(reader, 1):
                 categoria = row[col_map["categoria"]].strip()
                 servicio = row[col_map["servicio"]].strip()
-                precio_raw = row[col_map["precio"]].replace(".", "").replace(",", ".").strip()
-                try:
-                    precio = float(precio_raw)
-                except ValueError:
+                precio_raw = row[col_map["precio"]].strip()
+                precio_limpio = _parsear_precio(precio_raw)
+                if precio_limpio is None:
                     errores_precio += 1
                     continue
+                precio = precio_limpio
                 ListaPrecioItem.objects.create(
                     lista=lista,
                     categoria=categoria,
