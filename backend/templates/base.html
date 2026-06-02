@@ -841,14 +841,14 @@ body {
       <span class="lbl">Usuarios</span>
     </a>
 
-    <a href="#"
-       class="nav-link">
+    <a href="{% url 'rol_list' %}"
+       class="nav-link {% if 'rol' in request.resolver_match.url_name %}active{% endif %}">
       <i class="bi bi-key"></i>
       <span class="lbl">Roles y permisos</span>
     </a>
 
-    <a href="#"
-       class="nav-link">
+    <a href="{% url 'listaprecio_list' %}"
+       class="nav-link {% if 'listaprecio' in request.resolver_match.url_name %}active{% endif %}">
       <i class="bi bi-tags"></i>
       <span class="lbl">Listas de precios</span>
     </a>
@@ -865,8 +865,8 @@ body {
       <span class="lbl">Configuración</span>
     </a>
 
-    <a href="#"
-       class="nav-link">
+    <a href="{% url 'tienda_web_config' %}"
+       class="nav-link {% if request.resolver_match.url_name == 'tienda_web_config' %}active{% endif %}">
       <i class="bi bi-globe"></i>
       <span class="lbl">Tienda web</span>
     </a>

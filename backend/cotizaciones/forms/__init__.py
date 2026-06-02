@@ -16,4 +16,7 @@ from .categorias import CategoriaForm  # noqa: F401
 from .marcas import MarcaForm  # noqa: F401
 from .compras import CompraForm, CompraItemForm  # noqa: F401
 from .movimientos_stock import MovimientoStockForm  # noqa: F401
+from .listas_precio import ListaPrecioForm  # noqa: F401
+from .roles import GroupForm  # noqa: F401
+from .tienda_web import TiendaWebConfigForm  # noqa: F401
 

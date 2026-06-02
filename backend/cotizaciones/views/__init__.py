@@ -64,6 +64,14 @@ from .compras import (  # noqa: F401
     CompraListView, CompraCreateView, CompraUpdateView, CompraDeleteView,
     CompraDetailView, agregar_item_compra, eliminar_item_compra,
 )
+from .listas_precio import (  # noqa: F401
+    ListaPrecioListView, ListaPrecioCreateView, ListaPrecioUpdateView,
+    ListaPrecioDeleteView, ListaPrecioDetailView, importar_csv_lista_precio,
+    exportar_lista_precio_pdf, aplicar_precios_lista,
+    editar_item_lista_precio, eliminar_item_lista_precio, agregar_item_lista_precio,
+)
+from .tienda_web import tienda_web_config  # noqa: F401
+from .roles import GroupListView, GroupCreateView, GroupUpdateView, GroupDeleteView  # noqa: F401
 
 # ==============================================================================
 # 🔌 RE-EXPORTACIÓN DE LA NUEVA API REST (Punto 4: CRUD, Roles y Filtros)

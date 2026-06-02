@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}{{ view.object.pk|yesno:"Editar,Nuevo" }} Rol · GCinsumos{% endblock %}
+
+{% block content %}
+<style>
+  .rol-form .page-title { font-size: 1.65rem; font-weight: 700; color: #1e3c72; margin-bottom: 0.15rem; }
+  .rol-form .breadcrumb-line { font-size: 0.82rem; color: #64748b; }
+  .rol-form .breadcrumb-line a { color: #2563eb; text-decoration: none; }
+  .rol-form .breadcrumb-line a:hover { text-decoration: underline; }
+  .rol-form .perm-group { border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+  .rol-form .perm-group h6 { font-size: 0.85rem; font-weight: 700; color: #1e3c72; margin-bottom: 0.5rem; }
+  .rol-form .perm-group label { font-size: 0.8rem; }
+</style>
+
+<div class="rol-form">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="page-title">
+        <i class="bi bi-key text-primary me-2"></i>
+        {% if object %}Editar Rol{% else %}Nuevo Rol{% endif %}
+      </h2>
+      <div class="breadcrumb-line">
+        <a href="{% url 'dashboard' %}">Dashboard</a> /
+        <a href="{% url 'rol_list' %}">Roles</a> /
+        {% if object %}Editar{% else %}Nuevo{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-3 p-4">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold small">Nombre del rol *</label>
+          {{ form.name }}
+          {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors|striptags }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <label class="form-label fw-semibold small">Permisos</label>
+        {% regroup form.permissions.field.queryset by content_type as permisos_por_modulo %}
+        <div class="row">
+          {% for modulo in permisos_por_modulo %}
+          <div class="col-md-4">
+            <div class="perm-group">
+              <h6>{{ modulo.grouper.name|title }}</h6>
+              {% for perm in modulo.list %}
+              <div class="form-check">
+                <input type="checkbox" name="{{ form.permissions.html_name }}" value="{{ perm.pk }}"
+                       id="perm_{{ perm.pk }}" class="form-check-input"
+                       {% if perm.pk in form.permissions.value %}checked{% endif %}>
+                <label class="form-check-label" for="perm_{{ perm.pk }}">{{ perm.name }}</label>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% if form.permissions.errors %}<div class="text-danger small mt-1">{{ form.permissions.errors|striptags }}</div>{% endif %}
+      </div>
+
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-primary px-4 fw-semibold">
+          <i class="bi bi-check-lg"></i> Guardar
+        </button>
+        <a href="{% url 'rol_list' %}" class="btn btn-outline-secondary px-4 fw-semibold">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

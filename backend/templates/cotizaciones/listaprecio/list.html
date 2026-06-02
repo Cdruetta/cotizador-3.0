@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}Listas de precios · GCinsumos{% endblock %}
+
+{% block content %}
+<style>
+  .lp-page .page-title { font-size: 1.65rem; font-weight: 700; color: #1e3c72; margin-bottom: 0.15rem; }
+  .lp-page .breadcrumb-line { font-size: 0.82rem; color: #64748b; }
+  .lp-page .breadcrumb-line a { color: #2563eb; text-decoration: none; }
+  .lp-page .breadcrumb-line a:hover { text-decoration: underline; }
+</style>
+
+<div class="lp-page">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="page-title"><i class="bi bi-percent text-primary me-2"></i>Listas de precios</h2>
+      <div class="breadcrumb-line">
+        <a href="{% url 'dashboard' %}">Dashboard</a> / Listas de precios
+      </div>
+    </div>
+    <a href="{% url 'listaprecio_create' %}" class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 fw-semibold" style="border-radius: 10px;">
+      <i class="bi bi-plus-lg"></i> Nueva Lista
+    </a>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-md-4">
+      <div class="card border-0 shadow-sm rounded-3 p-3">
+        <small class="text-muted fw-semibold">Total</small>
+        <span class="fs-4 fw-bold text-dark">{{ total_listas }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-md-4">
+      <div class="card border-0 shadow-sm rounded-3 p-3">
+        <small class="text-muted fw-semibold">Activas</small>
+        <span class="fs-4 fw-bold text-success">{{ listas_activas }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr class="text-muted small fw-bold">
+              <th class="ps-3">Nombre</th>
+              <th>% Recargo</th>
+              <th>Items</th>
+              <th>Por defecto</th>
+              <th>Estado</th>
+              <th class="text-end pe-3">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for lp in listas %}
+            <tr>
+              <td class="ps-3 fw-semibold text-dark">
+                <a href="{% url 'listaprecio_detail' lp.pk %}" class="text-decoration-none text-dark">{{ lp.nombre }}</a>
+              </td>
+              <td>{{ lp.porcentaje }}%</td>
+              <td><span class="badge rounded-pill bg-info bg-opacity-10 text-info">{{ lp.cant_items }}</span></td>
+              <td>
+                {% if lp.por_defecto %}
+                  <span class="badge rounded-pill" style="background:#e8f4fd;color:#1a5f7b">Sí</span>
+                {% else %}
+                  <span class="badge rounded-pill bg-light text-muted">No</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if lp.activo %}
+                  <span class="badge rounded-pill" style="background:#e8fdf0;color:#1a7f4b">Activa</span>
+                {% else %}
+                  <span class="badge rounded-pill bg-secondary">Inactiva</span>
+                {% endif %}
+              </td>
+              <td class="text-end pe-3">
+                <a href="{% url 'listaprecio_update' lp.pk %}" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Editar"><i class="bi bi-pencil"></i></a>
+                <form method="post" action="{% url 'listaprecio_delete' lp.pk %}" class="d-inline" onsubmit="return confirm('¿Eliminar esta lista de precio?')">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-action btn-outline-danger border-0" title="Eliminar"><i class="bi bi-trash"></i></button>
+                </form>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="bi bi-percent opacity-25" style="font-size: 3rem;"></i>
+                <p class="mt-2 fw-semibold">No hay listas de precio registradas.</p>
+                <a href="{% url 'listaprecio_create' %}" class="btn btn-primary btn-sm">Crear primera lista</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {% if page_obj.paginator.count > 0 %}
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <small class="text-muted">{{ page_start }}–{{ page_end }} de {{ page_total }} listas</small>
+    <nav>
+      <ul class="pagination pagination-sm mb-0">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

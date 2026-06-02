@@ -186,6 +186,28 @@ urlpatterns = [
     path('facturacion/<int:factura_id>/autorizar/', autorizar_factura_view, name='factura_autorizar'),
     path('facturacion/<int:factura_id>/pdf/', generar_pdf_factura_view, name='generar_pdf_factura'),
 
+    # Listas de precio
+    path('listas-precio/', views.ListaPrecioListView.as_view(), name='listaprecio_list'),
+    path('listas-precio/crear/', views.ListaPrecioCreateView.as_view(), name='listaprecio_create'),
+    path('listas-precio/<int:pk>/', views.ListaPrecioDetailView.as_view(), name='listaprecio_detail'),
+    path('listas-precio/<int:pk>/editar/', views.ListaPrecioUpdateView.as_view(), name='listaprecio_update'),
+    path('listas-precio/<int:pk>/eliminar/', views.ListaPrecioDeleteView.as_view(), name='listaprecio_delete'),
+    path('listas-precio/<int:pk>/importar-csv/', views.importar_csv_lista_precio, name='listaprecio_importar_csv'),
+    path('listas-precio/<int:pk>/exportar-pdf/', views.exportar_lista_precio_pdf, name='listaprecio_exportar_pdf'),
+    path('listas-precio/<int:pk>/aplicar/', views.aplicar_precios_lista, name='listaprecio_aplicar'),
+    path('listas-precio/<int:pk>/items/agregar/', views.agregar_item_lista_precio, name='listaprecio_item_add'),
+    path('listas-precio/<int:lista_pk>/items/<int:item_pk>/editar/', views.editar_item_lista_precio, name='listaprecio_item_edit'),
+    path('listas-precio/<int:lista_pk>/items/<int:item_pk>/eliminar/', views.eliminar_item_lista_precio, name='listaprecio_item_delete'),
+
+    # Roles y permisos
+    path('roles/', views.GroupListView.as_view(), name='rol_list'),
+    path('roles/crear/', views.GroupCreateView.as_view(), name='rol_create'),
+    path('roles/<int:pk>/editar/', views.GroupUpdateView.as_view(), name='rol_update'),
+    path('roles/<int:pk>/eliminar/', views.GroupDeleteView.as_view(), name='rol_delete'),
+
+    # Tienda Web
+    path('tienda-web/', views.tienda_web_config, name='tienda_web_config'),
+
     # AFIP
     path('facturacion/configuracion/', configuracion_afip, name='facturacion_config'),
     path('facturacion/configuracion/csr/', generar_csr_view, name='facturacion_generar_csr'),

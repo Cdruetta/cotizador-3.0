@@ -1,0 +1,52 @@
+Categoría,Servicio,Precio (ARS)
+DIAGNÓSTICOS,Valor mínimo de diagnóstico,15870
+SOFTWARE,Inicialización de equipo nuevo (programas básicos),32550
+SOFTWARE,Inicialización de equipo nuevo (programas básicos y Windows),53765
+SOFTWARE,Formateo + Instalación de prog. básicos + Backup hasta 100Gb,63500
+SOFTWARE,Backup de datos: cada 250Gb extras,14700
+SOFTWARE,Backup en más de una unidad (Ej. en el equipo y un disco externo),14700
+SOFTWARE,Mantenimiento y limpieza de virus y optimización,43350
+SOFTWARE,Instalación de programas específicos - Un solo programa,20500
+SOFTWARE,Instalación de programas específicos - Pack por tres programas,32150
+SOFTWARE,Instalación de programas específicos - Por cada programa extra al pack,12200
+HARDWARE,Armado de Pc común (solo armado),22200
+HARDWARE,Armado de Pc Gamer (solo armado),41650
+HARDWARE,Mantenimiento de hardware notebook,62550
+HARDWARE,Mantenimiento de hardware Pc común,35700
+HARDWARE,Mantenimiento de hardware Pc Gamer,97500
+HARDWARE,Instalación de hardware notebook,32550
+HARDWARE,Instalación de hardware Pc común,18800
+HARDWARE,Instalación de hardware Pc Gamer,41300
+HARDWARE,Reparación de bisagras de notebook,82500
+HARDWARE,Reparación de pin de carga o botones notebook,82500
+HARDWARE,Cambio de teclado de notebook,22200
+HARDWARE,Cambio de teclado de notebook (Equipos complejos),41650
+HARDWARE,Cambio de pantalla de notebook,43350
+IMPRESORAS,InkJet simple función,28400
+IMPRESORAS,Hp Inkjet multifunción común,39800
+IMPRESORAS,Epson chorro de tinta series CX-TX,55550
+IMPRESORAS,Epson chorro de tinta series XP,44450
+IMPRESORAS,Destapado de cabezal,63200
+IMPRESORAS SERIE L A4 (Ej.: L380 L3110),Destapado de cabezal,75800
+IMPRESORAS SERIE L A4 (Ej.: L380 L3110),Mantenimiento y limpieza,75800
+IMPRESORAS SERIE L A4 (Ej.: L380 L3110),Destapado de cabezal + Mantenimiento y limpieza,127000
+IMPRESORAS SERIE FOTOGRÁFICO A4 (Ej.: L800 L805),Destapado de cabezal,98200
+IMPRESORAS SERIE FOTOGRÁFICO A4 (Ej.: L800 L805),Mantenimiento y limpieza,98200
+IMPRESORAS SERIE FOTOGRÁFICO A4 (Ej.: L800 L805),Destapado de cabezal + Mantenimiento y limpieza,164500
+IMPRESORAS A3 (Ej.: L1300),Destapado de cabezal,149850
+IMPRESORAS A3 (Ej.: L1300),Mantenimiento y limpieza,167850
+IMPRESORAS A3 (Ej.: L1300),Destapado de cabezal + Mantenimiento y limpieza,298200
+OTRAS IMPRESORAS,Impresora Láser A4 simple función,54600
+OTRAS IMPRESORAS,Impresora Láser gran formato o multifunción,97750
+OTRAS IMPRESORAS,Matriz de punto,54600
+OTROS (IMPRESORAS),Descarga externa,22000
+OTROS (IMPRESORAS),Desbloqueo de contadores,32400
+OTROS (IMPRESORAS),Descarga externa + desbloqueo,42350
+OTROS SERVICIOS,Atención remota (por cada media hora),21850
+OTROS SERVICIOS,Atención en domicilio (por cada media hora) radio hasta 3Km,27700
+OTROS SERVICIOS,Atención en domicilio (extra por Kilómetro),4000
+OTROS SERVICIOS,Cambio de cable cargador,13850
+INSTALACIONES DE RED,Atención en domicilio (por cada media hora) radio hasta 3Km,28100
+INSTALACIONES DE RED,Instalación de routers y otros,35000
+INSTALACIONES DE RED,Extra por cada dispositivo,12000
+REPARACIONES DE PLACAS,Costo mínimo (notebook / reballing),192200

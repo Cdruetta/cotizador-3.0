@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% block title %}{{ lista.nombre }} · GCinsumos{% endblock %}
+
+{% block content %}
+<style>
+  .lp-detail .page-title { font-size: 1.65rem; font-weight: 700; color: #1e3c72; margin-bottom: 0.15rem; }
+  .lp-detail .breadcrumb-line { font-size: 0.82rem; color: #64748b; }
+  .lp-detail .breadcrumb-line a { color: #2563eb; text-decoration: none; }
+  .lp-detail .breadcrumb-line a:hover { text-decoration: underline; }
+</style>
+
+<div class="lp-detail">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="page-title"><i class="bi bi-percent text-primary me-2"></i>{{ lista.nombre }}</h2>
+      <div class="breadcrumb-line">
+        <a href="{% url 'dashboard' %}">Dashboard</a> /
+        <a href="{% url 'listaprecio_list' %}">Listas de precio</a> /
+        {{ lista.nombre }}
+      </div>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <button type="button" class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 fw-semibold" style="border-radius: 10px;" data-bs-toggle="modal" data-bs-target="#addItemModal">
+        <i class="bi bi-plus-lg"></i> Agregar item
+      </button>
+      <button type="button" class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2 fw-semibold" style="border-radius: 10px;" data-bs-toggle="modal" data-bs-target="#importModal">
+        <i class="bi bi-upload"></i> Importar CSV
+      </button>
+      {% if total_items %}
+      <a href="{% url 'listaprecio_aplicar' lista.pk %}" class="btn btn-success d-flex align-items-center gap-2 px-3 py-2 fw-semibold" style="border-radius: 10px;" onclick="return confirm('¿Actualizar precios de productos según esta lista?')">
+        <i class="bi bi-arrow-repeat"></i> Aplicar a productos
+      </a>
+      <a href="{% url 'listaprecio_exportar_pdf' lista.pk %}" class="btn btn-outline-secondary d-flex align-items-center gap-2 px-3 py-2 fw-semibold" style="border-radius: 10px;">
+        <i class="bi bi-filetype-pdf"></i> Exportar PDF
+      </a>
+      {% endif %}
+      <a href="{% url 'listaprecio_update' lista.pk %}" class="btn btn-outline-secondary d-flex align-items-center gap-2 px-3 py-2 fw-semibold" style="border-radius: 10px;">
+        <i class="bi bi-pencil"></i> Editar
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-3 p-3">
+        <small class="text-muted fw-semibold">Items</small>
+        <span class="fs-4 fw-bold text-dark">{{ total_items }}</span>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card border-0 shadow-sm rounded-3 p-3">
+        <small class="text-muted fw-semibold">Categorías</small>
+        <span class="fs-4 fw-bold text-dark">{{ categorias|length }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr class="text-muted small fw-bold">
+              <th class="ps-3">Categoría</th>
+              <th>Servicio</th>
+              <th class="text-end">Precio (ARS)</th>
+              <th class="text-end pe-3">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+            <tr>
+              <td class="ps-3 text-muted small">{{ item.categoria }}</td>
+              <td class="fw-semibold text-dark">{{ item.servicio }}</td>
+              <td class="text-end fw-bold">${{ item.precio|floatformat:2 }}</td>
+              <td class="text-end pe-3">
+                <button type="button" class="btn btn-sm btn-action btn-outline-secondary border-0" title="Editar" data-bs-toggle="modal" data-bs-target="#editItemModal{{ item.pk }}">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <form method="post" action="{% url 'listaprecio_item_delete' lista.pk item.pk %}" class="d-inline" onsubmit="return confirm('¿Eliminar este item?')">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-action btn-outline-danger border-0" title="Eliminar"><i class="bi bi-trash"></i></button>
+                </form>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="text-center py-5 text-muted">
+                <i class="bi bi-table opacity-25" style="font-size: 3rem;"></i>
+                <p class="mt-2 fw-semibold">Esta lista no tiene items.</p>
+                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#importModal">
+                  Importar CSV
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Agregar Item -->
+<div class="modal fade" id="addItemModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="{% url 'listaprecio_item_add' lista.pk %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">Agregar item</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Categoría</label>
+            <input type="text" name="categoria" class="form-control" placeholder="Ej: HARDWARE" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Servicio</label>
+            <input type="text" name="servicio" class="form-control" placeholder="Nombre del servicio" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Precio (ARS)</label>
+            <input type="number" name="precio" class="form-control" placeholder="0.00" step="0.01" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Agregar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modales Editar Item -->
+{% for item in items %}
+<div class="modal fade" id="editItemModal{{ item.pk }}" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="{% url 'listaprecio_item_edit' lista.pk item.pk %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">Editar item</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Categoría</label>
+            <input type="text" name="categoria" class="form-control" value="{{ item.categoria }}" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Servicio</label>
+            <input type="text" name="servicio" class="form-control" value="{{ item.servicio }}" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Precio (ARS)</label>
+            <input type="number" name="precio" class="form-control" value="{{ item.precio }}" step="0.01" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<!-- Modal Importar CSV -->
+<div class="modal fade" id="importModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="{% url 'listaprecio_importar_csv' lista.pk %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">Importar CSV</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted small">El archivo debe tener las columnas: <strong>Categoría, Servicio, Precio (ARS)</strong></p>
+          <input type="file" name="archivo" class="form-control" accept=".csv" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Importar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
