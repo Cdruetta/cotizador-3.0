@@ -318,9 +318,8 @@ def aplicar_precios_lista(request, pk):
     actualizados = 0
     creados = 0
 
-    proveedor_default, _ = Proveedor.objects.get_or_create(
-        nombre="Servicios",
-    )
+    prov_gcsoft, _ = Proveedor.objects.get_or_create(nombre="GCsoft")
+    prov_gcinsumos, _ = Proveedor.objects.get_or_create(nombre="GCinsumos")
 
     for item in items:
         match = Producto.objects.filter(nombre__iexact=item.servicio).first()
@@ -329,11 +328,17 @@ def aplicar_precios_lista(request, pk):
             match.save()
             actualizados += 1
         else:
-            tipo = "servicio_hard" if item.categoria.upper() == "HARDWARE" else "servicio_soft"
+            cat = item.categoria.upper()
+            if cat == "HARDWARE":
+                proveedor = prov_gcinsumos
+                tipo = "servicio_hard"
+            else:
+                proveedor = prov_gcsoft
+                tipo = "servicio_soft"
             Producto.objects.create(
                 nombre=item.servicio,
                 precio_unitario=item.precio,
-                proveedor=proveedor_default,
+                proveedor=proveedor,
                 tipo=tipo,
                 activo=True,
             )
