@@ -23,6 +23,22 @@ from ..models.proveedores import Proveedor
 from ..forms.listas_precio import ListaPrecioForm
 
 
+def _detectar_columnas(fieldnames):
+    """Busca columnas Categoría, Servicio, Precio (ARS) con variaciones de nombre."""
+    lower = [f.strip().lower().replace(" ", "").replace("(", "").replace(")", "").replace("á", "a").replace("í", "i")
+             for f in fieldnames]
+    mapa = {}
+    for i, name in enumerate(lower):
+        col = fieldnames[i]
+        if name in ("categoria", "categoría", "cat"):
+            mapa["categoria"] = col
+        elif name in ("servicio", "sevicio", "serv"):
+            mapa["servicio"] = col
+        elif "precio" in name and ("ars" in name or "precio" in name):
+            mapa["precio"] = col
+    return mapa if {"categoria", "servicio", "precio"}.issubset(mapa) else None
+
+
 class StaffRequiredMixin(UserPassesTestMixin):
     def test_func(self):
         return self.request.user.is_staff
@@ -118,16 +134,16 @@ def importar_csv_lista_precio(request, pk):
             else:
                 raise UnicodeDecodeError("No se pudo decodificar el archivo con ninguna codificación conocida.")
             reader = csv.DictReader(io.StringIO(decoded))
-            required = {"Categoría", "Servicio", "Precio (ARS)"}
-            if not required.issubset(reader.fieldnames):
-                messages.error(request, f"El CSV debe tener las columnas: {', '.join(sorted(required))}")
+            col_map = _detectar_columnas(reader.fieldnames)
+            if col_map is None:
+                messages.error(request, "El CSV debe tener las columnas: Categoría, Servicio, Precio (ARS)")
                 return redirect("listaprecio_detail", pk=pk)
 
             creados = 0
             for row in reader:
-                categoria = row["Categoría"].strip()
-                servicio = row["Servicio"].strip()
-                precio_raw = row["Precio (ARS)"].replace(".", "").replace(",", ".").strip()
+                categoria = row[col_map["categoria"]].strip()
+                servicio = row[col_map["servicio"]].strip()
+                precio_raw = row[col_map["precio"]].replace(".", "").replace(",", ".").strip()
                 try:
                     precio = float(precio_raw)
                 except ValueError:
