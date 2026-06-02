@@ -133,20 +133,29 @@ def importar_csv_lista_precio(request, pk):
                     continue
             else:
                 raise UnicodeDecodeError("No se pudo decodificar el archivo con ninguna codificación conocida.")
-            reader = csv.DictReader(io.StringIO(decoded))
-            col_map = _detectar_columnas(reader.fieldnames)
+            col_map = None
+            reader = None
+            detected_delim = None
+            for delim in [",", ";", "\t"]:
+                reader = csv.DictReader(io.StringIO(decoded), delimiter=delim)
+                col_map = _detectar_columnas([c.strip() for c in reader.fieldnames])
+                if col_map:
+                    detected_delim = delim
+                    break
             if col_map is None:
-                messages.error(request, "El CSV debe tener las columnas: Categoría, Servicio, Precio (ARS)")
+                messages.error(request, f"Columnas detectadas: {reader.fieldnames if reader else 'ninguna'}")
                 return redirect("listaprecio_detail", pk=pk)
 
             creados = 0
-            for row in reader:
+            errores_precio = 0
+            for i, row in enumerate(reader, 1):
                 categoria = row[col_map["categoria"]].strip()
                 servicio = row[col_map["servicio"]].strip()
                 precio_raw = row[col_map["precio"]].replace(".", "").replace(",", ".").strip()
                 try:
                     precio = float(precio_raw)
                 except ValueError:
+                    errores_precio += 1
                     continue
                 ListaPrecioItem.objects.create(
                     lista=lista,
@@ -156,6 +165,8 @@ def importar_csv_lista_precio(request, pk):
                 )
                 creados += 1
 
+            if errores_precio:
+                messages.warning(request, f"Se ignoraron {errores_precio} filas con precio inválido.")
             messages.success(request, f"Se importaron {creados} items correctamente.")
         except Exception as e:
             messages.error(request, f"Error al procesar el archivo: {e}")
