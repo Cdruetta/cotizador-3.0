@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/screenshots/banner.png" alt="Cotizador 3.0 Banner" width="100%">
+  <img src="docs/screenshots/banner2.png" alt="Cotizador 3.0 Banner" width="100%">
 </p>
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue)
