@@ -19,7 +19,7 @@ load_dotenv(REPO_ROOT / ".env")
 load_dotenv(BASE_DIR / ".env")
 
 # --------------------------
-# Monitoreo de Errores (Sentry)
+# Sentry (opcional)
 # --------------------------
 try:
     import sentry_sdk
@@ -27,7 +27,7 @@ except ImportError:
     sentry_sdk = None
 
 if sentry_sdk:
-    SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
+    SENTRY_DSN = os.environ.get("SENTRY_DSN", "").strip()
     if SENTRY_DSN:
         sentry_sdk.init(
             dsn=SENTRY_DSN,
@@ -43,24 +43,41 @@ SECRET_KEY = os.environ.get(
     "django-insecure-change-this-in-production"
 )
 
-DEBUG = os.environ.get("DEBUG", "True") == "True"
+DEBUG = os.environ.get("DEBUG", "True").lower() in {"1", "true", "yes", "on"}
 
-ALLOWED_HOSTS = os.environ.get(
-    "ALLOWED_HOSTS",
-    "localhost,127.0.0.1,gcsof.duckdns.org,cotizador-gcinsumos.onrender.com"
-).split(",")
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get(
+        "ALLOWED_HOSTS",
+        "localhost,127.0.0.1,gcsof.duckdns.org,cotizador-gcinsumos.onrender.com"
+    ).split(",")
+    if host.strip()
+]
 
-CSRF_TRUSTED_ORIGINS = os.environ.get(
-    "CSRF_TRUSTED_ORIGINS",
-    "https://cotizador-gcinsumos.onrender.com"
-).split(",")
-
-# Configuración de CORS necesaria para que el Frontend consuma la API sin bloqueos
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # En desarrollo permite todo, en producción configuralo si es necesario
-CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",") if not DEBUG else []
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get(
+        "CSRF_TRUSTED_ORIGINS",
+        "https://cotizador-gcinsumos.onrender.com"
+    ).split(",")
+    if origin.strip()
+]
 
 # --------------------------
-# Aplicaciones instaladas
+# CORS (CORREGIDO)
+# --------------------------
+raw_cors_origins = os.environ.get("CORS_ALLOWED_ORIGINS", "")
+
+CORS_ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in raw_cors_origins.split(",")
+    if origin.strip()
+]
+
+CORS_ALLOW_ALL_ORIGINS = DEBUG
+
+# --------------------------
+# Apps
 # --------------------------
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -69,14 +86,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    
-    # Librerías de Terceros agregadas para la API
-    "corsheaders",          # Manejo de CORS
-    "rest_framework",       # Django Rest Framework
-    "django_filters",       # Filtros avanzados
-    "drf_yasg",             # Documentación automática Swagger
-    
-    # Aplicación local
+
+    # Terceros
+    "corsheaders",
+    "rest_framework",
+    "django_filters",
+    "drf_yasg",
+
+    # Local
     "cotizaciones",
 ]
 
@@ -87,7 +104,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",  # <-- Agregado antes de CommonMiddleware para CORS
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -96,38 +113,35 @@ MIDDLEWARE = [
 ]
 
 # --------------------------
-# Configuración de Django Rest Framework (DRF)
+# DRF
 # --------------------------
 REST_FRAMEWORK = {
-    # Sistema Seguro de Autenticación Global (Exige JWT por defecto)
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    # Permisos Globales: Endpoints cerrados por defecto a menos que se especifique lo contrario
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
     ),
-    # Motores de Búsqueda y Filtrado Avanzado integrados a nivel global
-    'DEFAULT_FILTER_BACKENDS': (
-        'django_filters.rest_framework.DjangoFilterBackend',
-        'rest_framework.filters.SearchFilter',
-        'rest_framework.filters.OrderingFilter',
+    "DEFAULT_FILTER_BACKENDS": (
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
     ),
 }
 
-# Configuración del comportamiento y expiración de los JWT Tokens
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),   # Duración del Token de acceso
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # Duración del Token de refresco
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'AUTH_HEADER_TYPES': ('Bearer',),                # Formato en cabecera: Authorization: Bearer <token>
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
 # --------------------------
-# URLs
+# URLs / WSGI
 # --------------------------
 ROOT_URLCONF = "proyecto.urls"
+WSGI_APPLICATION = "proyecto.wsgi.application"
 
 # --------------------------
 # Templates
@@ -149,10 +163,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "proyecto.wsgi.application"
-
 # --------------------------
-# Base de datos (Railway / Render / SQLite local)
+# Base de datos
 # --------------------------
 def env_bool(name: str, default: bool = False) -> bool:
     value = os.environ.get(name)
@@ -162,8 +174,10 @@ def env_bool(name: str, default: bool = False) -> bool:
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
 DB_SSL_REQUIRE = env_bool("DB_SSL_REQUIRE", default=False)
+
 parsed_database_url = urlparse(DATABASE_URL) if DATABASE_URL else None
 valid_db_schemes = {"postgres", "postgresql", "mysql", "sqlite", "oracle", "mssql"}
+
 is_database_url_valid = bool(
     parsed_database_url and parsed_database_url.scheme in valid_db_schemes
 )
@@ -176,7 +190,8 @@ if is_database_url_valid:
             ssl_require=DB_SSL_REQUIRE,
         )
     }
-elif all(os.environ.get(key) for key in ("DB_NAME", "DB_USER", "DB_PASSWORD", "DB_HOST")):
+
+elif all(os.environ.get(k) for k in ("DB_NAME", "DB_USER", "DB_PASSWORD", "DB_HOST")):
     db_options = {}
     if DB_SSL_REQUIRE:
         db_options["sslmode"] = "require"
@@ -193,6 +208,7 @@ elif all(os.environ.get(key) for key in ("DB_NAME", "DB_USER", "DB_PASSWORD", "D
             "OPTIONS": db_options,
         }
     }
+
 elif DEBUG:
     DATABASES = {
         "default": {
@@ -200,20 +216,15 @@ elif DEBUG:
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
+
 else:
-    invalid_database_url_msg = ""
-    if DATABASE_URL and not is_database_url_valid:
-        invalid_database_url_msg = (
-            " DATABASE_URL es invalida (debe comenzar con un esquema soportado, por ejemplo: postgresql://...)."
-        )
     raise Exception(
-        "No hay configuración de base de datos."
-        f"{invalid_database_url_msg} "
+        "No hay configuración de base de datos válida. "
         "Definí DATABASE_URL o DB_NAME/DB_USER/DB_PASSWORD/DB_HOST."
     )
 
 # --------------------------
-# Validadores de contraseña
+# Password validators
 # --------------------------
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -226,22 +237,15 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internacionalización
 # --------------------------
 LANGUAGE_CODE = "es-es"
-
 TIME_ZONE = "America/Argentina/Buenos_Aires"
-
 USE_I18N = True
-
 USE_TZ = True
 
 # --------------------------
-# Archivos estáticos
+# Static files
 # --------------------------
 STATIC_URL = "/static/"
-
-STATICFILES_DIRS = [
-    BASE_DIR / "static"
-]
-
+STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STORAGES = {
@@ -254,7 +258,7 @@ STORAGES = {
 }
 
 # --------------------------
-# Archivos media
+# Media
 # --------------------------
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -267,7 +271,7 @@ LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/login/"
 
 # --------------------------
-# Mensajes Bootstrap
+# Messages
 # --------------------------
 MESSAGE_TAGS = {
     messages.DEBUG: "secondary",
@@ -283,7 +287,7 @@ MESSAGE_TAGS = {
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # --------------------------
-# Email SMTP
+# Email
 # --------------------------
 EMAIL_BACKEND = os.environ.get(
     "EMAIL_BACKEND",
@@ -291,13 +295,9 @@ EMAIL_BACKEND = os.environ.get(
 )
 
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
-
 EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
-
-EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True") == "True"
-
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True").lower() in {"true", "1", "yes", "on"}
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
-
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 
 DEFAULT_FROM_EMAIL = os.environ.get(

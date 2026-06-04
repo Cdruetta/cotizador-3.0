@@ -8,7 +8,9 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue)
 
-# 🚀 Cotizador 3.0
+# 🚀 Sistema integral de gestión comercial
+🌐 Demo en vivo: https://gcsoft-demo.onrender.com/  
+👉 Sistema funcional desplegado en producción
 
 Sistema integral de gestión comercial desarrollado con **Django**, **Django REST Framework**, **Next.js** y **TypeScript**.
 
@@ -17,6 +19,7 @@ Diseñado para servicios técnicos, comercios y pequeñas empresas que necesitan
 ---
 
 ## ✨ Características
+
 
 ### 👥 Gestión Comercial
 
@@ -61,6 +64,14 @@ Diseñado para servicios técnicos, comercios y pequeñas empresas que necesitan
 * Endpoints REST
 * Serialización de datos mediante Django REST Framework
 * Preparado para integraciones externas
+
+### 🌐 Demo en vivo
+
+Podés probar el sistema funcionando en producción:
+
+👉 https://gcsoft-demo.onrender.com/
+
+El sistema está desplegado con backend en Render y base de datos PostgreSQL en Neon.
 
 ---
 
@@ -340,3 +351,7 @@ GitHub: https://github.com/Cdruetta
 ## 📄 Licencia
 
 Proyecto de uso educativo y profesional.
+
+## 🌐 Demo
+
+https://gcsoft-demo.onrender.com/
