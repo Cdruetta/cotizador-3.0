@@ -11,8 +11,9 @@
 <<<<<<< HEAD
 # 🚀 Sistema Integral de Gestion Comercial
 
-🌐 Demo en vivo: https://gcsoft-demo.onrender.com/
-User: demo
+🌐 Demo en vivo: https://gcsoft-demo.onrender.com/  
+
+User: demo  
 Pass: demo123
 
 Sistema integral de gestión comercial desarrollado con **Django**, **Django REST Framework**, **Next.js** y **TypeScript**.
