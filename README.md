@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/screenshots/banner.png" alt="Cotizador 3.0 Banner" width="100%">
+</p>
+
 ![Python](https://img.shields.io/badge/Python-3.x-blue)
 ![Django](https://img.shields.io/badge/Django-4.x-green)
 ![Next.js](https://img.shields.io/badge/Next.js-15-black)
