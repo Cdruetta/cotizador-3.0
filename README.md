@@ -8,7 +8,6 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue)
 
-<<<<<<< HEAD
 # 🚀 Sistema Integral de Gestion Comercial
 
 🌐 Demo en vivo: https://gcsoft-demo.onrender.com/  
