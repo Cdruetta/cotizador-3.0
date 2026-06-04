@@ -9,9 +9,11 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue)
 
 <<<<<<< HEAD
-# 🚀 Cotizador 3.0
+# 🚀 Sistema Integral de Gestion Comercial
 
 🌐 Demo en vivo: https://gcsoft-demo.onrender.com/
+User: demo
+Pass: demo123
 
 Sistema integral de gestión comercial desarrollado con **Django**, **Django REST Framework**, **Next.js** y **TypeScript**.
 
