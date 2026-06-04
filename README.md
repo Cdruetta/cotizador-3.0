@@ -8,9 +8,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue)
 
-# 🚀 Sistema integral de gestión comercial
-🌐 Demo en vivo: https://gcsoft-demo.onrender.com/  
-👉 Sistema funcional desplegado en producción
+# 🚀 Cotizador 3.0
 
 Sistema integral de gestión comercial desarrollado con **Django**, **Django REST Framework**, **Next.js** y **TypeScript**.
 
