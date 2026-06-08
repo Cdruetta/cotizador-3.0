@@ -64,6 +64,28 @@ CSRF_TRUSTED_ORIGINS = [
     if origin.strip()
 ]
 
+# If ALLOWED_HOSTS wasn't provided explicitly, try to auto-add the Render
+# external hostname (Render injects RENDER_EXTERNAL_HOSTNAME / RENDER_EXTERNAL_URL).
+# This helps avoid 400 Bad Request responses when deploying on Render without
+# having to manually set ALLOWED_HOSTS in the UI. We only append this as a
+# fallback and do not override an explicit ALLOWED_HOSTS value.
+if (not ALLOWED_HOSTS) or set(ALLOWED_HOSTS) <= {"localhost", "127.0.0.1"}:
+    render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME") or os.environ.get("RENDER_EXTERNAL_URL")
+    if render_host:
+        # Normalize: strip scheme and trailing slashes
+        render_host = render_host.replace("https://", "").replace("http://", "").strip("/ ")
+        if render_host and render_host not in ALLOWED_HOSTS:
+            ALLOWED_HOSTS.append(render_host)
+
+    # Ensure CSRF_TRUSTED_ORIGINS contains the https:// origin for the host
+    for host in ALLOWED_HOSTS:
+        if host and host not in ("localhost", "127.0.0.1"):
+            origin = host
+            if not origin.startswith("http://") and not origin.startswith("https://"):
+                origin = f"https://{origin}"
+            if origin not in CSRF_TRUSTED_ORIGINS:
+                CSRF_TRUSTED_ORIGINS.append(origin)
+
 # --------------------------
 # CORS (CORREGIDO)
 # --------------------------
