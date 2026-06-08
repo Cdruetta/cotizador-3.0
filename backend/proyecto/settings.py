@@ -436,10 +436,12 @@ AXES_META_PRECEDENCE_ORDER = os.environ.get(
 CONTENT_SECURITY_POLICY = {
     'DIRECTIVES': {
         'default-src': ("'self'",),
-        'script-src': ("'self'", "https://cdn.jsdelivr.net"),
-        'style-src': ("'self'", "https://cdn.jsdelivr.net"),
+    'script-src': ("'self'", "https://cdn.jsdelivr.net"),
+        # Allow external CDN for styles and permit inline styles which are
+        # still used by some templates. Also allow Google Fonts resources.
+        'style-src': ("'self'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com", "'unsafe-inline'"),
         'img-src': ("'self'", "data:"),
-        'font-src': ("'self'", "https://cdn.jsdelivr.net"),
+        'font-src': ("'self'", "https://cdn.jsdelivr.net", "https://fonts.gstatic.com"),
         'connect-src': ("'self'",),
     }
 }
