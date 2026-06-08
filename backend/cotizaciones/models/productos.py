@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.core.validators import MinValueValidator
 from django.db import models
+from simple_history.models import HistoricalRecords
 
 
 class Producto(models.Model):
@@ -11,7 +12,7 @@ class Producto(models.Model):
         ("servicio_hard", "Servicio (Hardware)"),
     ]
 
-    nombre = models.CharField(max_length=255, verbose_name="Nombre")
+    nombre = models.CharField(max_length=255, verbose_name="Nombre", db_index=True)
     descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción")
     tipo = models.CharField(
         max_length=20,
@@ -26,11 +27,12 @@ class Producto(models.Model):
         verbose_name="Precio Unitario",
         default=0,
     )
-    stock = models.PositiveIntegerField(default=0, verbose_name="Stock")
+    stock = models.PositiveIntegerField(default=0, verbose_name="Stock", db_index=True)
     proveedor = models.ForeignKey("Proveedor", on_delete=models.CASCADE, verbose_name="Proveedor")
     activo = models.BooleanField(default=True, verbose_name="Activo")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Producto"

@@ -43,13 +43,14 @@ SECRET_KEY = os.environ.get(
     "django-insecure-change-this-in-production"
 )
 
-DEBUG = os.environ.get("DEBUG", "True").lower() in {"1", "true", "yes", "on"}
+# Por seguridad, el default es False en caso de no especificar DEBUG.
+DEBUG = os.environ.get("DEBUG", "False").lower() in {"1", "true", "yes", "on"}
 
 ALLOWED_HOSTS = [
     host.strip()
     for host in os.environ.get(
         "ALLOWED_HOSTS",
-        "localhost,127.0.0.1,gcsof.duckdns.org,cotizador-gcinsumos.onrender.com"
+        "localhost,127.0.0.1"
     ).split(",")
     if host.strip()
 ]
@@ -74,7 +75,41 @@ CORS_ALLOWED_ORIGINS = [
     if origin.strip()
 ]
 
-CORS_ALLOW_ALL_ORIGINS = DEBUG
+# Solo permitir todos los orígenes en modo DEBUG explícito.
+CORS_ALLOW_ALL_ORIGINS = bool(DEBUG)
+
+# --------------------------
+# Seguridad adicional
+# --------------------------
+# Aseguramos valores seguros por defecto en producción
+if not DEBUG:
+    # Exigir SECRET_KEY real en producción
+    if not os.environ.get("SECRET_KEY") or SECRET_KEY == "django-insecure-change-this-in-production":
+        raise Exception("En producción es necesario definir SECRET_KEY en las variables de entorno.")
+
+    # Cookies seguras
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = os.environ.get("SESSION_COOKIE_SAMESITE", "Lax")
+
+    # Forzar HTTPS y HSTS
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = int(os.environ.get("SECURE_HSTS_SECONDS", 31536000))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get("SECURE_HSTS_INCLUDE_SUBDOMAINS", "True").lower() in {"1","true","yes"}
+    SECURE_HSTS_PRELOAD = os.environ.get("SECURE_HSTS_PRELOAD", "True").lower() in {"1","true","yes"}
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# En entornos de desarrollo locales se permiten configuraciones menos estrictas
+else:
+    # Por claridad, si se está en DEBUG dejamos explicítamente estos valores para desarrollo
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_HTTPONLY = False
+    SESSION_COOKIE_SAMESITE = "Lax"
 
 # --------------------------
 # Apps
@@ -92,6 +127,9 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_filters",
     "drf_yasg",
+    "axes",
+    "simple_history",
+    "csp",
 
     # Local
     "cotizaciones",
@@ -108,8 +146,23 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # Django-axes middleware para mitigación de fuerza bruta
+    "axes.middleware.AxesMiddleware",
+    # middleware de historial para registrar cambios en modelos
+    "simple_history.middleware.HistoryRequestMiddleware",
+    # CSP middleware
+    "csp.middleware.CSPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+
+# --------------------------
+# Authentication backends
+# --------------------------
+# AxesStandaloneBackend is required by django-axes v5+ to perform lockouts.
+AUTHENTICATION_BACKENDS = [
+    "axes.backends.AxesStandaloneBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 # --------------------------
@@ -128,6 +181,16 @@ REST_FRAMEWORK = {
         "rest_framework.filters.OrderingFilter",
     ),
 }
+
+# Throttling y límites por defecto para la API
+REST_FRAMEWORK.setdefault("DEFAULT_THROTTLE_CLASSES", (
+    "rest_framework.throttling.AnonRateThrottle",
+    "rest_framework.throttling.UserRateThrottle",
+))
+REST_FRAMEWORK.setdefault("DEFAULT_THROTTLE_RATES", {
+    "anon": os.environ.get("DRF_THROTTLE_ANON", "20/min"),
+    "user": os.environ.get("DRF_THROTTLE_USER", "200/min"),
+})
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
@@ -304,3 +367,68 @@ DEFAULT_FROM_EMAIL = os.environ.get(
     "DEFAULT_FROM_EMAIL",
     "GCinsumos <noreply@gcinsumos.com>"
 )
+
+# ----------------------------------
+# Django-Axes (bloqueo por intentos)
+# ----------------------------------
+AXES_ENABLED = os.environ.get("AXES_ENABLED", "True").lower() in {"1", "true", "yes"}
+AXES_FAILURE_LIMIT = int(os.environ.get("AXES_FAILURE_LIMIT", 5))
+AXES_COOLOFF_TIME = int(os.environ.get("AXES_COOLOFF_TIME", 1))  # minutos
+    # AXES_ONLY_USER_FAILURES was deprecated in django-axes v5+; do not set it here.
+AXES_LOCKOUT_CALLABLE = None
+# Template used when a request is locked out by django-axes. Create the template
+# at backend/templates/axes/lockout.html (provided in repo changes below). The middleware will
+# use this template when a user/IP is locked out.
+AXES_LOCKOUT_TEMPLATE = "axes/lockout.html"
+
+# Spanish user-facing messages (used when cooloff enabled/disabled)
+AXES_COOLOFF_MESSAGE = os.environ.get(
+    "AXES_COOLOFF_MESSAGE",
+    "Cuenta bloqueada: se han realizado demasiados intentos de inicio de sesión. Inténtalo de nuevo más tarde."
+)
+AXES_PERMALOCK_MESSAGE = os.environ.get(
+    "AXES_PERMALOCK_MESSAGE",
+    "Cuenta bloqueada: contacta al administrador para desbloquearla."
+)
+
+# Configure django-axes granularity: lock by username only (no IP lock)
+# - AXES_LOCK_OUT_BY_USERNAME: consider only the username for counting failures
+# - AXES_LOCK_OUT_BY_IP_ADDRESS: do not lock based on IP
+# - AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP: do not require both
+# These can be overridden via environment variables if needed.
+AXES_LOCK_OUT_BY_USERNAME = os.environ.get("AXES_LOCK_OUT_BY_USERNAME", "True").lower() in {"1", "true", "yes"}
+AXES_LOCK_OUT_BY_IP_ADDRESS = os.environ.get("AXES_LOCK_OUT_BY_IP_ADDRESS", "False").lower() in {"1", "true", "yes"}
+AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = os.environ.get(
+    "AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP", "False"
+).lower() in {"1", "true", "yes"}
+
+# If you're behind a proxy/load-balancer, ensure AXES inspects the correct header
+# Example: AXES_META_PRECEDENCE_ORDER = ['HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR']
+AXES_META_PRECEDENCE_ORDER = os.environ.get(
+    "AXES_META_PRECEDENCE_ORDER", "HTTP_X_FORWARDED_FOR,REMOTE_ADDR"
+).split(',')
+
+# -------------------------------
+# Content Security Policy (CSP) - django-csp 4.x+ format
+# Define explicit directives here. Adjust to allow any external CDNs you need.
+CONTENT_SECURITY_POLICY = {
+    'DIRECTIVES': {
+        'default-src': ("'self'",),
+        'script-src': ("'self'", "https://cdn.jsdelivr.net"),
+        'style-src': ("'self'", "https://cdn.jsdelivr.net"),
+        'img-src': ("'self'", "data:"),
+        'font-src': ("'self'", "https://cdn.jsdelivr.net"),
+        'connect-src': ("'self'",),
+    }
+}
+
+# In development we allow some inline styles/scripts and external APIs used by the UI.
+if DEBUG:
+    CONTENT_SECURITY_POLICY['DIRECTIVES'].update({
+        # Allow inline styles/scripts in dev to keep existing templates working
+        'script-src': ("'self'", "https://cdn.jsdelivr.net", "'unsafe-inline'"),
+        'style-src': ("'self'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com", "'unsafe-inline'"),
+        'font-src': ("'self'", "https://cdn.jsdelivr.net", "https://fonts.gstatic.com"),
+        # Allow client-side fetches to these external services used by the UI
+        'connect-src': ("'self'", "https://dolarapi.com", "https://api.open-meteo.com"),
+    })

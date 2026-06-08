@@ -1,0 +1,34 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Acceso bloqueado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      body { background:#f7fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+      .center { max-width: 760px; margin: 48px auto; text-align:center; }
+      .card-illustration { max-width:420px; margin: 0 auto 20px; }
+      .lead-muted { color:#6b7280; }
+      .btn-back { background:#0f172a; color:#fff; border-radius:12px; padding:10px 18px; display:inline-flex; gap:8px; align-items:center; }
+      .notice { text-align:left; background:#fff; padding:14px; border-radius:10px; box-shadow: 0 6px 18px rgba(15,23,42,0.06); display:inline-block; margin-top:18px; }
+    </style>
+  </head>
+  <body>
+    <div class="center">
+      <img class="card-illustration" src="{% static 'images/blocked_access_illustration.png' %}" alt="Acceso bloqueado" />
+      <h1>Acceso bloqueado</h1>
+      <p class="lead lead-muted">Tu cuenta ha sido bloqueada temporalmente por motivos de seguridad.</p>
+
+      <div class="notice">
+        <strong>Hemos detectado actividad inusual</strong>
+        <p class="lead-muted" style="margin:6px 0 0;">Si crees que esto es un error, por favor contacta al administrador.</p>
+      </div>
+
+      <div style="margin-top:20px;">
+        <a href="{% url 'login' %}" class="btn-back">← Volver al inicio de sesión</a>
+      </div>
+    </div>
+  </body>
+</html>

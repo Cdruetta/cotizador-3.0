@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from .clientes import Cliente
 from .productos import Producto
+from simple_history.models import HistoricalRecords
 
 
 class Recibo(models.Model):
@@ -15,7 +16,7 @@ class Recibo(models.Model):
         ("otro", "Otro"),
     ]
 
-    numero = models.CharField(max_length=50, unique=True, verbose_name="Número")
+    numero = models.CharField(max_length=50, unique=True, verbose_name="Número", db_index=True)
     cliente = models.ForeignKey(
         Cliente, on_delete=models.CASCADE, verbose_name="Cliente"
     )
@@ -34,6 +35,7 @@ class Recibo(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Creado")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Actualizado")
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Recibo"

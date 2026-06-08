@@ -1,15 +1,18 @@
 from django.db import models
+from simple_history.models import HistoricalRecords
 
 
 class Cliente(models.Model):
-    nombre = models.CharField(max_length=255, verbose_name="Nombre")
-    email = models.EmailField(blank=True, null=True, verbose_name="Email")
+    nombre = models.CharField(max_length=255, verbose_name="Nombre", db_index=True)
+    email = models.EmailField(blank=True, null=True, verbose_name="Email", db_index=True)
     telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
     direccion = models.TextField(blank=True, null=True, verbose_name="Dirección")
     localidad = models.CharField(max_length=100, blank=True, null=True, verbose_name="Localidad")
     activo = models.BooleanField(default=True, verbose_name="Activo")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # Registro de historial de cambios (auditoría)
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Cliente"

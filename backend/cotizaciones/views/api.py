@@ -89,11 +89,10 @@ class ClienteViewSet(viewsets.ModelViewSet):
     serializer_class = ClienteSerializer
     permission_classes = [permissions.IsAuthenticated, EsAdministradorOReadOnly]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    
-    # ✨ Limpio de 'condicion_iva'
-    filterset_fields = [] 
-    search_fields = ['razon_social', 'cuit', 'email', 'telefono']
-    ordering_fields = ['razon_social', 'id']
+    # Campos correctos según modelo Cliente
+    filterset_fields = ['activo']
+    search_fields = ['nombre', 'email', 'telefono']
+    ordering_fields = ['nombre', 'id']
 
 
 class ProductoViewSet(viewsets.ModelViewSet):
@@ -101,10 +100,9 @@ class ProductoViewSet(viewsets.ModelViewSet):
     serializer_class = ProductoSerializer
     permission_classes = [permissions.IsAuthenticated, EsAdministradorOReadOnly]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    
-    # ✨ Quitamos el filtro exacto por objeto para evitar conflictos de introspección
-    filterset_fields = [] 
-    search_fields = ['codigo', 'nombre', 'descripcion', 'marca']
+    # Filtros según campos reales del modelo Producto
+    filterset_fields = ['tipo', 'activo', 'proveedor']
+    search_fields = ['nombre', 'descripcion']
     ordering_fields = ['precio_unitario', 'stock', 'nombre']
 
 
@@ -113,10 +111,9 @@ class CotizacionViewSet(viewsets.ModelViewSet):
     serializer_class = CotizacionSerializer
     permission_classes = [permissions.IsAuthenticated, EsAdministradorOReadOnly]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    
-    # Filtro nativo por estado (ej: ?estado=Borrador o ?estado=Aprobada)
-    filterset_fields = ['estado'] 
-    search_fields = ['nro_cotizacion', 'observaciones', 'cliente__razon_social']
+    # Filtro nativo por estado
+    filterset_fields = ['estado', 'tipo_documento']
+    search_fields = ['numero', 'observaciones', 'cliente__nombre']
     ordering_fields = ['fecha', 'total', 'id']
     ordering = ['-fecha']
 
@@ -126,7 +123,7 @@ class CotizacionItemViewSet(viewsets.ModelViewSet):
     serializer_class = CotizacionItemSerializer
     permission_classes = [permissions.IsAuthenticated, EsAdministradorOReadOnly]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = []
+    filterset_fields = ['cotizacion', 'producto']
 
 
 class FacturaViewSet(viewsets.ModelViewSet):
@@ -134,8 +131,6 @@ class FacturaViewSet(viewsets.ModelViewSet):
     serializer_class = FacturaSerializer
     permission_classes = [permissions.IsAuthenticated, EsAdministradorOReadOnly]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    
-    # ✨ CORREGIDO: Eliminamos 'estado_pago' y 'cotizacion' que hacían explotar el backend
-    filterset_fields = [] 
-    search_fields = ['nro_factura', 'cae', 'cotizacion__nro_cotizacion']
-    ordering_fields = ['fecha_emision', 'id']
+    filterset_fields = ['estado', 'punto_venta']
+    search_fields = ['numero', 'cae', 'cliente__nombre']
+    ordering_fields = ['fecha', 'id']

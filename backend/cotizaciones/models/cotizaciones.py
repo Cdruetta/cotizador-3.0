@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.urls import reverse
+from simple_history.models import HistoricalRecords
 
 
 class Cotizacion(models.Model):
@@ -18,6 +19,7 @@ class Cotizacion(models.Model):
         blank=True,
         null=True,
         verbose_name="Número",
+        db_index=True,
     )
     cliente = models.ForeignKey("Cliente", on_delete=models.CASCADE, verbose_name="Cliente")
     tipo_documento = models.CharField(
@@ -73,6 +75,7 @@ class Cotizacion(models.Model):
     email_enviado = models.BooleanField(default=False, verbose_name="Email enviado")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Cotización"

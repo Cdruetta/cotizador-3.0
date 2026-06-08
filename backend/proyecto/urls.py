@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import permissions
+from django.conf import settings
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
@@ -10,6 +11,11 @@ from drf_yasg import openapi
 # ==============================================================================
 # 📚 CONFIGURACIÓN DE SWAGGER (DOCUMENTACIÓN INTERACTIVA)
 # ==============================================================================
+schema_permissions = (permissions.AllowAny,)
+if not getattr(settings, 'DEBUG', False):
+    # En producción exigimos que sea admin
+    schema_permissions = (permissions.IsAdminUser,)
+
 schema_view = get_schema_view(
    openapi.Info(
        title="API de Cotizaciones y Facturación",
@@ -17,7 +23,7 @@ schema_view = get_schema_view(
        description="Documentación interactiva de endpoints, filtros y autenticación JWT",
    ),
    public=True,
-   permission_classes=(permissions.AllowAny,),
+   permission_classes=schema_permissions,
 )
 
 # ==============================================================================
@@ -34,6 +40,9 @@ urlpatterns = [
     path('', include('cotizaciones.urls')),
     
     # 📊 4. Swagger UI y ReDoc
+    # Documentación API (swagger/reDoc). En despliegues de producción el acceso
+    # debe restringirse mediante una configuración de entorno que cambie
+    # `permission_classes` o bloqueé el path a nivel de proxy.
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
