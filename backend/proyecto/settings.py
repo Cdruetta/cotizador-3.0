@@ -395,7 +395,35 @@ DEFAULT_FROM_EMAIL = os.environ.get(
 # ----------------------------------
 AXES_ENABLED = os.environ.get("AXES_ENABLED", "True").lower() in {"1", "true", "yes"}
 AXES_FAILURE_LIMIT = int(os.environ.get("AXES_FAILURE_LIMIT", 5))
-AXES_COOLOFF_TIME = int(os.environ.get("AXES_COOLOFF_TIME", 1))  # minutos
+
+# AXES_COOLOFF_TIME controls how long a lockout lasts (cool-off). Older
+# configuration was ambiguous (an int was interpreted as hours by django-axes).
+# To make this explicit we prefer minutes via AXES_COOLOFF_TIME_MINUTES. The
+# value stored in settings.AXES_COOLOFF_TIME will be a datetime.timedelta so
+# django-axes receives an unambiguous duration.
+#
+# Usage:
+# - Set AXES_COOLOFF_TIME_MINUTES=15  (for a 15 minute cool-off)
+# - For backward compatibility, if AXES_COOLOFF_TIME_MINUTES is not set we
+#   will fall back to AXES_COOLOFF_TIME (and try to interpret it as minutes).
+# - If neither is set, default to 15 minutes.
+
+_cooloff_val = os.environ.get("AXES_COOLOFF_TIME_MINUTES") or os.environ.get("AXES_COOLOFF_TIME")
+if _cooloff_val is None:
+    # default cool-off 15 minutes
+    AXES_COOLOFF_TIME = timedelta(minutes=15)
+else:
+    _cooloff_val = _cooloff_val.strip()
+    if _cooloff_val.lower() in {"none", "null", ""}:
+        AXES_COOLOFF_TIME = None
+    else:
+        try:
+            # Interpret numeric values as minutes (allow floats for fractional minutes)
+            minutes = float(_cooloff_val)
+            AXES_COOLOFF_TIME = timedelta(minutes=minutes)
+        except Exception:
+            # If it's not a number, pass through the value (could be a callable path)
+            AXES_COOLOFF_TIME = _cooloff_val
     # AXES_ONLY_USER_FAILURES was deprecated in django-axes v5+; do not set it here.
 AXES_LOCKOUT_CALLABLE = None
 # Template used when a request is locked out by django-axes. Create the template
