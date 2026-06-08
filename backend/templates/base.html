@@ -251,25 +251,29 @@ body {
 .sidebar-search {
   display: flex;
   align-items: center;
-  gap: .3rem;
-  padding: .35rem .65rem;
-  margin: .1rem .75rem 0;
-  background: transparent;
-  border-radius: 4px;
-  transition: background .2s;
+  gap: .4rem;
+  padding: .25rem .5rem;
+  margin: .2rem .75rem 0;
+  background: rgba(255,255,255,0.03); /* subtle translucent bg */
+  border: 1px solid rgba(255,255,255,0.03);
+  border-radius: 8px;
+  transition: background .18s, border-color .18s, box-shadow .18s;
   flex-shrink: 0;
   white-space: nowrap;
   overflow: hidden;
 }
 
 .sidebar-search:focus-within {
-  background: var(--sidebar-search-focus);
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.06);
+  box-shadow: 0 4px 18px rgba(0,0,0,0.12);
 }
 
 .sidebar-search .gc-search-icon {
   color: var(--sidebar-search-icon);
-  font-size: .8rem;
+  font-size: .78rem;
   flex-shrink: 0;
+  opacity: 0.85;
 }
 
 .sidebar-search .gc-search-input {
@@ -277,13 +281,15 @@ body {
   border: none;
   outline: none;
   color: var(--sidebar-search-text);
-  font-size: .75rem;
+  font-size: .78rem;
   width: 100%;
   min-width: 0;
+  padding: .15rem 0;
 }
 
 .sidebar-search .gc-search-input::placeholder {
   color: var(--sidebar-search-placeholder);
+  opacity: 0.8;
 }
 
 #sidebar.collapsed .sidebar-search {
