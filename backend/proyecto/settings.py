@@ -430,6 +430,12 @@ AXES_META_PRECEDENCE_ORDER = os.environ.get(
     "AXES_META_PRECEDENCE_ORDER", "HTTP_X_FORWARDED_FOR,REMOTE_ADDR"
 ).split(',')
 
+# Backwards-compatible flag for django-axes: when True, axes will consider only
+# the username when counting failures. This maps older configuration keys
+# (AXES_ONLY_USER_FAILURES) to our current AXES_LOCK_OUT_BY_USERNAME flag so
+# the library picks username-only lockouts instead of IP-based lockouts.
+AXES_ONLY_USER_FAILURES = AXES_LOCK_OUT_BY_USERNAME
+
 # -------------------------------
 # Content Security Policy (CSP) - django-csp 4.x+ format
 # Define explicit directives here. Adjust to allow any external CDNs you need.
