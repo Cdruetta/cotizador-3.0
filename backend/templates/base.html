@@ -927,16 +927,7 @@ body {
   </div>
 
   <div class="sidebar-footer">
-    <i class="bi bi-person-circle me-2"></i>
-    <span class="lbl">
-      {{ user.get_full_name|default:user.username }}
-    </span>
-    <form method="post" action="{% url 'logout' %}" class="ms-auto d-inline">
-      {% csrf_token %}
-      <button type="submit" class="btn p-0 border-0 text-white" title="Cerrar Sesión" style="background:none;">
-        <i class="bi bi-box-arrow-right"></i>
-      </button>
-    </form>
+    <!-- User display and logout removed from sidebar -->
   </div>
 </nav>
 <div class="sidebar-backdrop"></div>
@@ -1009,9 +1000,7 @@ body {
             {{ user.username|slice:":2" }}
           {% endif %}
         </div>
-        <span class="fw-semibold d-none d-md-inline" style="font-size: 0.88rem;color:var(--topbar-color);">
-          {{ user.get_full_name|default:user.username }}
-        </span>
+        <!-- Username display removed from topbar (kept avatar) -->
       </a>
       <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="userDropdown" style="border-radius: 12px; min-width: 180px; background: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;">
         <li><h6 class="dropdown-header text-muted">Sesión: {{ user.username }}</h6></li>
