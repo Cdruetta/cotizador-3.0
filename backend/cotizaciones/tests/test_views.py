@@ -22,19 +22,19 @@ class ViewTestCase(TestCase):
         self.assertRedirects(response, "/login/?next=/")
 
     def test_dashboard_view(self):
-        self.client.login(username="testuser", password="testpass123")
+        self.client.force_login(self.user)
         response = self.client.get(reverse("dashboard"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Dashboard")
 
     def test_cliente_list_view(self):
-        self.client.login(username="testuser", password="testpass123")
+        self.client.force_login(self.user)
         response = self.client.get(reverse("cliente_list"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Cliente Test")
 
     def test_cliente_create_view(self):
-        self.client.login(username="testuser", password="testpass123")
+        self.client.force_login(self.user)
         response = self.client.post(
             reverse("cliente_create"),
             {"nombre": "Nuevo Cliente", "telefono": "555-1234", "email": "nuevo@cliente.com"},

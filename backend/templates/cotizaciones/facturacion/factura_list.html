@@ -5,6 +5,14 @@ Facturas
 {% endblock %}
 
 {% block content %}
+<style>
+  @media (max-width: 767px) {
+    .factura-table th:nth-child(3),
+    .factura-table td:nth-child(3),
+    .factura-table th:nth-child(5),
+    .factura-table td:nth-child(5) { display: none; }
+  }
+</style>
 
 <!-- Header -->
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
@@ -51,7 +59,7 @@ Facturas
 
     <div class="table-responsive">
 
-      <table class="table mb-0 align-middle">
+      <table class="table mb-0 align-middle factura-table">
 
         <thead>
           <tr>

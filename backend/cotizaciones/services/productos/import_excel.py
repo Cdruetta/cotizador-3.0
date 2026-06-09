@@ -118,12 +118,12 @@ def _upsert_producto(data: dict[str, Any]) -> tuple[str, Producto]:
         if proveedor:
             existente.proveedor = proveedor
         existente.save()
-        return ("actualizado", existente)
+        return ("actualizados", existente)
 
     if not proveedor:
         raise ValueError("Se requiere proveedor para crear un producto nuevo")
     obj = Producto.objects.create(**defaults)
-    return ("creado", obj)
+    return ("creados", obj)
 
 
 def importar_productos_desde_archivo(archivo) -> dict:

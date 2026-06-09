@@ -80,33 +80,129 @@ body:not(.auth-page) .form-select:focus {
   #main-content { margin-left: 0 !important; padding-top: 0 !important; }
 }
 
-/* Mobile extra small (menos de 480px) */
-@media (max-width: 480px) {
-  .page-inner { padding: 0 1rem 1.5rem !important; }
-  .btn-group-sm .btn { padding: .25rem .4rem; font-size: .75rem; }
-}
-
 /* =========================
-   RESPONSIVE GLOBAL (tables)
-   - Evita desbordes horizontales inesperados
-   - Permite scroll cuando sea necesario
+   RESPONSIVE GLOBAL
 ========================= */
 
-/* En general: que tablas no rompan el layout */
-.table {
-  margin-bottom: 0;
-}
-
-/* Si hay contenido largo (nombres/comprobantes), permitir scroll horizontal en vez de romper */
-.table-responsive {
+/* Table responsive wrapper - se aplica a TODAS las tablas automáticamente
+   para evitar overflow horizontal */
+.table-responsive,
+table:not(.table-responsive) {
+  display: block;
+  width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Evitar que celdas hagan “white-space: nowrap” global sin control */
+.table {
+  margin-bottom: 0;
+  width: 100%;
+}
+
 .table td, .table th {
   white-space: normal;
 }
 
-/* Si alguna pantalla requiere nowrap (p.ej. íconos), usar clases locales en templates */
+/* Desktop: minimo 992px se restaura display normal en tablas */
+@media (min-width: 992px) {
+  table:not(.table-responsive) {
+    display: table;
+  }
+}
+
+/* Tablet */
+@media (max-width: 991px) {
+  .page-inner { padding: 0 1rem 1.5rem !important; }
+  
+  /* Columnas ocultas automáticas según prioridad */
+  .table td:nth-child(n+6),
+  .table th:nth-child(n+6) {
+    display: none;
+  }
+  
+  .d-mid-none { display: none !important; }
+  
+  /* Cards y contenedores */
+  .card-body { padding: 1rem !important; }
+  .container-fluid { padding-left: .75rem; padding-right: .75rem; }
+  
+  /* Botones en toolbar */
+  .btn-toolbar { gap: .35rem; }
+  .btn-group { flex-wrap: wrap; }
+  
+  /* Header de página */
+  .page-header { 
+    flex-direction: column !important; 
+    align-items: flex-start !important;
+    gap: .75rem !important;
+  }
+  .page-header .d-flex.gap-2 {
+    flex-wrap: wrap;
+  }
+  
+  /* Filter cards */
+  .filter-card .row {
+    --bs-gutter-y: .5rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  /* Tablas: ocultar columnas menos prioritarias */
+  .table td:nth-child(n+4),
+  .table th:nth-child(n+4) {
+    display: none;
+  }
+  .table td:nth-child(2),
+  .table th:nth-child(2) {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* Columnas con clase específica para ocultar en mobile */
+  .d-mobile-none { display: none !important; }
+  
+  .page-inner { padding: 0 .75rem 1rem !important; }
+  
+  /* Cards full width */
+  .card { margin-bottom: .75rem; }
+  
+  /* Header actions apilados */
+  .page-header h2 { font-size: 1.25rem !important; }
+  .page-header .btn { font-size: .8rem; padding: .3rem .6rem; }
+  
+  /* Toolbar de acciones en tablas */
+  .btn-group .btn { padding: .2rem .45rem; font-size: .75rem; }
+  
+  /* Tabla: reducir padding */
+  .table td, .table th { padding: .4rem .35rem !important; font-size: .8rem; }
+  
+  /* Ocultar dólar y clima en mobile */
+  #gc-dolar-wrap { display: none !important; }
+  #gc-clima { display: none !important; }
+  
+  /* Sidebar mobile backdrop */
+  #sidebar.mobile-open::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: -1;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .page-inner { padding: 0 .5rem .75rem !important; }
+  .btn-group-sm .btn { padding: .25rem .4rem; font-size: .75rem; }
+  
+  .table td, .table th { padding: .3rem .25rem !important; font-size: .75rem; }
+  
+  .btn { font-size: .78rem; padding: .3rem .6rem; }
+  .card-body { padding: .75rem !important; }
+  
+  .page-header h2 { font-size: 1.1rem !important; }
+}
 

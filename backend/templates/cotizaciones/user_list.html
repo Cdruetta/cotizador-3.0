@@ -2,6 +2,14 @@
 {% block title %}Usuarios · GCinsumos{% endblock %}
 
 {% block content %}
+<style>
+@media (max-width: 767px) {
+  .table-users td:nth-child(3),
+  .table-users th:nth-child(3),
+  .table-users td:nth-child(4),
+  .table-users th:nth-child(4) { display: none; }
+}
+</style>
 <div class="d-flex align-items-center justify-content-between mb-4">
   <div>
     <h4 class="fw-bold mb-0" style="color:#1e3c72"><i class="bi bi-people-fill me-2"></i>Usuarios</h4>

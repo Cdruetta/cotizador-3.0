@@ -1,8 +1,17 @@
-# proyecto/test_settings.py
-
-# 1. Importas toda tu configuración actual
 from .settings import *
 
-# 2. Sobrescribes solo el motor de archivos estáticos
-# Esto le dice a Django: "Para las pruebas, usa el almacenamiento normal, no busques manifiestos"
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
+# Deshabilitar django-axes en tests
+MIDDLEWARE = [m for m in MIDDLEWARE if m != 'axes.middleware.AxesMiddleware']
+AXES_ENABLED = False
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]

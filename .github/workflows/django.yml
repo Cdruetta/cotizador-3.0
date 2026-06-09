@@ -2,9 +2,9 @@ name: Django CI
 
 on:
   push:
-    branches: [ "main", "Cd" ]
+    branches: [ main, Cd ]
   pull_request:
-    branches: [ "main", "Cd" ]
+    branches: [ main, Cd ]
 
 jobs:
   test:
@@ -17,19 +17,22 @@ jobs:
     - name: Configurar Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'
+        python-version: '3.12'
 
     - name: Instalar dependencias
       run: |
         python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install -r requirements.txt
 
     - name: Generar archivos estaticos
       run: |
-        python manage.py collectstatic --noinput
+        mkdir -p backend/staticfiles
+        python backend/manage.py collectstatic --noinput
 
     - name: Correr la suite de pruebas
       env:
-        SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        PYTHONPATH: backend
+        DJANGO_SETTINGS_MODULE: proyecto.test_settings
+        DEBUG: "True"
       run: |
-        python manage.py test cotizaciones.tests
+        python -m pytest

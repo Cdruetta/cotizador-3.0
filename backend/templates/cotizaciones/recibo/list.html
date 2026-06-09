@@ -14,6 +14,12 @@
   .forma-tarjeta { background: #f3e8ff; color: #6b21a8; }
   .forma-mercadopago { background: #e0f2fe; color: #075985; }
   .forma-otro { background: #f1f5f9; color: #334155; }
+  @media (max-width: 767px) {
+    .recibo-table th:nth-child(3),
+    .recibo-table td:nth-child(3),
+    .recibo-table th:nth-child(4),
+    .recibo-table td:nth-child(4) { display: none; }
+  }
 </style>
 
 <div class="recibos-page">
@@ -32,7 +38,7 @@
   <div class="card border-0 shadow-sm rounded-3">
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0 recibo-table">
           <thead>
             <tr class="text-muted small fw-bold">
               <th class="ps-3">Nº Recibo</th>

@@ -16,6 +16,12 @@
   .badge-negociacion { background: #fce7f3; color: #9d174d; }
   .badge-ganado { background: #dcfce7; color: #166534; }
   .badge-perdido { background: #fee2e2; color: #991b1b; }
+  @media (max-width: 767px) {
+    .leads-table th:nth-child(5),
+    .leads-table td:nth-child(5),
+    .leads-table th:nth-child(6),
+    .leads-table td:nth-child(6) { display: none; }
+  }
 </style>
 
 <div class="leads-page">
@@ -49,7 +55,7 @@
   <div class="card border-0 shadow-sm rounded-3">
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0 leads-table">
           <thead>
             <tr class="text-muted small fw-bold">
               <th class="ps-3">Nombre</th>

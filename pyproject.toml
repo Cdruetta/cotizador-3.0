@@ -1,0 +1,7 @@
+[tool.coverage.run]
+source = ["backend/cotizaciones"]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "*/management/*",
+]

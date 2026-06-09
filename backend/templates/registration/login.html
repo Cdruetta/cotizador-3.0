@@ -374,9 +374,96 @@
         }
 
         /* ── Responsive ─────────────────────────── */
-        @media (max-width: 820px) {
+        @media (max-width: 1024px) {
             .container {
                 width: 96vw;
+                height: auto;
+                min-height: 90vh;
+                border: none;
+                box-shadow: none;
+                background: transparent;
+            }
+            .curved-shape,
+            .curved-shape2 {
+                display: none;
+            }
+            .container .form-box {
+                position: relative;
+                width: 100%;
+                height: auto;
+                padding: 2rem 1.5rem;
+            }
+            .form-box.Login {
+                left: auto;
+                padding: 2rem 1.5rem;
+            }
+            .form-box.Register {
+                right: auto;
+                padding: 2rem 1.5rem;
+            }
+            .info-content {
+                display: none;
+            }
+            .form-box.Login .animation,
+            .form-box.Register .animation {
+                transform: translateX(0%) !important;
+                opacity: 1 !important;
+                filter: blur(0px) !important;
+            }
+            .container.active .form-box.Login .animation {
+                transform: translateX(0%) !important;
+                opacity: 0 !important;
+                height: 0;
+                padding: 0;
+                margin: 0;
+                overflow: hidden;
+            }
+            .container:not(.active) .form-box.Register .animation {
+                transform: translateX(0%) !important;
+                opacity: 0 !important;
+                height: 0;
+                padding: 0;
+                margin: 0;
+                overflow: hidden;
+            }
+            .name-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            .name-row .input-box {
+                flex: none;
+            }
+            body {
+                background: radial-gradient(ellipse at top, #1a2a52 0%, #0d1626 100%);
+                padding: 1rem;
+            }
+            .brand-footer {
+                position: relative;
+                bottom: auto;
+                margin-top: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                min-height: auto;
+            }
+            .container .form-box {
+                padding: 1.5rem 1rem;
+            }
+            .form-box h2 {
+                font-size: 22px;
+            }
+            .input-box input {
+                font-size: 14px;
+                border-width: 3px;
+            }
+            .btn {
+                height: 40px;
+                font-size: 17px;
+            }
+            .form-box.Register .input-box {
+                margin-top: 20px;
             }
         }
     </style>

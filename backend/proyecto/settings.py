@@ -59,7 +59,7 @@ CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.environ.get(
         "CSRF_TRUSTED_ORIGINS",
-        "https://cotizador-gcinsumos.onrender.com"
+        "http://127.0.0.1:8000,http://localhost:8000,https://cotizador-gcinsumos.onrender.com"
     ).split(",")
     if origin.strip()
 ]
@@ -186,6 +186,9 @@ AUTHENTICATION_BACKENDS = [
     "axes.backends.AxesStandaloneBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
+
+# Silencia el warning de drf-yasg sobre el formato de renderer
+SWAGGER_USE_COMPAT_RENDERERS = False
 
 # --------------------------
 # DRF
@@ -441,28 +444,8 @@ AXES_PERMALOCK_MESSAGE = os.environ.get(
     "Cuenta bloqueada: contacta al administrador para desbloquearla."
 )
 
-# Configure django-axes granularity: lock by username only (no IP lock)
-# - AXES_LOCK_OUT_BY_USERNAME: consider only the username for counting failures
-# - AXES_LOCK_OUT_BY_IP_ADDRESS: do not lock based on IP
-# - AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP: do not require both
-# These can be overridden via environment variables if needed.
-AXES_LOCK_OUT_BY_USERNAME = os.environ.get("AXES_LOCK_OUT_BY_USERNAME", "True").lower() in {"1", "true", "yes"}
-AXES_LOCK_OUT_BY_IP_ADDRESS = os.environ.get("AXES_LOCK_OUT_BY_IP_ADDRESS", "False").lower() in {"1", "true", "yes"}
-AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = os.environ.get(
-    "AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP", "False"
-).lower() in {"1", "true", "yes"}
-
-# If you're behind a proxy/load-balancer, ensure AXES inspects the correct header
-# Example: AXES_META_PRECEDENCE_ORDER = ['HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR']
-AXES_META_PRECEDENCE_ORDER = os.environ.get(
-    "AXES_META_PRECEDENCE_ORDER", "HTTP_X_FORWARDED_FOR,REMOTE_ADDR"
-).split(',')
-
-# Backwards-compatible flag for django-axes: when True, axes will consider only
-# the username when counting failures. This maps older configuration keys
-# (AXES_ONLY_USER_FAILURES) to our current AXES_LOCK_OUT_BY_USERNAME flag so
-# the library picks username-only lockouts instead of IP-based lockouts.
-AXES_ONLY_USER_FAILURES = AXES_LOCK_OUT_BY_USERNAME
+# django-axes 6.x: lockout by username only (no IP lock), 15 min cooloff
+AXES_LOCKOUT_PARAMETERS = ["username"]
 
 # -------------------------------
 # Content Security Policy (CSP) - django-csp 4.x+ format
