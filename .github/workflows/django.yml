@@ -27,12 +27,11 @@ jobs:
     - name: Generar archivos estaticos
       run: |
         mkdir -p backend/staticfiles
-        python backend/manage.py collectstatic --noinput
+        SECRET_KEY=ci-build-secret-key DEBUG=True \
+          python backend/manage.py collectstatic --noinput
 
     - name: Correr la suite de pruebas
-      env:
-        PYTHONPATH: backend
-        DJANGO_SETTINGS_MODULE: proyecto.test_settings
-        DEBUG: "True"
       run: |
-        python -m pytest
+        PYTHONPATH=backend DJANGO_SETTINGS_MODULE=proyecto.test_settings \
+          DEBUG=True SECRET_KEY=ci-test-secret-key \
+          python -m pytest
