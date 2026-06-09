@@ -446,6 +446,11 @@ AXES_PERMALOCK_MESSAGE = os.environ.get(
 
 # django-axes 6.x: lockout by username only (no IP lock), 15 min cooloff
 AXES_LOCKOUT_PARAMETERS = ["username"]
+# Avoid writing AccessLog rows on successful login in this environment
+# to prevent IntegrityError when the DB column `session_hash` is NOT NULL
+# but the value isn't available. This preserves failure logging and lockouts.
+AXES_DISABLE_ACCESS_LOG = True
+AXES_ENABLE_ACCESS_FAILURE_LOG = True
 
 # -------------------------------
 # Content Security Policy (CSP) - django-csp 4.x+ format
