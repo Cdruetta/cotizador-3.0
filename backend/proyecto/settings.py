@@ -458,13 +458,17 @@ AXES_ENABLE_ACCESS_FAILURE_LOG = True
 CONTENT_SECURITY_POLICY = {
     'DIRECTIVES': {
         'default-src': ("'self'",),
-    'script-src': ("'self'", "https://cdn.jsdelivr.net"),
-        # Allow external CDN for styles and permit inline styles which are
-        # still used by some templates. Also allow Google Fonts resources.
+        # Allow CDN scripts; inline scripts restricted via explicit sha256 hashes
+        'script-src': ("'self'", "https://cdn.jsdelivr.net",
+                       "'sha256-7GbE32hpudR4aDGY678Wy9anYrpBmy8SQdb2pWcrEoA='",
+                       "'sha256-p2zKsHI00Z49eykkBb9YjvBueSDKjjAZr3rMoK/innc='",
+                       "'sha256-laWVJxsIthLuiSoreBY2PI/hbMdWvayIhUuTnkfzT4s='") ,
+        # Allow external CDN for styles and permit inline styles in templates
         'style-src': ("'self'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com", "'unsafe-inline'"),
         'img-src': ("'self'", "data:"),
         'font-src': ("'self'", "https://cdn.jsdelivr.net", "https://fonts.gstatic.com"),
-        'connect-src': ("'self'",),
+        # Allow connections to CDN and external widget APIs
+        'connect-src': ("'self'", "https://cdn.jsdelivr.net", "https://dolarapi.com", "https://api.open-meteo.com"),
     }
 }
 
