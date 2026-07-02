@@ -1,4 +1,17 @@
+import os
+
+# Evita que settings.py explote por falta de DATABASE_URL en CI
+os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
+
 from .settings import *
+
+# Forzar SQLite en memoria para tests (no depende de Postgres externo)
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": ":memory:",
+    }
+}
 
 STORAGES = {
     "default": {
