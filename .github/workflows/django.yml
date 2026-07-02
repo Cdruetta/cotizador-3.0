@@ -11,27 +11,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Descargar codigo del repositorio
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Configurar Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
-    - name: Instalar dependencias
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+          pip install pytest-cov
 
-    - name: Generar archivos estaticos
-      run: |
-        mkdir -p backend/staticfiles
-        SECRET_KEY=ci-build-secret-key DEBUG=True \
-          python backend/manage.py collectstatic --noinput
+      # 🧪 DEBUG (solo para diagnosticar)
+      - name: Debug pytest environment
+        run: |
+          python -m pip list | grep pytest
+          python -m pytest --version
 
-    - name: Correr la suite de pruebas
-      run: |
-        PYTHONPATH=backend DJANGO_SETTINGS_MODULE=proyecto.test_settings \
-          DEBUG=True SECRET_KEY=ci-test-secret-key \
-          python -m pytest
+      - name: Collect static files
+        run: |
+          mkdir -p backend/staticfiles
+          SECRET_KEY=ci-build-secret-key DEBUG=True \
+            python backend/manage.py collectstatic --noinput
+
+      - name: Run tests
+        run: |
+          python -m pytest --ds=proyecto.test_settings
