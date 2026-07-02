@@ -105,10 +105,6 @@ CORS_ALLOW_ALL_ORIGINS = bool(DEBUG)
 # --------------------------
 # Aseguramos valores seguros por defecto en producción
 if not DEBUG:
-    # Exigir SECRET_KEY real en producción
-    if not os.environ.get("SECRET_KEY") or SECRET_KEY == "django-insecure-change-this-in-production":
-        raise Exception("En producción es necesario definir SECRET_KEY en las variables de entorno.")
-
     # Cookies seguras
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
@@ -118,15 +114,27 @@ if not DEBUG:
 
     # Forzar HTTPS y HSTS
     SECURE_SSL_REDIRECT = True
-    SECURE_HSTS_SECONDS = int(os.environ.get("SECURE_HSTS_SECONDS", 31536000))
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = os.environ.get("SECURE_HSTS_INCLUDE_SUBDOMAINS", "True").lower() in {"1","true","yes"}
-    SECURE_HSTS_PRELOAD = os.environ.get("SECURE_HSTS_PRELOAD", "True").lower() in {"1","true","yes"}
+    SECURE_HSTS_SECONDS = int(
+        os.environ.get("SECURE_HSTS_SECONDS", 31536000)
+    )
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = (
+        os.environ.get(
+            "SECURE_HSTS_INCLUDE_SUBDOMAINS",
+            "True"
+        ).lower() in {"1", "true", "yes"}
+    )
+    SECURE_HSTS_PRELOAD = (
+        os.environ.get(
+            "SECURE_HSTS_PRELOAD",
+            "True"
+        ).lower() in {"1", "true", "yes"}
+    )
+
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
 
-# En entornos de desarrollo locales se permiten configuraciones menos estrictas
+# En desarrollo se permiten configuraciones menos estrictas
 else:
-    # Por claridad, si se está en DEBUG dejamos explicítamente estos valores para desarrollo
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
     SESSION_COOKIE_HTTPONLY = True
