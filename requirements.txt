@@ -27,6 +27,7 @@ pytest>=7.0
 python-decouple==3.8
 python-dotenv==1.1.1
 qrcode==8.2
+pytest-django
 pytz==2026.2
 PyYAML==6.0.3
 redis==5.0.1
