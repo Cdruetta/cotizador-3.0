@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import (
     ListView, CreateView, UpdateView, DeleteView, DetailView,
 )
@@ -209,8 +210,17 @@ def cambiar_estado_cotizacion(request, cotizacion_id, estado):
         messages.success(request, f"Estado actualizado a: {cotizacion.get_estado_display()}")
     else:
         messages.error(request, f"Estado '{estado}' no es válido.")
+
     next_url = request.META.get('HTTP_REFERER')
-    return redirect(next_url if next_url else "cotizacion_list")
+
+    if next_url and url_has_allowed_host_and_scheme(
+        url=next_url,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return redirect(next_url)
+
+    return redirect("cotizacion_list")
 
 
 # ==============================================================================
@@ -260,5 +270,3 @@ def enviar_cotizacion_email(request, cotizacion_id):
             except Exception as e:
                 messages.error(request, f"Error al enviar: {str(e)}")
     return redirect("cotizacion_detail", pk=cotizacion_id)
-
-
