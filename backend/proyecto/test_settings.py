@@ -5,6 +5,12 @@ os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
 
 from .settings import *
 
+# Forzar modo test: sin HTTPS redirect, sin cookies "secure"
+DEBUG = True
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
 # Forzar SQLite en memoria para tests (no depende de Postgres externo)
 DATABASES = {
     "default": {
