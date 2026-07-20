@@ -14,6 +14,18 @@ class CotizacionForm(forms.ModelForm):
             "observaciones": forms.Textarea(attrs={**WIDGET_CLASS, "rows": 3}),
         }
 
+    def _clean_extra_fields(self):
+        ignored = {"items", "descuento_pct"}
+        for key in ignored:
+            self.data._mutable = True
+            self.data.pop(key, None)
+            self.data._mutable = False
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.data:
+            self._clean_extra_fields()
+
 
 class CotizacionItemForm(forms.ModelForm):
     class Meta:

@@ -105,8 +105,29 @@ class CotizacionUpdateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        if hasattr(self.object, 'calcular_total'):
-            self.object.calcular_total()
+
+        descuento = Decimal(self.request.POST.get("descuento_pct", "0"))
+        self.object.descuento_porcentaje = descuento
+
+        raw = self.request.POST.get("items")
+        if raw:
+            try:
+                items_data = json.loads(raw)
+                self.object.items.all().delete()
+                for itm in items_data:
+                    pid = itm.get("producto_id")
+                    if not pid:
+                        continue
+                    CotizacionItem.objects.create(
+                        cotizacion=self.object,
+                        producto_id=pid,
+                        cantidad=Decimal(itm.get("cantidad", "1")),
+                        precio_unitario=Decimal(itm.get("precio_unitario", "0")),
+                    )
+            except (json.JSONDecodeError, ValueError):
+                pass
+
+        self.object.calcular_total()
         messages.success(self.request, "Cotización actualizada exitosamente.")
         return redirect(self.get_success_url())
 
