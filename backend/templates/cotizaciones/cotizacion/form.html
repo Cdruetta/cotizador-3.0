@@ -141,7 +141,7 @@ let items = [];
 let searchTimeout;
 
 {% if object %}
-{% for item in object.items.select_related "producto" %}
+{% for item in object.items.all %}
 items.push({
   producto_id: {{ item.producto.id }},
   nombre: "{{ item.producto.nombre|escapejs }}",
