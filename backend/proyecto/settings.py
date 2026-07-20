@@ -467,10 +467,7 @@ CONTENT_SECURITY_POLICY = {
     'DIRECTIVES': {
         'default-src': ("'self'",),
         # Allow CDN scripts; inline scripts restricted via explicit sha256 hashes
-        'script-src': ("'self'", "https://cdn.jsdelivr.net",
-                       "'sha256-7GbE32hpudR4aDGY678Wy9anYrpBmy8SQdb2pWcrEoA='",
-                       "'sha256-p2zKsHI00Z49eykkBb9YjvBueSDKjjAZr3rMoK/innc='",
-                       "'sha256-laWVJxsIthLuiSoreBY2PI/hbMdWvayIhUuTnkfzT4s='") ,
+        'script-src': ("'self'", "https://cdn.jsdelivr.net", "'unsafe-inline'") ,
         # Allow external CDN for styles and permit inline styles in templates
         'style-src': ("'self'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com", "'unsafe-inline'"),
         'img-src': ("'self'", "data:"),
