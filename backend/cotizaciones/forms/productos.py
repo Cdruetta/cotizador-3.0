@@ -35,6 +35,15 @@ class ProductoFilterForm(forms.Form):
         choices=[("", "Todos"), ("1", "Activos"), ("0", "Inactivos")],
         widget=forms.Select(attrs={"class": "form-select"}),
     )
+    precio_max = forms.DecimalField(
+        required=False,
+        widget=forms.NumberInput(attrs={"class": "form-control", "placeholder": "Precio máx.", "step": "0.01"}),
+    )
+    tipo = forms.ChoiceField(
+        required=False,
+        choices=[("", "Todos")] + Producto.TIPO_CHOICES,
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

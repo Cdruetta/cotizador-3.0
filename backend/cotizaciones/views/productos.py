@@ -18,7 +18,7 @@ class ProductoListView(LoginRequiredMixin, ListView):
         qs = Producto.objects.select_related("proveedor")
         form = ProductoFilterForm(self.request.GET)
         if form.is_valid():
-            search = form.cleaned_data.get("search")
+            search = form.cleaned_data.get("nombre")
             proveedor = form.cleaned_data.get("proveedor")
             activo = form.cleaned_data.get("activo")
             precio_max = form.cleaned_data.get("precio_max")
@@ -27,9 +27,9 @@ class ProductoListView(LoginRequiredMixin, ListView):
                 qs = qs.filter(Q(nombre__icontains=search) | Q(descripcion__icontains=search))
             if proveedor:
                 qs = qs.filter(proveedor=proveedor)
-            if activo == "true":
+            if activo == "1":
                 qs = qs.filter(activo=True)
-            elif activo == "false":
+            elif activo == "0":
                 qs = qs.filter(activo=False)
             if precio_max:
                 qs = qs.filter(precio_unitario__lte=precio_max)
