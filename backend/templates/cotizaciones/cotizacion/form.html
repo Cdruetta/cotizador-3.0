@@ -140,6 +140,17 @@
 let items = [];
 let searchTimeout;
 
+{% if object %}
+{% for item in object.items.select_related "producto" %}
+items.push({
+  producto_id: {{ item.producto.id }},
+  nombre: "{{ item.producto.nombre|escapejs }}",
+  precio_unitario: {{ item.precio_unitario }},
+  cantidad: {{ item.cantidad }}
+});
+{% endfor %}
+{% endif %}
+
 // ========== Gestión de items ==========
 function agregarItem(id, nombre, precio) {
   const existente = items.find(i => i.producto_id === id);

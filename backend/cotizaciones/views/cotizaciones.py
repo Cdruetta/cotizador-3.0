@@ -40,9 +40,8 @@ class CotizacionListView(LoginRequiredMixin, ListView):
             fecha_hasta = form.cleaned_data.get("fecha_hasta")
             
             if search:
-                # ✨ CORREGIDO: Usamos 'nro_cotizacion' en sintonía con la base de datos
                 qs = qs.filter(
-                    Q(nro_cotizacion__icontains=search) | Q(cliente__razon_social__icontains=search)
+                    Q(numero__icontains=search) | Q(cliente__nombre__icontains=search)
                 )
             if tipo:
                 qs = qs.filter(tipo_documento=tipo)
@@ -159,9 +158,8 @@ class CotizacionDetailView(LoginRequiredMixin, DetailView):
         ctx = super().get_context_data(**kwargs)
         ctx["items"] = self.object.items.select_related("producto")
         
-        # ✨ CORREGIDO: Ajustamos el campo 'nro_cotizacion' y 'razon_social' para el autocompletado
-        cliente_nombre = getattr(self.object.cliente, 'razon_social', getattr(self.object.cliente, 'nombre', 'Cliente'))
-        nro = getattr(self.object, 'nro_cotizacion', self.object.id)
+        cliente_nombre = getattr(self.object.cliente, 'nombre', 'Cliente')
+        nro = getattr(self.object, 'numero', self.object.id)
         
         ctx["email_form"] = EnviarEmailForm(
             initial={
