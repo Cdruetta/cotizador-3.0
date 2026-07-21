@@ -44,9 +44,9 @@ def styles_factura():
 def styles():
     """Retorna estilos generales completos usados por _build_elements."""
     return {
-        'empresa_nombre': ParagraphStyle('EmpresaNombre', fontName='Helvetica-Bold', fontSize=16),
-        'empresa_sub': ParagraphStyle('EmpresaSub', fontName='Helvetica', fontSize=10, textColor=colors.HexColor('#5A6A80')),
-        'doc_titulo': ParagraphStyle('DocTitulo', fontName='Helvetica-Bold', fontSize=22, alignment=TA_RIGHT),
+        'empresa_nombre': ParagraphStyle('EmpresaNombre', fontName='Helvetica-Bold', fontSize=16, textColor=colors.white),
+        'empresa_sub': ParagraphStyle('EmpresaSub', fontName='Helvetica', fontSize=10, textColor=colors.white),
+        'doc_titulo': ParagraphStyle('DocTitulo', fontName='Helvetica-Bold', fontSize=22, alignment=TA_RIGHT, textColor=colors.white),
         'doc_numero_blanco': ParagraphStyle('DocNumero', fontName='Helvetica', fontSize=14, textColor=colors.white, alignment=TA_RIGHT),
         'seccion': ParagraphStyle('Seccion', fontName='Helvetica-Bold', fontSize=12, textColor=colors.HexColor('#1C3A5E'), spaceAfter=4),
         'campo_label': ParagraphStyle('CampoLabel', fontName='Helvetica-Bold', fontSize=9, textColor=colors.HexColor('#5A6A80')),
