@@ -1,4 +1,4 @@
-import os
+﻿import os
 from pathlib import Path
 
 from proyecto.settings import *  # noqa: F403,F401

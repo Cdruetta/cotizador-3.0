@@ -1,12 +1,12 @@
-from django.contrib.auth.decorators import login_required
+﻿from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db.models import Q, Sum
 from django.shortcuts import redirect
 from django.views.generic import ListView
 
-from ..models.productos import Producto
-from ..models.proveedores import Proveedor
+from ..models import Producto
+from ..models import Proveedor
 from ..services.productos.export import (
     productos_queryset_filtrado,
     exportar_productos_excel_response,
@@ -77,7 +77,7 @@ def importar_stock_excel(request):
     if request.method == "POST":
         form = ProductoImportForm(request.POST, request.FILES)
         if not form.is_valid():
-            messages.error(request, "Seleccioná un archivo válido (.xlsx o .csv).")
+            messages.error(request, "SeleccionÃ¡ un archivo vÃ¡lido (.xlsx o .csv).")
             return redirect("stock_list")
 
         archivo = form.cleaned_data["archivo"]
@@ -94,17 +94,17 @@ def importar_stock_excel(request):
         if creados or actualizados:
             messages.success(
                 request,
-                f"Importación lista: {creados} creado(s), {actualizados} actualizado(s).",
+                f"ImportaciÃ³n lista: {creados} creado(s), {actualizados} actualizado(s).",
             )
         else:
-            messages.warning(request, "No se importó ningún producto.")
+            messages.warning(request, "No se importÃ³ ningÃºn producto.")
 
         if errores:
             detalle = "; ".join(f"fila {f}: {msg}" for f, msg in errores[:5])
-            extra = f" (+{len(errores) - 5} más)" if len(errores) > 5 else ""
+            extra = f" (+{len(errores) - 5} mÃ¡s)" if len(errores) > 5 else ""
             messages.warning(request, f"Algunas filas fallaron: {detalle}{extra}")
 
         return redirect("stock_list")
 
-    messages.error(request, "Método no permitido.")
+    messages.error(request, "MÃ©todo no permitido.")
     return redirect("stock_list")

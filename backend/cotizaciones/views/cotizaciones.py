@@ -1,4 +1,4 @@
-import json
+﻿import json
 from decimal import Decimal
 
 from django.contrib import messages
@@ -87,7 +87,7 @@ class CotizacionCreateView(LoginRequiredMixin, CreateView):
                 pass
 
         self.object.calcular_total()
-        messages.success(self.request, "Cotización creada exitosamente.")
+        messages.success(self.request, "CotizaciÃ³n creada exitosamente.")
         return redirect(self.get_success_url())
 
     def get_success_url(self):
@@ -124,7 +124,7 @@ class CotizacionUpdateView(LoginRequiredMixin, UpdateView):
                 pass
 
         self.object.calcular_total()
-        messages.success(self.request, "Cotización actualizada exitosamente.")
+        messages.success(self.request, "CotizaciÃ³n actualizada exitosamente.")
         return redirect(self.get_success_url())
 
     def get_success_url(self):
@@ -137,7 +137,7 @@ class CotizacionDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy("cotizacion_list")
 
     def delete(self, request, *args, **kwargs):
-        messages.success(request, "Cotización eliminada exitosamente.")
+        messages.success(request, "CotizaciÃ³n eliminada exitosamente.")
         return super().delete(request, *args, **kwargs)
 
 
@@ -181,8 +181,8 @@ class CotizacionDetailView(LoginRequiredMixin, DetailView):
         ctx["email_form"] = EnviarEmailForm(
             initial={
                 "email_destino": self.object.cliente.email or "",
-                "asunto": f"Cotización {nro} - GCinsumos",
-                "mensaje": f"Estimado/a {cliente_nombre},\n\nAdjuntamos su cotización.\n\nSaludos,\nGCinsumos",
+                "asunto": f"CotizaciÃ³n {nro} - GCinsumos",
+                "mensaje": f"Estimado/a {cliente_nombre},\n\nAdjuntamos su cotizaciÃ³n.\n\nSaludos,\nGCinsumos",
             }
         )
         return ctx
@@ -221,7 +221,7 @@ def cambiar_estado_cotizacion(request, cotizacion_id, estado):
         cotizacion.save()
         messages.success(request, f"Estado actualizado a: {cotizacion.get_estado_display()}")
     else:
-        messages.error(request, f"Estado '{estado}' no es válido.")
+        messages.error(request, f"Estado '{estado}' no es vÃ¡lido.")
 
     return redirect("cotizacion_detail", pk=cotizacion_id)
 
@@ -242,7 +242,7 @@ def actualizar_descuento_cotizacion(request, cotizacion_id):
             cotizacion.calcular_total()
             messages.success(request, f"Descuento actualizado a {pct}%.")
         except Exception:
-            messages.error(request, "Valor de descuento inválido.")
+            messages.error(request, "Valor de descuento invÃ¡lido.")
     return redirect("cotizacion_detail", pk=cotizacion_id)
 
 
@@ -267,7 +267,7 @@ def enviar_cotizacion_email(request, cotizacion_id):
                 )
                 cotizacion.email_enviado = True
                 cotizacion.save(update_fields=["email_enviado"])
-                messages.success(request, "Email enviado con éxito.")
+                messages.success(request, "Email enviado con Ã©xito.")
             except Exception as e:
                 messages.error(request, f"Error al enviar: {str(e)}")
     return redirect("cotizacion_detail", pk=cotizacion_id)

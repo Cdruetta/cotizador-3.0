@@ -1,11 +1,11 @@
-from django.contrib import messages
+﻿from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView
 from django.contrib.messages.views import SuccessMessageMixin
 
-from ..models.movimientos_stock import MovimientoStock
-from ..models.productos import Producto
+from ..models import MovimientoStock
+from ..models import Producto
 from ..forms.movimientos_stock import MovimientoStockForm
 
 

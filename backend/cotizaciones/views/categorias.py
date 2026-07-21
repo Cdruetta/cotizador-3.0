@@ -1,10 +1,10 @@
-from django.contrib import messages
+﻿from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
 
-from ..models.categorias import Categoria
+from ..models import Categoria
 from ..forms.categorias import CategoriaForm
 
 
@@ -43,7 +43,7 @@ class CategoriaCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     form_class = CategoriaForm
     template_name = "cotizaciones/categoria/form.html"
     success_url = reverse_lazy("categoria_list")
-    success_message = "Categoría creada correctamente."
+    success_message = "CategorÃ­a creada correctamente."
 
 
 class CategoriaUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
@@ -51,13 +51,13 @@ class CategoriaUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     form_class = CategoriaForm
     template_name = "cotizaciones/categoria/form.html"
     success_url = reverse_lazy("categoria_list")
-    success_message = "Categoría actualizada correctamente."
+    success_message = "CategorÃ­a actualizada correctamente."
 
 
 class CategoriaDeleteView(LoginRequiredMixin, DeleteView):
     model = Categoria
     success_url = reverse_lazy("categoria_list")
-    success_message = "Categoría eliminada correctamente."
+    success_message = "CategorÃ­a eliminada correctamente."
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)

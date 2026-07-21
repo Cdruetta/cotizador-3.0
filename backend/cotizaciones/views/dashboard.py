@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+﻿from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 from ..services.analytics.reportes import build_reportes_context

@@ -1,4 +1,4 @@
-from decimal import Decimal
+﻿from decimal import Decimal
 from unittest.mock import patch, MagicMock
 from io import BytesIO
 
@@ -77,7 +77,7 @@ class TestGenerarPdfCotizacion:
 
 
 class TestGenerarPdfBuffer:
-    """Tests de generación real del buffer PDF"""
+    """Tests de generaciÃ³n real del buffer PDF"""
 
     def test_devuelve_pdf_valido(self, cotizacion):
         buffer = generar_pdf_buffer(cotizacion)
@@ -101,7 +101,7 @@ class TestGenerarPdfBuffer:
         assert len(content) > 0
 
     def test_con_observaciones(self, cotizacion):
-        cotizacion.observaciones = "Test observación"
+        cotizacion.observaciones = "Test observaciÃ³n"
         cotizacion.save()
         buffer = generar_pdf_buffer(cotizacion)
         content = buffer.getvalue()

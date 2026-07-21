@@ -1,4 +1,4 @@
-from django.urls import path
+﻿from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
 
@@ -61,10 +61,10 @@ urlpatterns = [
     # Estado
     path('cotizaciones/<int:cotizacion_id>/estado/<str:estado>/', views.cambiar_estado_cotizacion, name='cambiar_estado_cotizacion'),
 
-    # Factura desde cotización
+    # Factura desde cotizaciÃ³n
     path('cotizaciones/<int:cotizacion_id>/crear-factura/', views.crear_factura_desde_cotizacion, name='crear_factura_desde_cotizacion'),
 
-    # Items cotización
+    # Items cotizaciÃ³n
     path('cotizaciones/<int:cotizacion_id>/agregar-item/', views.agregar_item_cotizacion, name='agregar_item_cotizacion'),
     path('items/<int:item_id>/eliminar/', views.eliminar_item_cotizacion, name='eliminar_item_cotizacion'),
 
@@ -86,7 +86,7 @@ urlpatterns = [
     # Comprobantes
     path('comprobantes/', views.ComprobanteListView.as_view(), name='comprobante_list'),
 
-    # Categorías
+    # CategorÃ­as
     path('categorias/', views.CategoriaListView.as_view(), name='categoria_list'),
     path('categorias/crear/', views.CategoriaCreateView.as_view(), name='categoria_create'),
     path('categorias/<int:pk>/editar/', views.CategoriaUpdateView.as_view(), name='categoria_update'),
@@ -131,7 +131,7 @@ urlpatterns = [
     # Reportes
     path('reportes/', views.reportes_view, name='reportes'),
 
-    # Configuración
+    # ConfiguraciÃ³n
     path('configuracion/', views.configuracion, name='configuracion'),
 
     # API Tradicional Interna
@@ -140,7 +140,7 @@ urlpatterns = [
     path('api/pending-cotizaciones/', views.pending_cotizaciones_list, name='pending_cotizaciones_list'),
     path('api/productos/buscar/', views.buscar_productos_ajax, name='buscar_productos_ajax'),
 
-    # Facturación
+    # FacturaciÃ³n
     path('facturacion/', views.FacturaListView.as_view(), name='factura_list'),
     path('facturacion/nueva/', views.FacturaCreateView.as_view(), name='factura_create'),
     path('facturacion/<int:pk>/', views.FacturaDetailView.as_view(), name='factura_detail'),

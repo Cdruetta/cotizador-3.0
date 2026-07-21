@@ -1,4 +1,4 @@
-"""Exportación de clientes a Excel y PDF."""
+﻿"""ExportaciÃ³n de clientes a Excel y PDF."""
 
 from io import BytesIO
 from datetime import datetime
@@ -37,7 +37,7 @@ def exportar_clientes_excel_response(clientes) -> HttpResponse:
     ws = wb.active
     ws.title = "Clientes"
 
-    headers = ["Nombre", "Email", "Teléfono", "Dirección", "Localidad", "Estado"]
+    headers = ["Nombre", "Email", "TelÃ©fono", "DirecciÃ³n", "Localidad", "Estado"]
     header_fill = PatternFill("solid", fgColor="1C3A5E")
     header_font = Font(bold=True, color="FFFFFF", size=11)
 
@@ -99,18 +99,18 @@ def exportar_clientes_pdf_response(clientes) -> HttpResponse:
     )
     fecha_txt = datetime.now().strftime("%d/%m/%Y %H:%M")
     elements = [
-        Paragraph("Listado de clientes — GCinsumos", title_style),
-        Paragraph(f"<font size=9 color='#64748b'>Generado: {fecha_txt} · Total: {len(clientes)}</font>", styles["Normal"]),
+        Paragraph("Listado de clientes â€” GCinsumos", title_style),
+        Paragraph(f"<font size=9 color='#64748b'>Generado: {fecha_txt} Â· Total: {len(clientes)}</font>", styles["Normal"]),
         Spacer(1, 12),
     ]
 
-    data = [["Nombre", "Email", "Teléfono", "Localidad", "Estado"]]
+    data = [["Nombre", "Email", "TelÃ©fono", "Localidad", "Estado"]]
     for c in clientes:
         data.append([
             c.nombre[:40],
-            (c.email or "—")[:35],
-            c.telefono or "—",
-            (c.localidad or "—")[:25],
+            (c.email or "â€”")[:35],
+            c.telefono or "â€”",
+            (c.localidad or "â€”")[:25],
             "Activo" if c.activo else "Inactivo",
         ])
 

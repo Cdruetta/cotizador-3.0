@@ -1,4 +1,4 @@
-from decimal import Decimal
+﻿from decimal import Decimal
 
 import pytest
 from django.db import IntegrityError
@@ -17,7 +17,7 @@ from ..models import (
 
 
 class TestCotizacionCalculos:
-    """Tests de cálculos financieros de Cotizaciones"""
+    """Tests de cÃ¡lculos financieros de Cotizaciones"""
 
     def test_total_sin_items(self, cliente, usuario_admin):
         cotizacion = Cotizacion.objects.create(
@@ -171,7 +171,7 @@ class TestCotizacionCalculos:
 
 
 class TestFacturaCalculos:
-    """Tests de cálculos financieros de Facturas"""
+    """Tests de cÃ¡lculos financieros de Facturas"""
 
     def test_factura_total_sin_items(self, cliente, usuario_admin):
         factura = Factura.objects.create(
@@ -226,7 +226,7 @@ class TestFacturaCalculos:
 
 
 class TestReciboCalculos:
-    """Tests de cálculos financieros de Recibos"""
+    """Tests de cÃ¡lculos financieros de Recibos"""
 
     def test_recibo_total_cero_sin_items(self, cliente, usuario_admin):
         recibo = Recibo.objects.create(
@@ -263,7 +263,7 @@ class TestReciboCalculos:
 
 
 class TestCompraCalculos:
-    """Tests de cálculos financieros de Compras"""
+    """Tests de cÃ¡lculos financieros de Compras"""
 
     def test_compra_total_cero_sin_items(self, proveedor, usuario_admin):
         compra = Compra.objects.create(

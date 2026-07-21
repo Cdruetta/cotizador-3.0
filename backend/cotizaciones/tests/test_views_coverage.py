@@ -14,7 +14,7 @@ from ..models import (
     Factura, ItemFactura, Recibo, ReciboItem, ListaPrecio, ListaPrecioItem,
     ConfiguracionAFIP,
 )
-from ..models.compras import Compra, CompraItem
+from ..models import Compra, CompraItem
 from ..views.listas_precio import _parsear_precio, _detectar_columnas
 
 

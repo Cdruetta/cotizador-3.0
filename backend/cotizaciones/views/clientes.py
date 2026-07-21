@@ -1,4 +1,4 @@
-from django.contrib import messages
+﻿from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models.deletion import ProtectedError
@@ -87,7 +87,7 @@ class ClienteDeleteView(LoginRequiredMixin, DeleteView):
             messages.warning(
                 request,
                 "No se puede eliminar este cliente porque tiene facturas, cotizaciones, remitos o recibos asociados. "
-                "Desactivá el cliente en su lugar."
+                "DesactivÃ¡ el cliente en su lugar."
             )
             return redirect("cliente_list")
 
@@ -117,7 +117,7 @@ def toggle_cliente_activo(request, pk):
 def importar_clientes_excel(request):
     form = ClienteImportForm(request.POST, request.FILES)
     if not form.is_valid():
-        messages.error(request, "Seleccioná un archivo válido (.xlsx o .csv).")
+        messages.error(request, "SeleccionÃ¡ un archivo vÃ¡lido (.xlsx o .csv).")
         return redirect("cliente_list")
 
     archivo = form.cleaned_data["archivo"]
@@ -134,14 +134,14 @@ def importar_clientes_excel(request):
     if creados or actualizados:
         messages.success(
             request,
-            f"Importación lista: {creados} creado(s), {actualizados} actualizado(s).",
+            f"ImportaciÃ³n lista: {creados} creado(s), {actualizados} actualizado(s).",
         )
     else:
-        messages.warning(request, "No se importó ningún cliente (revisá que haya filas con nombre).")
+        messages.warning(request, "No se importÃ³ ningÃºn cliente (revisÃ¡ que haya filas con nombre).")
 
     if errores:
         detalle = "; ".join(f"fila {f}: {msg}" for f, msg in errores[:5])
-        extra = f" (+{len(errores) - 5} más)" if len(errores) > 5 else ""
+        extra = f" (+{len(errores) - 5} mÃ¡s)" if len(errores) > 5 else ""
         messages.warning(request, f"Algunas filas fallaron: {detalle}{extra}")
 
     return redirect("cliente_list")

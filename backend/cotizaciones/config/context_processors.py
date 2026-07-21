@@ -1,4 +1,4 @@
-from datetime import datetime
+﻿from datetime import datetime
 
 
 def info_extra(request):

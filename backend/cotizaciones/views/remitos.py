@@ -1,9 +1,9 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+﻿from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 from ..forms.remitos import RemitoForm
-from ..models.remitos import Remito
+from ..models import Remito
 from ..services.remitos import remito_queryset_filtrado
 
 

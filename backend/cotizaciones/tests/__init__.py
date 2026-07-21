@@ -1,2 +1,2 @@
-"""Tests de la app cotizaciones."""
+﻿"""Tests de la app cotizaciones."""
 

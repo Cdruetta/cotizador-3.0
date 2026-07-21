@@ -1,4 +1,4 @@
-from decimal import Decimal
+﻿from decimal import Decimal
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -26,13 +26,13 @@ class ProductosAPITestCase(APITestCase):
 
         # 2. Datos de base requeridos (Un producto necesita un proveedor)
         self.proveedor = Proveedor.objects.create(
-            nombre="Mayorista Tecnológico S.A.",
-            contacto="Juan Pérez",
+            nombre="Mayorista TecnolÃ³gico S.A.",
+            contacto="Juan PÃ©rez",
             telefono="3584001122"
         )
 
         self.producto = Producto.objects.create(
-            nombre="Disco Sólido SSD 480GB Kingston",
+            nombre="Disco SÃ³lido SSD 480GB Kingston",
             descripcion="SSD SATA3 de alta velocidad",
             precio_unitario=Decimal("45000.00"),
             proveedor=self.proveedor
@@ -43,7 +43,7 @@ class ProductosAPITestCase(APITestCase):
         self.url_detalle_producto = f'/api/v3/productos/{self.producto.pk}/'
 
     def autenticar_usuario(self, usuario):
-        """Inyecta de forma dinámica las credenciales JWT del usuario en el cliente de pruebas"""
+        """Inyecta de forma dinÃ¡mica las credenciales JWT del usuario en el cliente de pruebas"""
         refresh = RefreshToken.for_user(usuario)
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
 
@@ -57,18 +57,18 @@ class ProductosAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     # ==========================================
-    # CAPA 2: PERMISOS POR ROL (Empleado Común)
+    # CAPA 2: PERMISOS POR ROL (Empleado ComÃºn)
     # ==========================================
     def test_empleado_puede_listar_productos(self):
-        """Cualquier empleado autenticado puede consultar el catálogo de productos (200 OK)"""
+        """Cualquier empleado autenticado puede consultar el catÃ¡logo de productos (200 OK)"""
         self.autenticar_usuario(self.usuario_comun)
         response = self.client.get(self.url_listado_productos)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Validamos que devuelva al menos el producto que creamos en el setUp
-        self.assertContains(response, "Disco Sólido SSD 480GB Kingston")
+        self.assertContains(response, "Disco SÃ³lido SSD 480GB Kingston")
 
     def test_empleado_no_puede_crear_producto(self):
-        """Un empleado común tiene prohibido dar de alta productos (403 Forbidden)"""
+        """Un empleado comÃºn tiene prohibido dar de alta productos (403 Forbidden)"""
         self.autenticar_usuario(self.usuario_comun)
         nuevo_prod = {
             "nombre": "Memoria RAM 16GB DDR4",
@@ -79,7 +79,7 @@ class ProductosAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_empleado_no_puede_eliminar_producto(self):
-        """Un empleado común no puede borrar un producto del catálogo (403 Forbidden)"""
+        """Un empleado comÃºn no puede borrar un producto del catÃ¡logo (403 Forbidden)"""
         self.autenticar_usuario(self.usuario_comun)
         response = self.client.delete(self.url_detalle_producto)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -104,8 +104,8 @@ class ProductosAPITestCase(APITestCase):
         """El administrador puede remarcar precios o modificar datos del producto (200 OK)"""
         self.autenticar_usuario(self.usuario_admin)
         data_actualizada = {
-            "nombre": "Disco Sólido SSD 480GB Kingston",
-            "precio_unitario": "49999.99",  # Ajuste de precio por inflación/cambio
+            "nombre": "Disco SÃ³lido SSD 480GB Kingston",
+            "precio_unitario": "49999.99",  # Ajuste de precio por inflaciÃ³n/cambio
             "proveedor": self.proveedor.pk
         }
         response = self.client.put(self.url_detalle_producto, data_actualizada, format='json')
@@ -116,7 +116,7 @@ class ProductosAPITestCase(APITestCase):
         self.assertEqual(self.producto.precio_unitario, Decimal("49999.99"))
 
     def test_admin_puede_eliminar_producto(self):
-        """El administrador puede quitar un producto del catálogo si es necesario (204 No Content)"""
+        """El administrador puede quitar un producto del catÃ¡logo si es necesario (204 No Content)"""
         self.autenticar_usuario(self.usuario_admin)
         response = self.client.delete(self.url_detalle_producto)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

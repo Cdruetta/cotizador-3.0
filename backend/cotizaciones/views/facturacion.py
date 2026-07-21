@@ -1,4 +1,4 @@
-import io, zipfile
+﻿import io, zipfile
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -15,18 +15,18 @@ from ..services.arca.csr import generar_csr
 from ..services.arca.conexion import probar_conexion, autorizar_factura
 from ..utils.pdf_utils import generar_pdf_factura
 
-# ── CONFIGURACIÓN AFIP ────────────────────────────────────────
+# â”€â”€ CONFIGURACIÃ“N AFIP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @login_required
 def configuracion_afip(request):
-    """Gestión de certificados y datos fiscales para ARCA."""
+    """GestiÃ³n de certificados y datos fiscales para ARCA."""
     config = ConfiguracionAFIP.get_config()
     form = ConfiguracionAFIPForm(request.POST or None, request.FILES or None, instance=config)
     
     if request.method == 'POST' and 'guardar_config' in request.POST:
         if form.is_valid():
             form.save()
-            messages.success(request, 'Configuración actualizada.')
+            messages.success(request, 'ConfiguraciÃ³n actualizada.')
             return redirect('facturacion_config')
 
     return render(request, 'cotizaciones/facturacion/configuracion.html', {
@@ -58,19 +58,19 @@ def generar_csr_view(request):
 
 @login_required
 def test_conexion_afip(request):
-    """Prueba la comunicación con los servidores de AFIP."""
+    """Prueba la comunicaciÃ³n con los servidores de AFIP."""
     config = ConfiguracionAFIP.get_config()
     if not config:
-        messages.error(request, 'Primero completá la configuración.')
+        messages.error(request, 'Primero completÃ¡ la configuraciÃ³n.')
     else:
         ok, msg = probar_conexion(config)
         if ok:
-            messages.success(request, f'Conexión exitosa: {msg}')
+            messages.success(request, f'ConexiÃ³n exitosa: {msg}')
         else:
-            messages.error(request, f'Error de conexión: {msg}')
+            messages.error(request, f'Error de conexiÃ³n: {msg}')
     return redirect('facturacion_config')
 
-# ── VISTAS DE FACTURA (CRUD) ──────────────────────────────────
+# â”€â”€ VISTAS DE FACTURA (CRUD) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class FacturaListView(LoginRequiredMixin, ListView):
     model = Factura
@@ -104,11 +104,11 @@ class FacturaDetailView(LoginRequiredMixin, DetailView):
         })
         return context
 
-# ── LÓGICA DE NEGOCIO ─────────────────────────────────────────
+# â”€â”€ LÃ“GICA DE NEGOCIO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @login_required
 def agregar_item_factura(request, factura_id):
-    """Añade un ítem manualmente a una factura existente."""
+    """AÃ±ade un Ã­tem manualmente a una factura existente."""
     factura = get_object_or_404(Factura, id=factura_id)
     form = ItemFacturaForm(request.POST or None)
     
@@ -120,14 +120,14 @@ def agregar_item_factura(request, factura_id):
         item.save()
         
         factura.actualizar_totales() 
-        messages.success(request, 'Ítem añadido.')
+        messages.success(request, 'Ãtem aÃ±adido.')
         
     return redirect('factura_detail', pk=factura_id)
 
 @login_required
 @transaction.atomic 
 def autorizar_factura_view(request, factura_id):
-    """Envía la factura a AFIP para obtener el CAE."""
+    """EnvÃ­a la factura a AFIP para obtener el CAE."""
     if request.method != 'POST':
         return redirect('factura_detail', pk=factura_id)
         
@@ -140,7 +140,7 @@ def autorizar_factura_view(request, factura_id):
 
     ok, msg = autorizar_factura(config, factura)
     if ok:
-        messages.success(request, "¡Factura autorizada con éxito!")
+        messages.success(request, "Â¡Factura autorizada con Ã©xito!")
     else:
         messages.error(request, f'Error de AFIP: {msg}')
         
@@ -154,7 +154,7 @@ def generar_pdf_factura_view(request, factura_id):
 
 @login_required
 def crear_factura_desde_cotizacion(request, cotizacion_id):
-    """Convierte una cotización existente en una factura borrador."""
+    """Convierte una cotizaciÃ³n existente en una factura borrador."""
     cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
 
     with transaction.atomic():
@@ -165,8 +165,8 @@ def crear_factura_desde_cotizacion(request, cotizacion_id):
             usuario=request.user,
         )
 
-        # 2. Mapear ítems de cotización a ítems de factura
-        # Se calcula el subtotal aquí para evitar IntegrityError (NOT NULL)
+        # 2. Mapear Ã­tems de cotizaciÃ³n a Ã­tems de factura
+        # Se calcula el subtotal aquÃ­ para evitar IntegrityError (NOT NULL)
         items_factura = []
         for item in cotizacion.items.select_related("producto").all():
             items_factura.append(
@@ -179,11 +179,11 @@ def crear_factura_desde_cotizacion(request, cotizacion_id):
                 )
             )
         
-        # Inserción masiva eficiente
+        # InserciÃ³n masiva eficiente
         ItemFactura.objects.bulk_create(items_factura)
 
         # 3. Refrescar totales de la factura
         factura.actualizar_totales()
 
-    messages.success(request, f"Factura generada desde Cotización N° {cotizacion.numero}")
+    messages.success(request, f"Factura generada desde CotizaciÃ³n NÂ° {cotizacion.numero}")
     return redirect("factura_detail", pk=factura.pk)

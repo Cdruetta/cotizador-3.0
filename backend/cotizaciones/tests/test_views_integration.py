@@ -1,4 +1,4 @@
-from decimal import Decimal
+﻿from decimal import Decimal
 from unittest.mock import patch
 
 import pytest
@@ -129,7 +129,7 @@ class TestProductoViews:
 
 @pytest.mark.django_db
 class TestCotizacionFlow:
-    """Tests del flujo completo de cotización (crear + items)"""
+    """Tests del flujo completo de cotizaciÃ³n (crear + items)"""
 
     def setup_method(self):
         self.client = Client()
@@ -232,7 +232,7 @@ class TestReciboFlow:
 
 @pytest.mark.django_db
 class TestCategoriaMarcaViews:
-    """Tests de categorías y marcas"""
+    """Tests de categorÃ­as y marcas"""
 
     def setup_method(self):
         self.client = Client()
@@ -258,7 +258,7 @@ class TestCategoriaMarcaViews:
         response = self.client.post(
             reverse("categoria_create"), {"nombre": "Unica", "activo": True}
         )
-        assert response.status_code == 200  # Se queda en la misma página (error de formulario)
+        assert response.status_code == 200  # Se queda en la misma pÃ¡gina (error de formulario)
         assert Categoria.objects.filter(nombre="Unica").count() == 1
 
 
@@ -288,7 +288,7 @@ class TestPermisos:
 
 @pytest.mark.django_db
 class TestConfigViews:
-    """Tests de vistas de configuración"""
+    """Tests de vistas de configuraciÃ³n"""
 
     def setup_method(self):
         self.client = Client()

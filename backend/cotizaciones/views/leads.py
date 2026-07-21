@@ -1,9 +1,9 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+﻿from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 from ..forms.leads import LeadForm
-from ..models.leads import Lead
+from ..models import Lead
 from ..services.leads import lead_queryset_filtrado
 
 

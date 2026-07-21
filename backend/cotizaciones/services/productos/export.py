@@ -1,4 +1,4 @@
-from io import BytesIO
+﻿from io import BytesIO
 from datetime import datetime
 
 from django.http import HttpResponse
@@ -90,8 +90,8 @@ def exportar_productos_pdf_response(productos) -> HttpResponse:
     )
     fecha_txt = datetime.now().strftime("%d/%m/%Y %H:%M")
     elements = [
-        Paragraph("Listado de stock — GCinsumos", title_style),
-        Paragraph(f"<font size=9 color='#64748b'>Generado: {fecha_txt} · Total: {len(productos)}</font>", styles["Normal"]),
+        Paragraph("Listado de stock â€” GCinsumos", title_style),
+        Paragraph(f"<font size=9 color='#64748b'>Generado: {fecha_txt} Â· Total: {len(productos)}</font>", styles["Normal"]),
         Spacer(1, 12),
     ]
 
@@ -100,7 +100,7 @@ def exportar_productos_pdf_response(productos) -> HttpResponse:
         data.append([
             p.nombre[:45],
             p.get_tipo_display(),
-            p.proveedor.nombre[:25] if p.proveedor else "—",
+            p.proveedor.nombre[:25] if p.proveedor else "â€”",
             str(p.stock),
             f"${float(p.precio_unitario):.2f}",
             "Activo" if p.activo else "Inactivo",

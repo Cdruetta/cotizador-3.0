@@ -1,4 +1,4 @@
-from ...models.leads import Lead
+﻿from ...models import Lead
 
 
 def lead_queryset_filtrado(request):

@@ -1,16 +1,16 @@
-from django.shortcuts import render
+﻿from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Count
 from django.utils import timezone
 import calendar
 from datetime import timedelta
 
-from ..models.facturacion import Factura
-from ..models.cotizaciones import Cotizacion, CotizacionItem
+from ..models import Factura
+from ..models import Cotizacion, CotizacionItem
 
 @login_required
 def reportes_view(request):
-    # --- 1. Lógica de Selección de Mes ---
+    # --- 1. LÃ³gica de SelecciÃ³n de Mes ---
     hoy = timezone.now()
     mes_selected_key = request.GET.get('mes', f"{hoy.year}-{hoy.month:02d}")
     
@@ -50,14 +50,14 @@ def reportes_view(request):
     monto_cotizado_mes = cotizaciones_qs.aggregate(total=Sum('total'))['total'] or 0
     cotizaciones_mes_count = cotizaciones_qs.count()
 
-    # TASA DE CIERRE (Lógica simplificada a prueba de errores)
-    # Si no hay relación directa, comparamos volumen de éxito vs volumen de intentos
+    # TASA DE CIERRE (LÃ³gica simplificada a prueba de errores)
+    # Si no hay relaciÃ³n directa, comparamos volumen de Ã©xito vs volumen de intentos
     tasa_cierre = (conteo_facturas / cotizaciones_mes_count * 100) if cotizaciones_mes_count > 0 else 0
 
     # Pendientes
     cotizaciones_pendientes = Cotizacion.objects.filter(estado='pendiente').count()
 
-    # --- 3. Histórico de Ventas (Últimos 6 meses) ---
+    # --- 3. HistÃ³rico de Ventas (Ãšltimos 6 meses) ---
     labels_6_meses = []
     data_6_meses = []
     for i in range(5, -1, -1):
@@ -71,7 +71,7 @@ def reportes_view(request):
         labels_6_meses.append(calendar.month_name[f_iter.month].capitalize()[:3])
         data_6_meses.append(float(monto))
 
-    # --- 4. Datos para Gráficos ---
+    # --- 4. Datos para GrÃ¡ficos ---
     top_clientes = facturado_qs.values('cliente__nombre').annotate(
         total=Sum('total')).order_by('-total')[:5]
     
@@ -92,7 +92,7 @@ def reportes_view(request):
         'cotizaciones_mes': cotizaciones_mes_count,
         'cotizaciones_pendientes': cotizaciones_pendientes,
         'ticket_promedio': ticket_promedio,
-        'tasa_cierre': round(min(tasa_cierre, 100), 1), # Limitamos a 100% para que sea lógico
+        'tasa_cierre': round(min(tasa_cierre, 100), 1), # Limitamos a 100% para que sea lÃ³gico
         
         'labels_6_meses': labels_6_meses,
         'data_6_meses': data_6_meses,

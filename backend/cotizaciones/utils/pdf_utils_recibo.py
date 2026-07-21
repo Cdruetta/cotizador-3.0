@@ -1,4 +1,4 @@
-import os
+﻿import os
 from io import BytesIO
 from xml.sax.saxutils import escape
 
@@ -101,7 +101,7 @@ def _build_elements(recibo):
     st = _styles()
     elements = []
 
-    # ── HEADER ────────────────────────────────────────────
+    # â”€â”€ HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
     if os.path.exists(logo_path):
         ir = ImageReader(logo_path)
@@ -113,7 +113,7 @@ def _build_elements(recibo):
 
     empresa_info = Table(
         [[Paragraph('GCinsumos', st['empresa_nombre'])],
-         [Paragraph('Servicios Informáticos', st['empresa_sub'])],
+         [Paragraph('Servicios InformÃ¡ticos', st['empresa_sub'])],
          [Paragraph('Dilkendein 1278 &nbsp;|&nbsp; Tel: 358-4268768', st['empresa_sub'])]],
         colWidths=[3.5 * inch]
     )
@@ -161,7 +161,7 @@ def _build_elements(recibo):
     elements.append(header_outer)
     elements.append(Spacer(1, 16))
 
-    # ── DATOS DEL CLIENTE ─────────────────────────────────
+    # â”€â”€ DATOS DEL CLIENTE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     elements.append(Paragraph('Datos del cliente', st['seccion']))
     elements.append(HRFlowable(width='100%', thickness=0.5, color=COLOR_BORDER, spaceAfter=6))
 
@@ -169,9 +169,9 @@ def _build_elements(recibo):
     client_data = [
         [Paragraph('Nombre', st['campo_label']),
          Paragraph(cliente.nombre or '-', st['campo_valor']),
-         Paragraph('Teléfono', st['campo_label']),
+         Paragraph('TelÃ©fono', st['campo_label']),
          Paragraph(cliente.telefono or '-', st['campo_valor'])],
-        [Paragraph('Dirección', st['campo_label']),
+        [Paragraph('DirecciÃ³n', st['campo_label']),
          Paragraph(cliente.direccion or 'No especificada', st['campo_valor']),
          Paragraph('Localidad', st['campo_label']),
          Paragraph(cliente.localidad or '-', st['campo_valor'])],
@@ -191,7 +191,7 @@ def _build_elements(recibo):
     elements.append(client_table)
     elements.append(Spacer(1, 14))
 
-    # ── TABLA DE PRODUCTOS ────────────────────────────────
+    # â”€â”€ TABLA DE PRODUCTOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     items = recibo.items.select_related('producto')
     if items.exists():
         elements.append(Paragraph('Detalle de productos', st['seccion']))
@@ -206,7 +206,7 @@ def _build_elements(recibo):
 
         for i, item in enumerate(items):
             table_data.append([
-                Paragraph(item.producto.nombre if item.producto else (item.descripcion or '—'), st['tabla_celda']),
+                Paragraph(item.producto.nombre if item.producto else (item.descripcion or 'â€”'), st['tabla_celda']),
                 Paragraph(str(item.cantidad), st['tabla_celda']),
                 Paragraph(f'${item.precio_unitario:,.2f}', st['tabla_derecha']),
                 Paragraph(f'${item.subtotal:,.2f}', st['tabla_derecha']),
@@ -242,7 +242,7 @@ def _build_elements(recibo):
         ]))
         elements.append(items_table)
 
-    # ── FORMA DE PAGO ─────────────────────────────────────
+    # â”€â”€ FORMA DE PAGO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     elements.append(Spacer(1, 8))
     pago_data = [[
         Paragraph('Forma de pago', st['campo_label']),
@@ -258,7 +258,7 @@ def _build_elements(recibo):
     ]))
     elements.append(pago_table)
 
-    # ── OBSERVACIONES ─────────────────────────────────────
+    # â”€â”€ OBSERVACIONES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if recibo.observaciones:
         elements.append(Paragraph('Observaciones', st['obs_titulo']))
         obs_table = Table([[Paragraph(recibo.observaciones, st['obs_texto'])]],
@@ -273,13 +273,13 @@ def _build_elements(recibo):
         ]))
         elements.append(obs_table)
 
-    # ── FOOTER ────────────────────────────────────────────
+    # â”€â”€ FOOTER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     elements.append(Spacer(1, 24))
     elements.append(HRFlowable(width='100%', thickness=1, color=COLOR_FOOTER_LINE, spaceAfter=8))
     elements.append(Spacer(1, 3))
-    elements.append(Paragraph('Paso a paso se llega lejos — GCSoft 2025', st['footer_slogan']))
+    elements.append(Paragraph('Paso a paso se llega lejos â€” GCSoft 2025', st['footer_slogan']))
     elements.append(Spacer(1, 3))
-    elements.append(Paragraph('GCinsumos &nbsp;|&nbsp; Dilkendein 1278, Río Cuarto &nbsp;|&nbsp; Tel: 358-4268768 &nbsp;|&nbsp; cristian.e.druetta@gmail.com', st['footer_contacto']))
+    elements.append(Paragraph('GCinsumos &nbsp;|&nbsp; Dilkendein 1278, RÃ­o Cuarto &nbsp;|&nbsp; Tel: 358-4268768 &nbsp;|&nbsp; cristian.e.druetta@gmail.com', st['footer_contacto']))
 
     return elements
 

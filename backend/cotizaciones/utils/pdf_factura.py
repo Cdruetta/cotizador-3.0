@@ -1,4 +1,4 @@
-import json
+﻿import json
 import base64
 import os
 from decimal import Decimal
@@ -135,10 +135,10 @@ def _build_elements_factura(factura):
     left_cells.append(Spacer(1, 2))
     emit_lines = []
     if config and config.razon_social:
-        emit_lines.append(f'<b>Razón Social:</b> {escape(config.razon_social)}')
+        emit_lines.append(f'<b>RazÃ³n Social:</b> {escape(config.razon_social)}')
     if cuit_emitter:
         emit_lines.append(f'<b>CUIT:</b> {escape(cuit_emitter)}')
-    emit_lines.append('<b>Condición IVA:</b> Monotributista')
+    emit_lines.append('<b>CondiciÃ³n IVA:</b> Monotributista')
     if domicilio_emitter:
         emit_lines.append(f'<b>Domicilio:</b> {escape(domicilio_emitter)}')
     left_cells.append(Paragraph('<br/>'.join(emit_lines), s_info))
@@ -157,8 +157,8 @@ def _build_elements_factura(factura):
     s_meta_line = ParagraphStyle('FML2', fontName='Helvetica', fontSize=9, textColor=COLOR_TEXT, alignment=TA_RIGHT, leading=13)
     right_inner = Table([
         [Paragraph(f'Punto de Venta: <b>{pv:04d}</b>', s_meta_line)],
-        [Paragraph(f'Comp. N°: <b>{num:08d}</b>', s_meta_line)],
-        [Paragraph(f'Fecha de Emisión: <b>{fecha_txt}</b>', s_meta_line)],
+        [Paragraph(f'Comp. NÂ°: <b>{num:08d}</b>', s_meta_line)],
+        [Paragraph(f'Fecha de EmisiÃ³n: <b>{fecha_txt}</b>', s_meta_line)],
     ], colWidths=[2.2 * inch])
     right_inner.setStyle(TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
@@ -192,12 +192,12 @@ def _build_elements_factura(factura):
     elements.append(Spacer(1, 10))
 
     cliente = factura.cliente
-    nombre_c = cliente.nombre or '—'
-    dom_c = (cliente.direccion or '').replace('\n', ' ').strip() or '—'
-    loc_c = cliente.localidad or '—'
-    prov_c = getattr(cliente, 'provincia', None) or '—'
+    nombre_c = cliente.nombre or 'â€”'
+    dom_c = (cliente.direccion or '').replace('\n', ' ').strip() or 'â€”'
+    loc_c = cliente.localidad or 'â€”'
+    prov_c = getattr(cliente, 'provincia', None) or 'â€”'
     cuit_cli = getattr(cliente, 'cuit', None)
-    cuit_cli_txt = _format_cuit_afip(cuit_cli) if cuit_cli else '—'
+    cuit_cli_txt = _format_cuit_afip(cuit_cli) if cuit_cli else 'â€”'
     if cuit_cli:
         cond_iva_receptor = 'RESPONSABLE MONOTRIBUTO'
     else:
@@ -206,8 +206,8 @@ def _build_elements_factura(factura):
     cli_inner = Table([
         [Paragraph('DATOS DEL CLIENTE', s_cli_tit)],
         [Spacer(1, 3)],
-        [Paragraph(f'<b>Nombre/Razón Social:</b>  {escape(nombre_c)}', s_cli_val)],
-        [Paragraph(f'<b>CUIT/DNI:</b>  {escape(cuit_cli_txt)}&nbsp;&nbsp;&nbsp;&nbsp;<b>Condición IVA:</b>  {escape(cond_iva_receptor)}', s_cli_val)],
+        [Paragraph(f'<b>Nombre/RazÃ³n Social:</b>  {escape(nombre_c)}', s_cli_val)],
+        [Paragraph(f'<b>CUIT/DNI:</b>  {escape(cuit_cli_txt)}&nbsp;&nbsp;&nbsp;&nbsp;<b>CondiciÃ³n IVA:</b>  {escape(cond_iva_receptor)}', s_cli_val)],
         [Paragraph(f'<b>Domicilio:</b>  {escape(dom_c)}, {escape(loc_c)}, {escape(prov_c)}', s_cli_val)],
     ], colWidths=[pw - 0.2 * inch])
     cli_inner.setStyle(TableStyle([
@@ -232,7 +232,7 @@ def _build_elements_factura(factura):
     cw_items = [0.55 * inch, pw - 1.9 * inch, 0.85 * inch, 0.85 * inch]
     table_data = [[
         Paragraph('Cant.', s_th),
-        Paragraph('Descripción', s_th_l),
+        Paragraph('DescripciÃ³n', s_th_l),
         Paragraph('P. Unit.', s_th),
         Paragraph('Subtotal', s_th),
     ]]
@@ -299,11 +299,11 @@ def _build_elements_factura(factura):
     elements.append(tot_tbl)
 
     elements.append(Spacer(1, 6))
-    elements.append(Paragraph('Moneda: PESOS ($) — Todos los importes están expresados en Pesos Argentinos', s_moneda))
+    elements.append(Paragraph('Moneda: PESOS ($) â€” Todos los importes estÃ¡n expresados en Pesos Argentinos', s_moneda))
     if not cuit_cli and total >= Decimal('10000000'):
         elements.append(Spacer(1, 2))
         elements.append(Paragraph(
-            '<i>Importe >= $10.000.000 — obligatorio informar DNI/CUIT/CUIL/CDI del comprador</i>',
+            '<i>Importe >= $10.000.000 â€” obligatorio informar DNI/CUIT/CUIL/CDI del comprador</i>',
             s_moneda,
         ))
 
@@ -311,7 +311,7 @@ def _build_elements_factura(factura):
     elements.append(HRFlowable(width='100%', thickness=0.5, color=COLOR_BORDER, spaceAfter=8))
 
     if factura.estado == 'autorizada' and factura.cae:
-        vto = factura.cae_vencimiento.strftime('%d/%m/%Y') if factura.cae_vencimiento else '—'
+        vto = factura.cae_vencimiento.strftime('%d/%m/%Y') if factura.cae_vencimiento else 'â€”'
         qr_buf = _factura_qr_image(factura)
         if qr_buf:
             qr_img = Image(qr_buf, width=0.7 * inch, height=0.7 * inch)
@@ -338,13 +338,13 @@ def _build_elements_factura(factura):
             elements.append(Paragraph('Comprobante autorizado por ARCA (ex AFIP)', s_arca))
     else:
         elements.append(Spacer(1, 4))
-        elements.append(Paragraph('<i>Borrador — pendiente de autorización ARCA</i>', s_cae))
+        elements.append(Paragraph('<i>Borrador â€” pendiente de autorizaciÃ³n ARCA</i>', s_cae))
 
     elements.append(Spacer(1, 14))
     elements.append(HRFlowable(width='100%', thickness=0.5, color=COLOR_BORDER, spaceAfter=4))
     pie = escape(razon_social)
     if config and config.domicilio:
-        pie += f' — {escape(config.domicilio)}'
+        pie += f' â€” {escape(config.domicilio)}'
     elements.append(Paragraph(pie, s_footer))
 
     return elements

@@ -1,4 +1,4 @@
-import os
+﻿import os
 from afip import Afip
 
 def get_afip(config):
@@ -21,12 +21,12 @@ def probar_conexion(config):
     try:
         afip = get_afip(config)
         ultimo = afip.ElectronicBilling.getLastVoucher(config.punto_venta, 11)
-        return True, f"Conexión OK. Último comprobante Nº {ultimo}"
+        return True, f"ConexiÃ³n OK. Ãšltimo comprobante NÂº {ultimo}"
     except Exception as e:
         return False, str(e)
 
 def autorizar_factura(config, factura):
-    """Envía la factura a AFIP y guarda el CAE."""
+    """EnvÃ­a la factura a AFIP y guarda el CAE."""
     try:
         afip = get_afip(config)
         items = [

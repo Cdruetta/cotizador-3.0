@@ -17,9 +17,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 
-from ..models.listas_precio import ListaPrecio, ListaPrecioItem
-from ..models.productos import Producto
-from ..models.proveedores import Proveedor
+from ..models import ListaPrecio, ListaPrecioItem, Producto, Proveedor
 from ..forms.listas_precio import ListaPrecioForm
 
 

@@ -163,6 +163,13 @@ INSTALLED_APPS = [
 
     # Local
     "cotizaciones",
+    "apps.core",
+    "apps.clientes",
+    "apps.productos",
+    "apps.ventas",
+    "apps.facturacion",
+    "apps.compras",
+    "apps.stock",
 ]
 
 # --------------------------

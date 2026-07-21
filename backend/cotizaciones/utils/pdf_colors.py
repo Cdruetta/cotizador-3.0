@@ -1,4 +1,4 @@
-from reportlab.lib import colors
+﻿from reportlab.lib import colors
 
 COLOR_PRIMARY      = colors.HexColor('#1C3A5E')
 COLOR_SECONDARY    = colors.HexColor('#2E5D8E')

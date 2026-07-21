@@ -1,4 +1,4 @@
-import os
+﻿import os
 from io import BytesIO
 
 from django.conf import settings
@@ -37,7 +37,7 @@ def _build_elements(cotizacion):
 
     empresa_info = Table(
         [[Paragraph('GCinsumos', st['empresa_nombre'])],
-         [Paragraph('Servicios Informáticos', st['empresa_sub'])],
+         [Paragraph('Servicios InformÃ¡ticos', st['empresa_sub'])],
          [Paragraph('Dilkendein 1278 &nbsp;|&nbsp; Tel: 358-4268768', st['empresa_sub'])]],
         colWidths=[3.5 * inch]
     )
@@ -48,7 +48,7 @@ def _build_elements(cotizacion):
         ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ]))
 
-    tipo_doc = cotizacion.tipo_documento.upper() if hasattr(cotizacion, 'tipo_documento') else 'COTIZACIÓN'
+    tipo_doc = cotizacion.tipo_documento.upper() if hasattr(cotizacion, 'tipo_documento') else 'COTIZACIÃ“N'
 
     doc_info = Table(
         [[Paragraph(tipo_doc, st['doc_titulo'])],
@@ -94,9 +94,9 @@ def _build_elements(cotizacion):
     client_data = [
         [Paragraph('Nombre', st['campo_label']),
          Paragraph(cliente.nombre or '-', st['campo_valor']),
-         Paragraph('Teléfono', st['campo_label']),
+         Paragraph('TelÃ©fono', st['campo_label']),
          Paragraph(cliente.telefono or '-', st['campo_valor'])],
-        [Paragraph('Dirección', st['campo_label']),
+        [Paragraph('DirecciÃ³n', st['campo_label']),
          Paragraph(cliente.direccion or 'No especificada', st['campo_valor']),
          Paragraph('Localidad', st['campo_label']),
          Paragraph(cliente.localidad or '-', st['campo_valor'])],
@@ -190,7 +190,7 @@ def _build_elements(cotizacion):
     elements.append(Spacer(1, 24))
     elements.append(HRFlowable(width='100%', thickness=1, color=COLOR_FOOTER_LINE, spaceAfter=8))
     validez_texto = (
-        'Esta cotización tiene una validez de 7 días hábiles.'
+        'Esta cotizaciÃ³n tiene una validez de 7 dÃ­as hÃ¡biles.'
         if getattr(cotizacion, 'tipo_documento', '') != 'recibo'
         else None
     )
@@ -198,9 +198,9 @@ def _build_elements(cotizacion):
         elements.append(Paragraph(validez_texto, st['footer_validez']))
 
     elements.append(Spacer(1, 3))
-    elements.append(Paragraph('Paso a paso se llega lejos — GCSoft 2025', st['footer_slogan']))
+    elements.append(Paragraph('Paso a paso se llega lejos â€” GCSoft 2025', st['footer_slogan']))
     elements.append(Spacer(1, 3))
-    elements.append(Paragraph('GCinsumos &nbsp;|&nbsp; Dilkendein 1278, Río Cuarto &nbsp;|&nbsp; Tel: 358-4268768 &nbsp;|&nbsp; cristian.e.druetta@gmail.com', st['footer_contacto']))
+    elements.append(Paragraph('GCinsumos &nbsp;|&nbsp; Dilkendein 1278, RÃ­o Cuarto &nbsp;|&nbsp; Tel: 358-4268768 &nbsp;|&nbsp; cristian.e.druetta@gmail.com', st['footer_contacto']))
 
     return elements
 
@@ -223,7 +223,7 @@ def generar_pdf_cotizacion(cotizacion):
     cliente_nombre = cotizacion.cliente.nombre if cotizacion.cliente and cotizacion.cliente.nombre else 'sin_nombre'
     cliente_slug = cliente_nombre.strip().replace(' ', '_')
 
-    num_doc_raw = (cotizacion.numero or '').replace('°', '').strip()
+    num_doc_raw = (cotizacion.numero or '').replace('Â°', '').strip()
 
     tipo_doc_attr = getattr(cotizacion, 'tipo_documento', '').lower()
 
@@ -231,9 +231,9 @@ def generar_pdf_cotizacion(cotizacion):
         clean_num = num_doc_raw.replace('Recibo_', '').replace('recibo_', '').replace('Recibo', '').replace('recibo', '').strip('_ ')
         filename = f"Recibo_{clean_num}_{cliente_slug}.pdf"
 
-    elif 'cotizacion' in tipo_doc_attr or 'cotización' in tipo_doc_attr or 'cotizacion' in num_doc_raw.lower() or 'cotización' in num_doc_raw.lower():
+    elif 'cotizacion' in tipo_doc_attr or 'cotizaciÃ³n' in tipo_doc_attr or 'cotizacion' in num_doc_raw.lower() or 'cotizaciÃ³n' in num_doc_raw.lower():
         clean_num = num_doc_raw.replace('Cotizacion_', '').replace('cotizacion_', '').replace('Cotizacion', '').replace('cotizacion', '')
-        clean_num = clean_num.replace('Cotización_', '').replace('cotización_', '').replace('Cotización', '').replace('cotización', '').strip('_ ')
+        clean_num = clean_num.replace('CotizaciÃ³n_', '').replace('cotizaciÃ³n_', '').replace('CotizaciÃ³n', '').replace('cotizaciÃ³n', '').strip('_ ')
         filename = f"Cotizacion_{clean_num}_{cliente_slug}.pdf"
 
     else:

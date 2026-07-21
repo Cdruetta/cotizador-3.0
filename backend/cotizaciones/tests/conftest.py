@@ -1,4 +1,4 @@
-from decimal import Decimal
+﻿from decimal import Decimal
 
 import pytest
 from django.contrib.auth.models import User
@@ -49,7 +49,7 @@ def proveedor(db):
 def producto(db, proveedor):
     return Producto.objects.create(
         nombre="Producto Test",
-        descripcion="Descripción del producto",
+        descripcion="DescripciÃ³n del producto",
         precio_unitario=Decimal("100.00"),
         proveedor=proveedor,
         stock=50,
@@ -69,7 +69,7 @@ def marca(db):
 
 @pytest.fixture
 def cotizacion_data(cliente, usuario_admin):
-    """Datos mínimos para crear una cotización via API"""
+    """Datos mÃ­nimos para crear una cotizaciÃ³n via API"""
     return {
         "numero": "COT-TEST-001",
         "cliente": cliente.pk,
@@ -80,7 +80,7 @@ def cotizacion_data(cliente, usuario_admin):
 
 @pytest.fixture
 def producto_data(proveedor):
-    """Datos mínimos para crear un producto via API"""
+    """Datos mÃ­nimos para crear un producto via API"""
     return {
         "nombre": "Nuevo Producto",
         "precio_unitario": "500.00",

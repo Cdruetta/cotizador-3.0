@@ -1,2 +1,2 @@
-"""Configuraciones y utilidades de infraestructura de la app."""
+﻿"""Configuraciones y utilidades de infraestructura de la app."""
 

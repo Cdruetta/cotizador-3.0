@@ -1,4 +1,4 @@
-from decimal import Decimal
+﻿from decimal import Decimal
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -23,9 +23,9 @@ class CotizacionesAPITestCase(APITestCase):
             is_staff=True
         )
 
-        # 2. Entidades requeridas para relacionar una cotización
+        # 2. Entidades requeridas para relacionar una cotizaciÃ³n
         self.cliente = Cliente.objects.create(
-            nombre="Computación Río Cuarto",
+            nombre="ComputaciÃ³n RÃ­o Cuarto",
             telefono="3584112233"
         )
         self.proveedor = Proveedor.objects.create(
@@ -38,7 +38,7 @@ class CotizacionesAPITestCase(APITestCase):
             proveedor=self.proveedor
         )
 
-        # 3. Creamos una cotización base asociada al admin
+        # 3. Creamos una cotizaciÃ³n base asociada al admin
         self.cotizacion = Cotizacion.objects.create(
             numero="COT-API-001",
             cliente=self.cliente,
@@ -59,7 +59,7 @@ class CotizacionesAPITestCase(APITestCase):
     # SEGURIDAD & ACCESOS
     # ==========================================
     def test_cotizaciones_denegado_sin_token(self):
-        """Bloqueo inmediato a usuarios anónimos (401 Unauthorized)"""
+        """Bloqueo inmediato a usuarios anÃ³nimos (401 Unauthorized)"""
         self.client.credentials()
         response = self.client.get(self.url_listado_cotizaciones)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -75,7 +75,7 @@ class CotizacionesAPITestCase(APITestCase):
     # OPERACIONES CRUD (Admin / Personal Autorizado)
     # ==========================================
     def test_admin_puede_crear_cotizacion_vacia(self):
-        """Verifica la cabecera inicial de una cotización vinculada al cliente (201 Created)"""
+        """Verifica la cabecera inicial de una cotizaciÃ³n vinculada al cliente (201 Created)"""
         self.autenticar_usuario(self.usuario_admin)
         data = {
             "numero": "COT-API-002",
@@ -95,7 +95,7 @@ class CotizacionesAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_admin_puede_eliminar_cotizacion(self):
-        """Un administrador puede purgar o dar de baja una cotización (204 No Content)"""
+        """Un administrador puede purgar o dar de baja una cotizaciÃ³n (204 No Content)"""
         self.autenticar_usuario(self.usuario_admin)
         response = self.client.delete(self.url_detalle_cotizacion)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

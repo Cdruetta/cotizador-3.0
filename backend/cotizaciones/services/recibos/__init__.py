@@ -1,4 +1,4 @@
-from ...models.recibos import Recibo
+﻿from ...models import Recibo
 
 
 def recibo_queryset_filtrado(usuario=None):

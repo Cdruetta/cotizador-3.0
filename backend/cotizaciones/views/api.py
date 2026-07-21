@@ -1,126 +1,15 @@
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from django.urls import reverse
-from rest_framework import viewsets, permissions
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter, OrderingFilter
+﻿from apps.clientes.api import ClienteViewSet
+from apps.productos.api import ProductoViewSet, get_producto_precio
+from apps.ventas.api import CotizacionViewSet, CotizacionItemViewSet, pending_cotizaciones_count, pending_cotizaciones_list
+from apps.facturacion.api import FacturaViewSet
 
-from ..models import Cliente, Cotizacion, CotizacionItem, Factura, Producto
-
-from ..serializers import (
-    ClienteSerializer, 
-    CotizacionSerializer, 
-    CotizacionItemSerializer,
-    FacturaSerializer, 
-    ProductoSerializer
-)
-
-
-@login_required
-def get_producto_precio(request, producto_id):
-    try:
-        producto = Producto.objects.select_related("proveedor").get(id=producto_id)
-        return JsonResponse(
-            {
-                "precio": float(producto.precio_unitario),
-                "nombre": producto.nombre,
-                "proveedor": producto.proveedor.nombre,
-                "stock": producto.stock,
-            }
-        )
-    except Producto.DoesNotExist:
-        return JsonResponse({"error": "Producto no encontrado"}, status=404)
-
-
-@login_required
-def pending_cotizaciones_count(request):
-    """Return JSON with count of cotizaciones in 'borrador' state.
-    This is used by the notification bell to indicate unfinished quotes.
-    """
-    count = Cotizacion.objects.filter(estado='borrador').count()
-    return JsonResponse({"count": count})
-
-@login_required
-def pending_cotizaciones_list(request):
-    """Return JSON list of pending (borrador) cotizaciones.
-    Each item includes id, numero, cliente_nombre, fecha, total, and URL to detail.
-    """
-    cotizaciones = Cotizacion.objects.filter(estado='borrador').order_by('-fecha')
-    data = []
-    for cot in cotizaciones:
-        data.append({
-            "id": cot.id,
-            "numero": cot.numero,
-            "cliente": cot.cliente.nombre,
-            "fecha": cot.fecha.strftime('%Y-%m-%d') if cot.fecha else None,
-            "total": str(cot.total),
-            "url": reverse('cotizacion_detail', kwargs={'pk': cot.pk}),
-        })
-    return JsonResponse({"cotizaciones": data})
-
-
-
-class EsAdministradorOReadOnly(permissions.BasePermission):
-    """
-    Seguridad del Backend: 
-    - Usuarios comunes autenticados mediante JWT solo leen (GET).
-    - Administradores (is_staff=True) pueden Crear, Modificar y Borrar (POST, PUT, DELETE).
-    """
-    def has_permission(self, request, view):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return request.user and request.user.is_staff
-
-
-
-
-class ClienteViewSet(viewsets.ModelViewSet):
-    queryset = Cliente.objects.all()
-    serializer_class = ClienteSerializer
-    permission_classes = [permissions.IsAuthenticated, EsAdministradorOReadOnly]
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    # Campos correctos según modelo Cliente
-    filterset_fields = ['activo']
-    search_fields = ['nombre', 'email', 'telefono']
-    ordering_fields = ['nombre', 'id']
-
-
-class ProductoViewSet(viewsets.ModelViewSet):
-    queryset = Producto.objects.all()
-    serializer_class = ProductoSerializer
-    permission_classes = [permissions.IsAuthenticated, EsAdministradorOReadOnly]
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    # Filtros según campos reales del modelo Producto
-    filterset_fields = ['tipo', 'activo', 'proveedor']
-    search_fields = ['nombre', 'descripcion']
-    ordering_fields = ['precio_unitario', 'stock', 'nombre']
-
-
-class CotizacionViewSet(viewsets.ModelViewSet):
-    queryset = Cotizacion.objects.all()
-    serializer_class = CotizacionSerializer
-    permission_classes = [permissions.IsAuthenticated, EsAdministradorOReadOnly]
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    # Filtro nativo por estado
-    filterset_fields = ['estado', 'tipo_documento']
-    search_fields = ['numero', 'observaciones', 'cliente__nombre']
-    ordering_fields = ['fecha', 'total', 'id']
-    ordering = ['-fecha']
-
-
-class CotizacionItemViewSet(viewsets.ModelViewSet):
-    queryset = CotizacionItem.objects.all()
-    serializer_class = CotizacionItemSerializer
-    permission_classes = [permissions.IsAuthenticated, EsAdministradorOReadOnly]
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['cotizacion', 'producto']
-
-
-class FacturaViewSet(viewsets.ModelViewSet):
-    queryset = Factura.objects.all()
-    serializer_class = FacturaSerializer
-    permission_classes = [permissions.IsAuthenticated, EsAdministradorOReadOnly]
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['estado', 'punto_venta']
-    search_fields = ['numero', 'cae', 'cliente__nombre']
-    ordering_fields = ['fecha', 'id']
+__all__ = [
+    "ClienteViewSet",
+    "ProductoViewSet",
+    "CotizacionViewSet",
+    "CotizacionItemViewSet",
+    "FacturaViewSet",
+    "get_producto_precio",
+    "pending_cotizaciones_count",
+    "pending_cotizaciones_list",
+]

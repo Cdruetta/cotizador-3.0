@@ -1,5 +1,5 @@
-"""
-Re-exporta símbolos para mantener compatibilidad con imports existentes:
+﻿"""
+Re-exporta sÃ­mbolos para mantener compatibilidad con imports existentes:
 `from cotizaciones import views` y `from cotizaciones.views import X`.
 """
 

@@ -1,4 +1,4 @@
-from django.contrib import messages
+﻿from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.urls import reverse_lazy
@@ -36,7 +36,7 @@ class ProductoListView(LoginRequiredMixin, ListView):
             if tipo:
                 qs = qs.filter(tipo=tipo)
         
-        # Soporte sidebar servicios múltiples tipos
+        # Soporte sidebar servicios mÃºltiples tipos
         tipo_multiple = self.request.GET.get('tipo_multiple')
         if tipo_multiple:
             tipos = [t.strip() for t in tipo_multiple.split(',')]
@@ -48,7 +48,7 @@ class ProductoListView(LoginRequiredMixin, ListView):
         ctx = super().get_context_data(**kwargs)
         ctx["filter_form"] = ProductoFilterForm(self.request.GET)
 
-        # Querystring sin el parámetro de paginación para no duplicar ?page=
+        # Querystring sin el parÃ¡metro de paginaciÃ³n para no duplicar ?page=
         q = self.request.GET.copy()
         q.pop("page", None)
         ctx["current_query"] = q.urlencode()

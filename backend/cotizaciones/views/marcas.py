@@ -1,10 +1,10 @@
-from django.contrib import messages
+﻿from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
 
-from ..models.marcas import Marca
+from ..models import Marca
 from ..forms.marcas import MarcaForm
 
 

@@ -1,3 +1,1 @@
-WIDGET_CLASS = {"class": "form-control"}
-SELECT_CLASS = {"class": "form-select"}
-
+﻿from apps.core.forms import WIDGET_CLASS, SELECT_CLASS  # noqa: F401

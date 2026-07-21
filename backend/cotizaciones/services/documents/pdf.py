@@ -1,4 +1,4 @@
-def build_cotizacion_pdf_response(*, cotizacion):
+﻿def build_cotizacion_pdf_response(*, cotizacion):
     # Import lazily to avoid circular imports at module import time
     from ...utils.pdf_utils import generar_pdf_cotizacion
 

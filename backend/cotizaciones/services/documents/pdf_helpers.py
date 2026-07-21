@@ -1,11 +1,11 @@
-from decimal import Decimal
+﻿from decimal import Decimal
 from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
 
 
 def format_cuit_afip(raw: str) -> str:
-    """Formatea CUIT con guiones si tiene 11 dígitos."""
+    """Formatea CUIT con guiones si tiene 11 dÃ­gitos."""
     if not raw:
         return ""
     d = "".join(c for c in str(raw) if c.isdigit())
@@ -15,7 +15,7 @@ def format_cuit_afip(raw: str) -> str:
 
 
 def fmt_ar_num(val, decimales=2):
-    """Formatea número con coma decimal (estilo AR)."""
+    """Formatea nÃºmero con coma decimal (estilo AR)."""
     if val is None:
         return ""
     q = Decimal(str(val)).quantize(Decimal(10) ** -decimales)

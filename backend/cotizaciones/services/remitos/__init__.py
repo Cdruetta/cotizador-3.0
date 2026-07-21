@@ -1,4 +1,4 @@
-from ...models.remitos import Remito
+﻿from ...models import Remito
 
 
 def remito_queryset_filtrado(request):

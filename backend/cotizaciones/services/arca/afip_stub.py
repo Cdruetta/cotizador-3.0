@@ -1,2 +1,2 @@
-class Afip:
+﻿class Afip:
     pass

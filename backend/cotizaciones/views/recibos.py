@@ -1,4 +1,4 @@
-from django.contrib import messages
+﻿from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect
@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.contrib.messages.views import SuccessMessageMixin
 
-from ..models.recibos import Recibo, ReciboItem
+from ..models import Recibo, ReciboItem
 from ..forms.recibos import ReciboForm, ReciboItemForm
 from ..forms.cotizaciones import EnviarEmailForm
 from ..services.recibos import recibo_queryset_filtrado
@@ -140,7 +140,7 @@ def enviar_recibo_email(request, recibo_id):
                     asunto=form.cleaned_data["asunto"],
                     mensaje=form.cleaned_data["mensaje"],
                 )
-                messages.success(request, "Email enviado con éxito.")
+                messages.success(request, "Email enviado con Ã©xito.")
             except Exception as e:
                 messages.error(request, f"Error al enviar: {str(e)}")
     return redirect("recibo_detail", pk=recibo_id)

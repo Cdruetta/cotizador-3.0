@@ -1,4 +1,4 @@
-from reportlab.lib import colors
+﻿from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.units import inch
 from reportlab.lib.styles import ParagraphStyle
