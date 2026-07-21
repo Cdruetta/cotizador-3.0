@@ -12,4 +12,3 @@ from .marcas import Marca  # noqa: F401
 from .compras import Compra, CompraItem  # noqa: F401
 from .movimientos_stock import MovimientoStock  # noqa: F401
 from .listas_precio import ListaPrecio, ListaPrecioItem  # noqa: F401
-from .tienda_web import TiendaWebConfig  # noqa: F401

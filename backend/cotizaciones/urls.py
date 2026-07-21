@@ -167,9 +167,6 @@ urlpatterns = [
     path('roles/<int:pk>/editar/', views.GroupUpdateView.as_view(), name='rol_update'),
     path('roles/<int:pk>/eliminar/', views.GroupDeleteView.as_view(), name='rol_delete'),
 
-    # Tienda Web
-    path('tienda-web/', views.tienda_web_config, name='tienda_web_config'),
-
     # AFIP
     path('facturacion/configuracion/', views.configuracion_afip, name='facturacion_config'),
     path('facturacion/configuracion/csr/', views.generar_csr_view, name='facturacion_generar_csr'),

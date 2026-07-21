@@ -68,7 +68,6 @@ from .listas_precio import (  # noqa: F401
     exportar_lista_precio_pdf, aplicar_precios_lista,
     editar_item_lista_precio, eliminar_item_lista_precio, agregar_item_lista_precio,
 )
-from .tienda_web import tienda_web_config  # noqa: F401
 from .roles import GroupListView, GroupCreateView, GroupUpdateView, GroupDeleteView  # noqa: F401
 from .reportes import reportes_view  # noqa: F401
 from .facturacion import (  # noqa: F401
