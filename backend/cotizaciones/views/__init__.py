@@ -1,6 +1,4 @@
 """
-Paquete de vistas.
-
 Re-exporta símbolos para mantener compatibilidad con imports existentes:
 `from cotizaciones import views` y `from cotizaciones.views import X`.
 """
@@ -72,14 +70,15 @@ from .listas_precio import (  # noqa: F401
 )
 from .tienda_web import tienda_web_config  # noqa: F401
 from .roles import GroupListView, GroupCreateView, GroupUpdateView, GroupDeleteView  # noqa: F401
-
-# ==============================================================================
-# 🔌 RE-EXPORTACIÓN DE LA NUEVA API REST (Punto 4: CRUD, Roles y Filtros)
-# ==============================================================================
+from .reportes import reportes_view  # noqa: F401
+from .facturacion import (  # noqa: F401
+    configuracion_afip, generar_csr_view, test_conexion_afip,
+    FacturaListView, FacturaCreateView, FacturaDetailView,
+    agregar_item_factura, autorizar_factura_view,
+    generar_pdf_factura_view, crear_factura_desde_cotizacion,
+)
 from .api import (  # noqa: F401
-    ClienteViewSet,
-    ProductoViewSet,
-    CotizacionViewSet,
-    CotizacionItemViewSet,  # <-- Nombre real corregido
-    FacturaViewSet,
+    pending_cotizaciones_count, pending_cotizaciones_list,
+    ClienteViewSet, ProductoViewSet, CotizacionViewSet,
+    CotizacionItemViewSet, FacturaViewSet,
 )

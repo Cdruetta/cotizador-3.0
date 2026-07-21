@@ -2,48 +2,6 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
 
-from .views import (
-    ProductoListView,
-    ProductoCreateView,
-    ProductoUpdateView,
-    ProductoDeleteView,
-    ProductoDetailView,
-
-    CotizacionListView,
-    CotizacionCreateView,
-    CotizacionUpdateView,
-    CotizacionDeleteView,
-    CotizacionDetailView,
-
-    agregar_item_cotizacion,
-    eliminar_item_cotizacion,
-    generar_pdf,
-    cambiar_estado_cotizacion,
-    enviar_cotizacion_email,
-    actualizar_descuento_cotizacion,
-    buscar_productos_ajax,
-    configuracion,
-)
-
-# 🚀 IMPORTACIÓN DE LA API: Traemos get_producto_precio desde donde quedó alojada
-from .views.api import get_producto_precio, pending_cotizaciones_count, pending_cotizaciones_list
-
-# Importamos la nueva vista de reportes desde su archivo específico
-from .views.reportes import reportes_view
-
-from .views.facturacion import (
-    configuracion_afip,
-    generar_csr_view,
-    test_conexion_afip,
-    FacturaListView,
-    FacturaCreateView,
-    FacturaDetailView,
-    agregar_item_factura,
-    autorizar_factura_view,
-    generar_pdf_factura_view,
-    crear_factura_desde_cotizacion,
-)
-
 urlpatterns = [
 
     # Dashboard
@@ -53,7 +11,6 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('register/', views.register, name='register'),
-    # Password reset (Django builtins) - templates can override in templates/registration/*
     path('password_reset/', auth_views.PasswordResetView.as_view(template_name='registration/password_reset_form.html'), name='password_reset'),
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='registration/password_reset_done.html'), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='registration/password_reset_confirm.html'), name='password_reset_confirm'),
@@ -74,7 +31,7 @@ urlpatterns = [
     path('clientes/exportar/excel/', views.exportar_clientes_excel, name='cliente_exportar_excel'),
     path('clientes/exportar/pdf/', views.exportar_clientes_pdf, name='cliente_exportar_pdf'),
 
-    # Proveedores (✨ Esto es lo que revive tu Dashboard sin errores)
+    # Proveedores
     path('proveedores/', views.ProveedorListView.as_view(), name='proveedor_list'),
     path('proveedores/crear/', views.ProveedorCreateView.as_view(), name='proveedor_create'),
     path('proveedores/<int:pk>/', views.ProveedorDetailView.as_view(), name='proveedor_detail'),
@@ -82,37 +39,37 @@ urlpatterns = [
     path('proveedores/<int:pk>/eliminar/', views.ProveedorDeleteView.as_view(), name='proveedor_delete'),
 
     # Productos
-    path('productos/', ProductoListView.as_view(), name='producto_list'),
-    path('productos/crear/', ProductoCreateView.as_view(), name='producto_create'),
-    path('productos/<int:pk>/', ProductoDetailView.as_view(), name='producto_detail'),
-    path('productos/<int:pk>/editar/', ProductoUpdateView.as_view(), name='producto_update'),
-    path('productos/<int:pk>/eliminar/', ProductoDeleteView.as_view(), name='producto_delete'),
+    path('productos/', views.ProductoListView.as_view(), name='producto_list'),
+    path('productos/crear/', views.ProductoCreateView.as_view(), name='producto_create'),
+    path('productos/<int:pk>/', views.ProductoDetailView.as_view(), name='producto_detail'),
+    path('productos/<int:pk>/editar/', views.ProductoUpdateView.as_view(), name='producto_update'),
+    path('productos/<int:pk>/eliminar/', views.ProductoDeleteView.as_view(), name='producto_delete'),
 
     # Cotizaciones
-    path('cotizaciones/', CotizacionListView.as_view(), name='cotizacion_list'),
-    path('cotizaciones/crear/', CotizacionCreateView.as_view(), name='cotizacion_create'),
-    path('cotizaciones/<int:pk>/', CotizacionDetailView.as_view(), name='cotizacion_detail'),
-    path('cotizaciones/<int:pk>/editar/', CotizacionUpdateView.as_view(), name='cotizacion_update'),
-    path('cotizaciones/<int:pk>/eliminar/', CotizacionDeleteView.as_view(), name='cotizacion_delete'),
+    path('cotizaciones/', views.CotizacionListView.as_view(), name='cotizacion_list'),
+    path('cotizaciones/crear/', views.CotizacionCreateView.as_view(), name='cotizacion_create'),
+    path('cotizaciones/<int:pk>/', views.CotizacionDetailView.as_view(), name='cotizacion_detail'),
+    path('cotizaciones/<int:pk>/editar/', views.CotizacionUpdateView.as_view(), name='cotizacion_update'),
+    path('cotizaciones/<int:pk>/eliminar/', views.CotizacionDeleteView.as_view(), name='cotizacion_delete'),
 
     # Descuento
-    path('cotizaciones/<int:cotizacion_id>/descuento/', actualizar_descuento_cotizacion, name='actualizar_descuento_cotizacion'),
+    path('cotizaciones/<int:cotizacion_id>/descuento/', views.actualizar_descuento_cotizacion, name='actualizar_descuento_cotizacion'),
 
     # PDF
-    path('cotizaciones/<int:cotizacion_id>/pdf/', generar_pdf, name='generar_pdf'),
+    path('cotizaciones/<int:cotizacion_id>/pdf/', views.generar_pdf, name='generar_pdf'),
 
     # Estado
-    path('cotizaciones/<int:cotizacion_id>/estado/<str:estado>/', cambiar_estado_cotizacion, name='cambiar_estado_cotizacion'),
+    path('cotizaciones/<int:cotizacion_id>/estado/<str:estado>/', views.cambiar_estado_cotizacion, name='cambiar_estado_cotizacion'),
 
     # Factura desde cotización
-    path('cotizaciones/<int:cotizacion_id>/crear-factura/', crear_factura_desde_cotizacion, name='crear_factura_desde_cotizacion'),
+    path('cotizaciones/<int:cotizacion_id>/crear-factura/', views.crear_factura_desde_cotizacion, name='crear_factura_desde_cotizacion'),
 
     # Items cotización
-    path('cotizaciones/<int:cotizacion_id>/agregar-item/', agregar_item_cotizacion, name='agregar_item_cotizacion'),
-    path('items/<int:item_id>/eliminar/', eliminar_item_cotizacion, name='eliminar_item_cotizacion'),
+    path('cotizaciones/<int:cotizacion_id>/agregar-item/', views.agregar_item_cotizacion, name='agregar_item_cotizacion'),
+    path('items/<int:item_id>/eliminar/', views.eliminar_item_cotizacion, name='eliminar_item_cotizacion'),
 
     # Email
-    path('cotizaciones/<int:cotizacion_id>/enviar-email/', enviar_cotizacion_email, name='enviar_cotizacion_email'),
+    path('cotizaciones/<int:cotizacion_id>/enviar-email/', views.enviar_cotizacion_email, name='enviar_cotizacion_email'),
 
     # Leads / CRM
     path('leads/', views.LeadListView.as_view(), name='lead_list'),
@@ -172,24 +129,24 @@ urlpatterns = [
     path('recibo-items/<int:item_id>/eliminar/', views.eliminar_item_recibo, name='recibo_delete_item'),
 
     # Reportes
-    path('reportes/', reportes_view, name='reportes'),
+    path('reportes/', views.reportes_view, name='reportes'),
 
     # Configuración
-    path('configuracion/', configuracion, name='configuracion'),
+    path('configuracion/', views.configuracion, name='configuracion'),
 
-    # API Tradicional Interna (Mapeada a .views.api)
-    path('api/producto/<int:producto_id>/precio/', get_producto_precio, name='get_producto_precio'),
-    path('api/pending-cotizaciones-count/', pending_cotizaciones_count, name='pending_cotizaciones_count'),
-    path('api/pending-cotizaciones/', pending_cotizaciones_list, name='pending_cotizaciones_list'),
-    path('api/productos/buscar/', buscar_productos_ajax, name='buscar_productos_ajax'),
+    # API Tradicional Interna
+    path('api/producto/<int:producto_id>/precio/', views.get_producto_precio, name='get_producto_precio'),
+    path('api/pending-cotizaciones-count/', views.pending_cotizaciones_count, name='pending_cotizaciones_count'),
+    path('api/pending-cotizaciones/', views.pending_cotizaciones_list, name='pending_cotizaciones_list'),
+    path('api/productos/buscar/', views.buscar_productos_ajax, name='buscar_productos_ajax'),
 
     # Facturación
-    path('facturacion/', FacturaListView.as_view(), name='factura_list'),
-    path('facturacion/nueva/', FacturaCreateView.as_view(), name='factura_create'),
-    path('facturacion/<int:pk>/', FacturaDetailView.as_view(), name='factura_detail'),
-    path('facturacion/<int:factura_id>/items/', agregar_item_factura, name='factura_agregar_item'),
-    path('facturacion/<int:factura_id>/autorizar/', autorizar_factura_view, name='factura_autorizar'),
-    path('facturacion/<int:factura_id>/pdf/', generar_pdf_factura_view, name='generar_pdf_factura'),
+    path('facturacion/', views.FacturaListView.as_view(), name='factura_list'),
+    path('facturacion/nueva/', views.FacturaCreateView.as_view(), name='factura_create'),
+    path('facturacion/<int:pk>/', views.FacturaDetailView.as_view(), name='factura_detail'),
+    path('facturacion/<int:factura_id>/items/', views.agregar_item_factura, name='factura_agregar_item'),
+    path('facturacion/<int:factura_id>/autorizar/', views.autorizar_factura_view, name='factura_autorizar'),
+    path('facturacion/<int:factura_id>/pdf/', views.generar_pdf_factura_view, name='generar_pdf_factura'),
 
     # Listas de precio
     path('listas-precio/', views.ListaPrecioListView.as_view(), name='listaprecio_list'),
@@ -214,7 +171,7 @@ urlpatterns = [
     path('tienda-web/', views.tienda_web_config, name='tienda_web_config'),
 
     # AFIP
-    path('facturacion/configuracion/', configuracion_afip, name='facturacion_config'),
-    path('facturacion/configuracion/csr/', generar_csr_view, name='facturacion_generar_csr'),
-    path('facturacion/configuracion/test/', test_conexion_afip, name='facturacion_test'),
+    path('facturacion/configuracion/', views.configuracion_afip, name='facturacion_config'),
+    path('facturacion/configuracion/csr/', views.generar_csr_view, name='facturacion_generar_csr'),
+    path('facturacion/configuracion/test/', views.test_conexion_afip, name='facturacion_test'),
 ]

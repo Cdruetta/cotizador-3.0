@@ -8,12 +8,8 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 
-# ==============================================================================
-# 📚 CONFIGURACIÓN DE SWAGGER (DOCUMENTACIÓN INTERACTIVA)
-# ==============================================================================
 schema_permissions = (permissions.AllowAny,)
 if not getattr(settings, 'DEBUG', False):
-    # En producción exigimos que sea admin
     schema_permissions = (permissions.IsAdminUser,)
 
 schema_view = get_schema_view(
@@ -26,23 +22,10 @@ schema_view = get_schema_view(
    permission_classes=schema_permissions,
 )
 
-# ==============================================================================
-# 🔌 ENRUTAMIENTO PRINCIPAL DEL BACKEND
-# ==============================================================================
 urlpatterns = [
-    # 1. Panel de Administración tradicional de Django
     path('admin/', admin.site.urls),
-    
-    # 🚀 2. Endpoints de la API REST (CRUDs, Filtros y JWT)
     path('api/', include('proyecto.urls_api')),
-    
-    # 🏠 3. Tus vistas tradicionales actuales (Templates, formularios HTML y AFIP)
     path('', include('cotizaciones.urls')),
-    
-    # 📊 4. Swagger UI y ReDoc
-    # Documentación API (swagger/reDoc). En despliegues de producción el acceso
-    # debe restringirse mediante una configuración de entorno que cambie
-    # `permission_classes` o bloqueé el path a nivel de proxy.
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]

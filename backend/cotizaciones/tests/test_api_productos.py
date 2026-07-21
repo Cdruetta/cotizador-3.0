@@ -10,7 +10,7 @@ from ..models import Proveedor, Producto
 class ProductosAPITestCase(APITestCase):
 
     def setUp(self):
-        # 👤 1. Roles de usuario para la API
+        # 1. Roles de usuario para la API
         self.usuario_comun = User.objects.create_user(
             username="empleado_prod", 
             email="empleado_prod@gcinsumos.com", 
@@ -24,7 +24,7 @@ class ProductosAPITestCase(APITestCase):
             is_staff=True
         )
 
-        # 📦 2. Datos de base requeridos (Un producto necesita un proveedor)
+        # 2. Datos de base requeridos (Un producto necesita un proveedor)
         self.proveedor = Proveedor.objects.create(
             nombre="Mayorista Tecnológico S.A.",
             contacto="Juan Pérez",
@@ -38,7 +38,7 @@ class ProductosAPITestCase(APITestCase):
             proveedor=self.proveedor
         )
 
-        # 🎯 Endpoints fijos de la API v3 para Productos
+        # Endpoints fijos de la API v3 para Productos
         self.url_listado_productos = '/api/v3/productos/'
         self.url_detalle_producto = f'/api/v3/productos/{self.producto.pk}/'
 
@@ -48,7 +48,7 @@ class ProductosAPITestCase(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
 
     # ==========================================
-    # 🔒 CAPA 1: SEGURIDAD Y JWT
+    # CAPA 1: SEGURIDAD Y JWT
     # ==========================================
     def test_productos_denegado_sin_token(self):
         """Un usuario sin autenticar debe recibir 401 al intentar listar productos"""
@@ -57,7 +57,7 @@ class ProductosAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     # ==========================================
-    # 🛡️ CAPA 2: PERMISOS POR ROL (Empleado Común)
+    # CAPA 2: PERMISOS POR ROL (Empleado Común)
     # ==========================================
     def test_empleado_puede_listar_productos(self):
         """Cualquier empleado autenticado puede consultar el catálogo de productos (200 OK)"""
@@ -85,7 +85,7 @@ class ProductosAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     # ==========================================
-    # 🚀 CAPA 3: FLUJO CRUD COMPLETO (Admin / Staff)
+    # CAPA 3: FLUJO CRUD COMPLETO (Admin / Staff)
     # ==========================================
     def test_admin_puede_crear_producto_valido(self):
         """El administrador puede registrar nuevos productos de forma exitosa (201 Created)"""

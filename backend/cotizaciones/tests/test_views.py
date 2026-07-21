@@ -9,7 +9,7 @@ from ..models import Cliente
 
 
 # ==========================================================================
-# 🏠 VISTAS WEB TRADICIONALES (Tus tests originales intactos)
+# VISTAS WEB TRADICIONALES
 # ==========================================================================
 class ViewTestCase(TestCase):
     def setUp(self):
@@ -44,19 +44,19 @@ class ViewTestCase(TestCase):
 
 
 # ==========================================================================
-# 🛡️ SUITE DE API V3: VALIDACIÓN JWT, ROLES Y CRUD INTEGRADO EXTENDIDO
+# SUITE DE API V3: VALIDACIÓN JWT, ROLES Y CRUD INTEGRADO EXTENDIDO
 # ==========================================================================
 class CotizadorAPITestCase(APITestCase):
 
     def setUp(self):
-        # 👤 1. Usuario común (Solo lectura en la API)
+        # 1. Usuario común (Solo lectura en la API)
         self.usuario_comun = User.objects.create_user(
             username="empleado_api", 
             email="empleado_api@gcinsumos.com", 
             password="PasswordSecure123"
         )
         
-        # 👑 2. Usuario Administrador (Control total / Personal de Staff)
+        # 2. Usuario Administrador (Control total / Personal de Staff)
         self.usuario_admin = User.objects.create_user(
             username="admin_api", 
             email="admin_api@gcinsumos.com", 
@@ -64,13 +64,13 @@ class CotizadorAPITestCase(APITestCase):
             is_staff=True
         )
 
-        # 📦 3. Entidad de prueba adaptada a tus campos reales ('nombre', 'telefono')
+        # 3. Entidad de prueba adaptada a tus campos reales ('nombre', 'telefono')
         self.cliente_api = Cliente.objects.create(
             nombre="Insumos Tecnológicos S.A.",
             telefono="3584112233"
         )
 
-        # 🎯 Paths fijos de la API v3
+        # Paths fijos de la API v3
         self.url_listado_clientes = '/api/v3/clientes/'
         self.url_detalle_cliente = f'/api/v3/clientes/{self.cliente_api.pk}/'
 
@@ -80,7 +80,7 @@ class CotizadorAPITestCase(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
 
     # ==========================================
-    # 🔒 CAPA 1: VALIDACIÓN JWT & SEGURIDAD
+    # CAPA 1: VALIDACIÓN JWT & SEGURIDAD
     # ==========================================
     def test_acceso_denegado_sin_token(self):
         """Verifica que un usuario anónimo sin token reciba 401 Unauthorized"""
@@ -89,7 +89,7 @@ class CotizadorAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     # ==========================================
-    # 🛡️ CAPA 2: RESTRICCIÓN DE ROLES
+    # CAPA 2: RESTRICCIÓN DE ROLES
     # ==========================================
     def test_usuario_comun_puede_leer_pero_no_crear(self):
         """Un usuario normal puede listar (200 OK) pero no puede hacer POST (403 Forbidden)"""
@@ -116,7 +116,7 @@ class CotizadorAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     # ==========================================
-    # 🚀 CAPA 3: FLUJO CRUD COMPLETO & ERRORES (Admin)
+    # CAPA 3: FLUJO CRUD COMPLETO & ERRORES (Admin)
     # ==========================================
     def test_administrador_puede_crear_cliente(self):
         """Un usuario staff (admin) puede registrar datos mediante POST (201 Created)"""

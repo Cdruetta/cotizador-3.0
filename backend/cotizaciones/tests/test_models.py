@@ -35,7 +35,7 @@ class ModelTestCase(TestCase):
         )
 
     # ==========================================================================
-    # 📝 TESTS ORIGINALES: REPRESENTACIONES EN STRING Y CREACIÓN BÁSICA
+    # TESTS ORIGINALES: REPRESENTACIONES EN STRING Y CREACIÓN BÁSICA
     # ==========================================================================
     def test_cliente_str(self):
         self.assertEqual(str(self.cliente), "Cliente Test")
@@ -69,7 +69,7 @@ class ModelTestCase(TestCase):
         self.assertEqual(cotizacion.total, Decimal("200.00"))
 
     # ==========================================================================
-    # 🚀 NUEVOS TESTS: CÁLCULOS COMPLEJOS, RECALCULOS Y RESTRICCIONES
+    # CÁLCULOS COMPLEJOS, RECALCULOS Y RESTRICCIONES
     # ==========================================================================
     def test_cotizacion_multiples_items_acumula_total(self):
         """Verifica que el total de la cotización sume correctamente múltiples ítems"""

@@ -10,7 +10,7 @@ from ..models import Cliente, Cotizacion, Producto, Proveedor
 class CotizacionesAPITestCase(APITestCase):
 
     def setUp(self):
-        # 👤 1. Usuarios y Roles
+        # 1. Usuarios y Roles
         self.usuario_comun = User.objects.create_user(
             username="empleado_coti", 
             email="empleado_coti@gcinsumos.com", 
@@ -23,7 +23,7 @@ class CotizacionesAPITestCase(APITestCase):
             is_staff=True
         )
 
-        # 📦 2. Entidades requeridas para relacionar una cotización
+        # 2. Entidades requeridas para relacionar una cotización
         self.cliente = Cliente.objects.create(
             nombre="Computación Río Cuarto",
             telefono="3584112233"
@@ -38,7 +38,7 @@ class CotizacionesAPITestCase(APITestCase):
             proveedor=self.proveedor
         )
 
-        # 📝 3. Creamos una cotización base asociada al admin
+        # 3. Creamos una cotización base asociada al admin
         self.cotizacion = Cotizacion.objects.create(
             numero="COT-API-001",
             cliente=self.cliente,
@@ -46,7 +46,7 @@ class CotizacionesAPITestCase(APITestCase):
             usuario=self.usuario_admin
         )
 
-        # 🎯 Endpoints v3 para Cotizaciones
+        # Endpoints v3 para Cotizaciones
         self.url_listado_cotizaciones = '/api/v3/cotizaciones/'
         self.url_detalle_cotizacion = f'/api/v3/cotizaciones/{self.cotizacion.pk}/'
 
@@ -56,7 +56,7 @@ class CotizacionesAPITestCase(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {refresh.access_token}')
 
     # ==========================================
-    # 🔒 SEGURIDAD & ACCESOS
+    # SEGURIDAD & ACCESOS
     # ==========================================
     def test_cotizaciones_denegado_sin_token(self):
         """Bloqueo inmediato a usuarios anónimos (401 Unauthorized)"""
@@ -72,7 +72,7 @@ class CotizacionesAPITestCase(APITestCase):
         self.assertContains(response, "COT-API-001")
 
     # ==========================================
-    # 🚀 OPERACIONES CRUD (Admin / Personal Autorizado)
+    # OPERACIONES CRUD (Admin / Personal Autorizado)
     # ==========================================
     def test_admin_puede_crear_cotizacion_vacia(self):
         """Verifica la cabecera inicial de una cotización vinculada al cliente (201 Created)"""

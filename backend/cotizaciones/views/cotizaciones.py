@@ -20,9 +20,7 @@ from ..services.communication.email import enviar_cotizacion_por_email
 from ..services.documents.pdf import build_cotizacion_pdf_response
 
 
-# ==============================================================================
-# 📊 LISTADO TRADICIONAL HTML
-# ==============================================================================
+
 class CotizacionListView(LoginRequiredMixin, ListView):
     model = Cotizacion
     template_name = "cotizaciones/cotizacion/list.html"
@@ -59,9 +57,7 @@ class CotizacionListView(LoginRequiredMixin, ListView):
         return ctx
 
 
-# ==============================================================================
-# 🛠️ ACCIONES (C.R.U.D WEB)
-# ==============================================================================
+
 class CotizacionCreateView(LoginRequiredMixin, CreateView):
     model = Cotizacion
     form_class = CotizacionForm
@@ -192,9 +188,7 @@ class CotizacionDetailView(LoginRequiredMixin, DetailView):
         return ctx
 
 
-# ==============================================================================
-# 📦 GESTIÓN DE ITEMS Y ESTADOS (Vistas de función tradicionales)
-# ==============================================================================
+
 @login_required
 def agregar_item_cotizacion(request, cotizacion_id):
     cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
@@ -232,9 +226,7 @@ def cambiar_estado_cotizacion(request, cotizacion_id, estado):
     return redirect("cotizacion_detail", pk=cotizacion_id)
 
 
-# ==============================================================================
-# 🖨️ ACCIONES DE SALIDA (PDF / EMAIL)
-# ==============================================================================
+
 @login_required
 def actualizar_descuento_cotizacion(request, cotizacion_id):
     cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)

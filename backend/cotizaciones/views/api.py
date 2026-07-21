@@ -5,10 +5,8 @@ from rest_framework import viewsets, permissions
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
-# 📦 IMPORTACIONES DE MODELOS
 from ..models import Cliente, Cotizacion, CotizacionItem, Factura, Producto
 
-# 🧪 IMPORTACIONES DE SERIALIZERS
 from ..serializers import (
     ClienteSerializer, 
     CotizacionSerializer, 
@@ -17,9 +15,7 @@ from ..serializers import (
     ProductoSerializer
 )
 
-# ==============================================================================
-# 🛠️ 1. TU FUNCIÓN ACTUAL (Mantenida intacta para compatibilidad)
-# ==============================================================================
+
 @login_required
 def get_producto_precio(request, producto_id):
     try:
@@ -35,9 +31,7 @@ def get_producto_precio(request, producto_id):
     except Producto.DoesNotExist:
         return JsonResponse({"error": "Producto no encontrado"}, status=404)
 
-# ---------------------------------------------------------------------------
-# 🚨 Endpoint: Count pending (draft) cotizaciones
-# ---------------------------------------------------------------------------
+
 @login_required
 def pending_cotizaciones_count(request):
     """Return JSON with count of cotizaciones in 'borrador' state.
@@ -65,9 +59,7 @@ def pending_cotizaciones_list(request):
     return JsonResponse({"cotizaciones": data})
 
 
-# ==============================================================================
-# 🛡️ 2. SISTEMA DE PERMISOS Y ROLES
-# ==============================================================================
+
 class EsAdministradorOReadOnly(permissions.BasePermission):
     """
     Seguridad del Backend: 
@@ -80,9 +72,7 @@ class EsAdministradorOReadOnly(permissions.BasePermission):
         return request.user and request.user.is_staff
 
 
-# ==============================================================================
-# 🚀 3. ENDPOINTS CRUD COMPLETOS CON FILTROS SEGUROS PARA SWAGGER
-# ==============================================================================
+
 
 class ClienteViewSet(viewsets.ModelViewSet):
     queryset = Cliente.objects.all()
