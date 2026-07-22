@@ -119,8 +119,9 @@ def _build_elements_factura(factura):
     s_moneda = ParagraphStyle('FMON', fontName='Helvetica', fontSize=8, textColor=COLOR_TEXT_MUTED, alignment=TA_CENTER, leading=10)
 
     elements.append(Paragraph('FACTURA', s_factura_tit))
+    elements.append(Spacer(1, 4))
     elements.append(Paragraph(f'<b>{letra}</b>', s_factura_letra))
-    elements.append(Spacer(1, 8))
+    elements.append(Spacer(1, 10))
 
     left_cells = []
     logo_path = _factura_logo_path()
@@ -163,8 +164,8 @@ def _build_elements_factura(factura):
     right_inner.setStyle(TableStyle([
         ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('TOPPADDING', (0, 0), (-1, -1), 1),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+        ('TOPPADDING', (0, 0), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
     ]))
 
     header_tbl = Table([[col_left, right_inner]], colWidths=[4.1 * inch, 2.4 * inch])
