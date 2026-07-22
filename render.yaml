@@ -5,4 +5,4 @@ services:
     plan: starter
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn proyecto.wsgi --bind 0.0.0.0:$PORT
-    releaseCommand: python manage.py migrate --noinput && python manage.py collectstatic --noinput
+    releaseCommand: python manage.py migrate --noinput --fake-initial && python manage.py collectstatic --noinput

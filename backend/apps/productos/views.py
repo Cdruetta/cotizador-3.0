@@ -1,12 +1,23 @@
+import io
+from datetime import datetime
+
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, Count, Sum
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.views.decorators.http import require_POST
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 
 from apps.productos.models import Producto, Categoria, Marca, ListaPrecio, ListaPrecioItem
@@ -266,7 +277,15 @@ class ListaPrecioListView(LoginRequiredMixin, ListView):
         return ctx
 
 
-class ListaPrecioCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+class StaffRequiredMixin(UserPassesTestMixin):
+    """Deny access to non-staff users with 403."""
+    raise_exception = True
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+
+class ListaPrecioCreateView(LoginRequiredMixin, StaffRequiredMixin, SuccessMessageMixin, CreateView):
     model = ListaPrecio
     form_class = ListaPrecioForm
     template_name = "cotizaciones/listaprecio/form.html"
@@ -274,7 +293,7 @@ class ListaPrecioCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView)
     success_message = "Lista de precio creada correctamente."
 
 
-class ListaPrecioUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class ListaPrecioUpdateView(LoginRequiredMixin, StaffRequiredMixin, SuccessMessageMixin, UpdateView):
     model = ListaPrecio
     form_class = ListaPrecioForm
     template_name = "cotizaciones/listaprecio/form.html"
@@ -282,7 +301,7 @@ class ListaPrecioUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView)
     success_message = "Lista de precio actualizada correctamente."
 
 
-class ListaPrecioDeleteView(LoginRequiredMixin, DeleteView):
+class ListaPrecioDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
     model = ListaPrecio
     success_url = reverse_lazy("listaprecio_list")
     success_message = "Lista de precio eliminada correctamente."
@@ -317,9 +336,7 @@ def importar_csv_lista_precio(request, pk):
             return redirect("listaprecio_detail", pk=pk)
 
         try:
-            # Importar las funciones necesarias desde el archivo original
             import csv
-            import io
             from datetime import datetime
             from reportlab.lib import colors
             from reportlab.lib.pagesizes import A4
@@ -408,7 +425,7 @@ def importar_csv_lista_precio(request, pk):
     return redirect("listaprecio_detail", pk=pk)
 
 
-@login_required
+@staff_member_required
 def agregar_item_lista_precio(request, pk):
     lista = get_object_or_404(ListaPrecio, pk=pk)
     if request.method == "POST":
@@ -427,7 +444,7 @@ def agregar_item_lista_precio(request, pk):
     return redirect("listaprecio_detail", pk=pk)
 
 
-@login_required
+@staff_member_required
 def editar_item_lista_precio(request, lista_pk, item_pk):
     item = get_object_or_404(ListaPrecioItem, pk=item_pk, lista_id=lista_pk)
     if request.method == "POST":
@@ -443,7 +460,7 @@ def editar_item_lista_precio(request, lista_pk, item_pk):
     return redirect("listaprecio_detail", pk=lista_pk)
 
 
-@login_required
+@staff_member_required
 def eliminar_item_lista_precio(request, lista_pk, item_pk):
     item = get_object_or_404(ListaPrecioItem, pk=item_pk, lista_id=lista_pk)
     item.delete()
@@ -451,7 +468,7 @@ def eliminar_item_lista_precio(request, lista_pk, item_pk):
     return redirect("listaprecio_detail", pk=lista_pk)
 
 
-@login_required
+@staff_member_required
 def exportar_lista_precio_pdf(request, pk):
     lista = get_object_or_404(ListaPrecio.objects.prefetch_related("items"), pk=pk)
     items = lista.items.all()

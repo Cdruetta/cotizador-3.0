@@ -390,7 +390,7 @@ class TestCotizacionViewsExtra:
         cot.refresh_from_db()
         assert cot.descuento_porcentaje == Decimal("10.5")
 
-    @patch("cotizaciones.views.cotizaciones.build_cotizacion_pdf_response")
+    @patch("apps.ventas.views.build_cotizacion_pdf_response")
     def test_generar_pdf(self, mock_build):
         mock_build.return_value = HttpResponse(content_type="application/pdf")
         cli = Cliente.objects.create(nombre="Cli")
@@ -399,7 +399,7 @@ class TestCotizacionViewsExtra:
         assert r.status_code == 200
         mock_build.assert_called_once_with(cotizacion=cot)
 
-    @patch("cotizaciones.views.cotizaciones.enviar_cotizacion_por_email")
+    @patch("apps.ventas.views.enviar_cotizacion_por_email")
     def test_enviar_email_ok(self, mock_email):
         cli = Cliente.objects.create(nombre="Cli", email="cli@test.com")
         cot = Cotizacion.objects.create(cliente=cli, usuario=self.user)
@@ -412,7 +412,7 @@ class TestCotizacionViewsExtra:
         assert cot.email_enviado is True
         mock_email.assert_called_once()
 
-    @patch("cotizaciones.views.cotizaciones.enviar_cotizacion_por_email")
+    @patch("apps.ventas.views.enviar_cotizacion_por_email")
     def test_enviar_email_falla(self, mock_email):
         mock_email.side_effect = Exception("SMTP error")
         cli = Cliente.objects.create(nombre="Cli", email="cli@test.com")
@@ -582,7 +582,7 @@ class TestFacturacionViews:
         item = fac.items.first()
         assert item.subtotal == 200
 
-    @patch("cotizaciones.views.facturacion.autorizar_factura")
+    @patch("apps.facturacion.views.autorizar_factura")
     def test_autorizar_factura_ok(self, mock_autorizar):
         mock_autorizar.return_value = (True, "CAE-1234")
         ConfiguracionAFIP.objects.create(cuit="20-12345678-9", razon_social="Test SA")
@@ -592,7 +592,7 @@ class TestFacturacionViews:
         assert r.status_code == 200
         mock_autorizar.assert_called_once()
 
-    @patch("cotizaciones.views.facturacion.autorizar_factura")
+    @patch("apps.facturacion.views.autorizar_factura")
     def test_autorizar_factura_rechazada(self, mock_autorizar):
         mock_autorizar.return_value = (False, "Error AFIP")
         ConfiguracionAFIP.objects.create(cuit="20-12345678-9", razon_social="Test SA")
@@ -614,7 +614,7 @@ class TestFacturacionViews:
         r = self.client.get(reverse("factura_autorizar", args=[fac.pk]), follow=True)
         assert r.status_code == 200
 
-    @patch("cotizaciones.views.facturacion.generar_pdf_factura")
+    @patch("apps.facturacion.views.generar_pdf_factura")
     def test_generar_pdf_factura_view(self, mock_pdf):
         mock_pdf.return_value = HttpResponse(content_type="application/pdf")
         cli = Cliente.objects.create(nombre="Cli")
@@ -792,7 +792,7 @@ class TestReciboViewsExtra:
         r = self.client.post(reverse("recibo_delete_item", args=[item.pk]), follow=True)
         assert not ReciboItem.objects.filter(pk=item.pk).exists()
 
-    @patch("cotizaciones.views.recibos.build_recibo_pdf_response")
+    @patch("apps.ventas.views.build_recibo_pdf_response")
     def test_generar_pdf_recibo(self, mock_build):
         mock_build.return_value = HttpResponse(content_type="application/pdf")
         cli = Cliente.objects.create(nombre="Cli")
@@ -801,7 +801,7 @@ class TestReciboViewsExtra:
         assert r.status_code == 200
         mock_build.assert_called_once_with(recibo=rec)
 
-    @patch("cotizaciones.views.recibos.enviar_recibo_por_email")
+    @patch("apps.ventas.views.enviar_recibo_por_email")
     def test_enviar_recibo_email_ok(self, mock_email):
         cli = Cliente.objects.create(nombre="Cli", email="cli@test.com")
         rec = Recibo.objects.create(cliente=cli, fecha="2025-01-15", forma_pago="efectivo", usuario=self.user)
@@ -812,7 +812,7 @@ class TestReciboViewsExtra:
         }, follow=True)
         mock_email.assert_called_once()
 
-    @patch("cotizaciones.views.recibos.enviar_recibo_por_email")
+    @patch("apps.ventas.views.enviar_recibo_por_email")
     def test_enviar_recibo_email_falla(self, mock_email):
         mock_email.side_effect = Exception("SMTP error")
         cli = Cliente.objects.create(nombre="Cli", email="cli@test.com")
