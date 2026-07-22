@@ -15,106 +15,112 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name="Compra",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
+        # Compra and CompraItem tables already exist from the old cotizaciones app.
+        # State only registration.
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.CreateModel(
+                    name="Compra",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        ("numero", models.CharField(max_length=50, unique=True)),
+                        ("fecha", models.DateField()),
+                        (
+                            "total",
+                            models.DecimalField(decimal_places=2, default=0, max_digits=12),
+                        ),
+                        (
+                            "estado",
+                            models.CharField(
+                                choices=[
+                                    ("pendiente", "Pendiente"),
+                                    ("recibida", "Recibida"),
+                                    ("cancelada", "Cancelada"),
+                                ],
+                                default="pendiente",
+                                max_length=20,
+                            ),
+                        ),
+                        ("observaciones", models.TextField(blank=True, null=True)),
+                        ("created_at", models.DateTimeField(auto_now_add=True)),
+                        ("updated_at", models.DateTimeField(auto_now=True)),
+                        (
+                            "proveedor",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="productos.proveedor",
+                            ),
+                        ),
+                        (
+                            "usuario",
+                            models.ForeignKey(
+                                blank=True,
+                                null=True,
+                                on_delete=django.db.models.deletion.SET_NULL,
+                                to=settings.AUTH_USER_MODEL,
+                            ),
+                        ),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_compra",
+                        "ordering": ["-fecha", "-numero"],
+                    },
                 ),
-                ("numero", models.CharField(max_length=50, unique=True)),
-                ("fecha", models.DateField()),
-                (
-                    "total",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=12),
-                ),
-                (
-                    "estado",
-                    models.CharField(
-                        choices=[
-                            ("pendiente", "Pendiente"),
-                            ("recibida", "Recibida"),
-                            ("cancelada", "Cancelada"),
-                        ],
-                        default="pendiente",
-                        max_length=20,
-                    ),
-                ),
-                ("observaciones", models.TextField(blank=True, null=True)),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                (
-                    "proveedor",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="productos.proveedor",
-                    ),
-                ),
-                (
-                    "usuario",
-                    models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        to=settings.AUTH_USER_MODEL,
-                    ),
+                migrations.CreateModel(
+                    name="CompraItem",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        (
+                            "descripcion",
+                            models.CharField(blank=True, max_length=255, null=True),
+                        ),
+                        ("cantidad", models.PositiveIntegerField(default=1)),
+                        (
+                            "precio_unitario",
+                            models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                        ),
+                        (
+                            "subtotal",
+                            models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                        ),
+                        (
+                            "compra",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                related_name="items",
+                                to="compras.compra",
+                            ),
+                        ),
+                        (
+                            "producto",
+                            models.ForeignKey(
+                                blank=True,
+                                null=True,
+                                on_delete=django.db.models.deletion.SET_NULL,
+                                to="productos.producto",
+                            ),
+                        ),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_compraitem",
+                    },
                 ),
             ],
-            options={
-                "db_table": "cotizaciones_compra",
-                "ordering": ["-fecha", "-numero"],
-            },
-        ),
-        migrations.CreateModel(
-            name="CompraItem",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                (
-                    "descripcion",
-                    models.CharField(blank=True, max_length=255, null=True),
-                ),
-                ("cantidad", models.PositiveIntegerField(default=1)),
-                (
-                    "precio_unitario",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
-                ),
-                (
-                    "subtotal",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
-                ),
-                (
-                    "compra",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="items",
-                        to="compras.compra",
-                    ),
-                ),
-                (
-                    "producto",
-                    models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        to="productos.producto",
-                    ),
-                ),
-            ],
-            options={
-                "db_table": "cotizaciones_compraitem",
-            },
         ),
     ]

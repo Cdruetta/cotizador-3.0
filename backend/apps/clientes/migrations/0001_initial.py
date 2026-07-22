@@ -15,37 +15,46 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name="Cliente",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
+        # Cliente and Lead tables already exist in the database (from the old
+        # cotizaciones app). We register them in Django's state only so we
+        # don't attempt to CREATE TABLE again.
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.CreateModel(
+                    name="Cliente",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        ("nombre", models.CharField(db_index=True, max_length=255)),
+                        (
+                            "email",
+                            models.EmailField(
+                                blank=True, db_index=True, max_length=254, null=True
+                            ),
+                        ),
+                        ("telefono", models.CharField(blank=True, max_length=20, null=True)),
+                        ("direccion", models.TextField(blank=True, null=True)),
+                        ("localidad", models.CharField(blank=True, max_length=100, null=True)),
+                        ("activo", models.BooleanField(default=True)),
+                        ("created_at", models.DateTimeField(auto_now_add=True)),
+                        ("updated_at", models.DateTimeField(auto_now=True)),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_cliente",
+                        "ordering": ["nombre"],
+                    },
                 ),
-                ("nombre", models.CharField(db_index=True, max_length=255)),
-                (
-                    "email",
-                    models.EmailField(
-                        blank=True, db_index=True, max_length=254, null=True
-                    ),
-                ),
-                ("telefono", models.CharField(blank=True, max_length=20, null=True)),
-                ("direccion", models.TextField(blank=True, null=True)),
-                ("localidad", models.CharField(blank=True, max_length=100, null=True)),
-                ("activo", models.BooleanField(default=True)),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
-            options={
-                "db_table": "cotizaciones_cliente",
-                "ordering": ["nombre"],
-            },
         ),
+        # HistoricalCliente is a NEW table (the old cotizaciones app did NOT
+        # have HistoricalRecords), so we create it normally.
         migrations.CreateModel(
             name="HistoricalCliente",
             fields=[
@@ -96,72 +105,77 @@ class Migration(migrations.Migration):
             },
             bases=(simple_history.models.HistoricalChanges, models.Model),
         ),
-        migrations.CreateModel(
-            name="Lead",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("nombre", models.CharField(max_length=255)),
-                ("email", models.EmailField(blank=True, max_length=254, null=True)),
-                ("telefono", models.CharField(blank=True, max_length=50, null=True)),
-                ("empresa", models.CharField(blank=True, max_length=255, null=True)),
-                ("cargo", models.CharField(blank=True, max_length=255, null=True)),
-                (
-                    "estado",
-                    models.CharField(
-                        choices=[
-                            ("nuevo", "Nuevo"),
-                            ("contactado", "Contactado"),
-                            ("calificado", "Calificado"),
-                            ("propuesta", "Propuesta"),
-                            ("negociacion", "Negociación"),
-                            ("ganado", "Ganado"),
-                            ("perdido", "Perdido"),
-                        ],
-                        default="nuevo",
-                        max_length=20,
-                    ),
-                ),
-                (
-                    "fuente",
-                    models.CharField(
-                        choices=[
-                            ("web", "Web"),
-                            ("referral", "Referido"),
-                            ("llamada", "Llamada"),
-                            ("email", "Email"),
-                            ("redes_sociales", "Redes Sociales"),
-                            ("whatsapp", "WhatsApp"),
-                            ("otro", "Otro"),
-                        ],
-                        default="web",
-                        max_length=20,
-                    ),
-                ),
-                ("notas", models.TextField(blank=True, null=True)),
-                ("activo", models.BooleanField(default=True)),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                (
-                    "asignado_a",
-                    models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        to=settings.AUTH_USER_MODEL,
-                    ),
+        # Lead table already exists from the old cotizaciones app
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.CreateModel(
+                    name="Lead",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        ("nombre", models.CharField(max_length=255)),
+                        ("email", models.EmailField(blank=True, max_length=254, null=True)),
+                        ("telefono", models.CharField(blank=True, max_length=50, null=True)),
+                        ("empresa", models.CharField(blank=True, max_length=255, null=True)),
+                        ("cargo", models.CharField(blank=True, max_length=255, null=True)),
+                        (
+                            "estado",
+                            models.CharField(
+                                choices=[
+                                    ("nuevo", "Nuevo"),
+                                    ("contactado", "Contactado"),
+                                    ("calificado", "Calificado"),
+                                    ("propuesta", "Propuesta"),
+                                    ("negociacion", "Negociación"),
+                                    ("ganado", "Ganado"),
+                                    ("perdido", "Perdido"),
+                                ],
+                                default="nuevo",
+                                max_length=20,
+                            ),
+                        ),
+                        (
+                            "fuente",
+                            models.CharField(
+                                choices=[
+                                    ("web", "Web"),
+                                    ("referral", "Referido"),
+                                    ("llamada", "Llamada"),
+                                    ("email", "Email"),
+                                    ("redes_sociales", "Redes Sociales"),
+                                    ("whatsapp", "WhatsApp"),
+                                    ("otro", "Otro"),
+                                ],
+                                default="web",
+                                max_length=20,
+                            ),
+                        ),
+                        ("notas", models.TextField(blank=True, null=True)),
+                        ("activo", models.BooleanField(default=True)),
+                        ("created_at", models.DateTimeField(auto_now_add=True)),
+                        ("updated_at", models.DateTimeField(auto_now=True)),
+                        (
+                            "asignado_a",
+                            models.ForeignKey(
+                                blank=True,
+                                null=True,
+                                on_delete=django.db.models.deletion.SET_NULL,
+                                to=settings.AUTH_USER_MODEL,
+                            ),
+                        ),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_lead",
+                        "ordering": ["-created_at"],
+                    },
                 ),
             ],
-            options={
-                "db_table": "cotizaciones_lead",
-                "ordering": ["-created_at"],
-            },
         ),
     ]

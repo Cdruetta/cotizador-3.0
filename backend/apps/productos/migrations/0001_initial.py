@@ -16,199 +16,206 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name="Categoria",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
+        # Categoria, Marca, Proveedor, ListaPrecio, ListaPrecioItem, Producto
+        # tables already exist from the old cotizaciones app. Register in state only.
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.CreateModel(
+                    name="Categoria",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        ("nombre", models.CharField(max_length=100, unique=True)),
+                        ("descripcion", models.TextField(blank=True, null=True)),
+                        ("activo", models.BooleanField(default=True)),
+                        ("created_at", models.DateTimeField(auto_now_add=True)),
+                        ("updated_at", models.DateTimeField(auto_now=True)),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_categoria",
+                        "ordering": ["nombre"],
+                    },
                 ),
-                ("nombre", models.CharField(max_length=100, unique=True)),
-                ("descripcion", models.TextField(blank=True, null=True)),
-                ("activo", models.BooleanField(default=True)),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
+                migrations.CreateModel(
+                    name="ListaPrecio",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        ("nombre", models.CharField(max_length=100, unique=True)),
+                        (
+                            "porcentaje",
+                            models.DecimalField(
+                                blank=True,
+                                decimal_places=2,
+                                default=0,
+                                max_digits=6,
+                                validators=[django.core.validators.MinValueValidator(0.0)],
+                            ),
+                        ),
+                        ("por_defecto", models.BooleanField(default=False)),
+                        ("activo", models.BooleanField(default=True)),
+                        ("created_at", models.DateTimeField(auto_now_add=True)),
+                        ("updated_at", models.DateTimeField(auto_now=True)),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_listaprecio",
+                        "ordering": ["nombre"],
+                    },
+                ),
+                migrations.CreateModel(
+                    name="Marca",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        ("nombre", models.CharField(max_length=100, unique=True)),
+                        ("descripcion", models.TextField(blank=True, null=True)),
+                        ("activo", models.BooleanField(default=True)),
+                        ("created_at", models.DateTimeField(auto_now_add=True)),
+                        ("updated_at", models.DateTimeField(auto_now=True)),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_marca",
+                        "ordering": ["nombre"],
+                    },
+                ),
+                migrations.CreateModel(
+                    name="Proveedor",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        ("nombre", models.CharField(max_length=255)),
+                        ("email", models.EmailField(blank=True, max_length=254, null=True)),
+                        ("telefono", models.CharField(blank=True, max_length=20, null=True)),
+                        ("direccion", models.TextField(blank=True, null=True)),
+                        ("contacto", models.CharField(blank=True, max_length=100, null=True)),
+                        ("created_at", models.DateTimeField(auto_now_add=True)),
+                        ("updated_at", models.DateTimeField(auto_now=True)),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_proveedor",
+                        "ordering": ["nombre"],
+                    },
+                ),
+                migrations.CreateModel(
+                    name="ListaPrecioItem",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        ("categoria", models.CharField(max_length=200)),
+                        ("servicio", models.CharField(max_length=500)),
+                        (
+                            "precio",
+                            models.DecimalField(
+                                decimal_places=2,
+                                max_digits=12,
+                                validators=[django.core.validators.MinValueValidator(0.0)],
+                            ),
+                        ),
+                        ("orden", models.PositiveIntegerField(default=0)),
+                        (
+                            "lista",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                related_name="items",
+                                to="productos.listaprecio",
+                            ),
+                        ),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_listaprecioitem",
+                        "ordering": ["orden", "categoria", "servicio"],
+                    },
+                ),
+                migrations.CreateModel(
+                    name="Producto",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        ("nombre", models.CharField(db_index=True, max_length=255)),
+                        ("descripcion", models.TextField(blank=True, null=True)),
+                        (
+                            "tipo",
+                            models.CharField(
+                                choices=[
+                                    ("producto", "Producto"),
+                                    ("servicio_soft", "Servicio Software"),
+                                    ("servicio_hard", "Servicio Hardware"),
+                                ],
+                                default="producto",
+                                max_length=20,
+                            ),
+                        ),
+                        (
+                            "precio_unitario",
+                            models.DecimalField(
+                                decimal_places=2,
+                                default=0,
+                                max_digits=10,
+                                validators=[django.core.validators.MinValueValidator(0.0)],
+                            ),
+                        ),
+                        ("stock", models.PositiveIntegerField(db_index=True, default=0)),
+                        ("activo", models.BooleanField(default=True)),
+                        ("created_at", models.DateTimeField(auto_now_add=True)),
+                        ("updated_at", models.DateTimeField(auto_now=True)),
+                        (
+                            "proveedor",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="productos.proveedor",
+                            ),
+                        ),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_producto",
+                        "ordering": ["nombre"],
+                    },
+                ),
             ],
-            options={
-                "db_table": "cotizaciones_categoria",
-                "ordering": ["nombre"],
-            },
         ),
-        migrations.CreateModel(
-            name="ListaPrecio",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("nombre", models.CharField(max_length=100, unique=True)),
-                (
-                    "porcentaje",
-                    models.DecimalField(
-                        blank=True,
-                        decimal_places=2,
-                        default=0,
-                        max_digits=6,
-                        validators=[django.core.validators.MinValueValidator(0.0)],
-                    ),
-                ),
-                ("por_defecto", models.BooleanField(default=False)),
-                ("activo", models.BooleanField(default=True)),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-            ],
-            options={
-                "db_table": "cotizaciones_listaprecio",
-                "ordering": ["nombre"],
-            },
-        ),
-        migrations.CreateModel(
-            name="Marca",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("nombre", models.CharField(max_length=100, unique=True)),
-                ("descripcion", models.TextField(blank=True, null=True)),
-                ("activo", models.BooleanField(default=True)),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-            ],
-            options={
-                "db_table": "cotizaciones_marca",
-                "ordering": ["nombre"],
-            },
-        ),
-        migrations.CreateModel(
-            name="Proveedor",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("nombre", models.CharField(max_length=255)),
-                ("email", models.EmailField(blank=True, max_length=254, null=True)),
-                ("telefono", models.CharField(blank=True, max_length=20, null=True)),
-                ("direccion", models.TextField(blank=True, null=True)),
-                ("contacto", models.CharField(blank=True, max_length=100, null=True)),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-            ],
-            options={
-                "db_table": "cotizaciones_proveedor",
-                "ordering": ["nombre"],
-            },
-        ),
-        migrations.CreateModel(
-            name="ListaPrecioItem",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("categoria", models.CharField(max_length=200)),
-                ("servicio", models.CharField(max_length=500)),
-                (
-                    "precio",
-                    models.DecimalField(
-                        decimal_places=2,
-                        max_digits=12,
-                        validators=[django.core.validators.MinValueValidator(0.0)],
-                    ),
-                ),
-                ("orden", models.PositiveIntegerField(default=0)),
-                (
-                    "lista",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="items",
-                        to="productos.listaprecio",
-                    ),
-                ),
-            ],
-            options={
-                "db_table": "cotizaciones_listaprecioitem",
-                "ordering": ["orden", "categoria", "servicio"],
-            },
-        ),
-        migrations.CreateModel(
-            name="Producto",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("nombre", models.CharField(db_index=True, max_length=255)),
-                ("descripcion", models.TextField(blank=True, null=True)),
-                (
-                    "tipo",
-                    models.CharField(
-                        choices=[
-                            ("producto", "Producto"),
-                            ("servicio_soft", "Servicio Software"),
-                            ("servicio_hard", "Servicio Hardware"),
-                        ],
-                        default="producto",
-                        max_length=20,
-                    ),
-                ),
-                (
-                    "precio_unitario",
-                    models.DecimalField(
-                        decimal_places=2,
-                        default=0,
-                        max_digits=10,
-                        validators=[django.core.validators.MinValueValidator(0.0)],
-                    ),
-                ),
-                ("stock", models.PositiveIntegerField(db_index=True, default=0)),
-                ("activo", models.BooleanField(default=True)),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                (
-                    "proveedor",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="productos.proveedor",
-                    ),
-                ),
-            ],
-            options={
-                "db_table": "cotizaciones_producto",
-                "ordering": ["nombre"],
-            },
-        ),
+        # HistoricalProducto is a NEW table; create it normally.
         migrations.CreateModel(
             name="HistoricalProducto",
             fields=[

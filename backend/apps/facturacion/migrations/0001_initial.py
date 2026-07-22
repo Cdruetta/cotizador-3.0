@@ -16,113 +16,149 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name="ConfiguracionAFIP",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
+        # ConfiguracionAFIP, Factura, ItemFactura tables already exist from the
+        # old cotizaciones app. State only.
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.CreateModel(
+                    name="ConfiguracionAFIP",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        ("cuit", models.CharField(max_length=13)),
+                        ("razon_social", models.CharField(max_length=255)),
+                        ("domicilio", models.CharField(blank=True, max_length=255)),
+                        ("punto_venta", models.IntegerField(default=1)),
+                        (
+                            "ambiente",
+                            models.CharField(
+                                choices=[
+                                    ("homologacion", "Homologación"),
+                                    ("produccion", "Producción"),
+                                ],
+                                default="homologacion",
+                                max_length=15,
+                            ),
+                        ),
+                        (
+                            "certificado",
+                            models.FileField(blank=True, null=True, upload_to="certs/"),
+                        ),
+                        (
+                            "clave_privada",
+                            models.FileField(blank=True, null=True, upload_to="certs/"),
+                        ),
+                        ("actualizado", models.DateTimeField(auto_now=True)),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_configuracionafip",
+                    },
                 ),
-                ("cuit", models.CharField(max_length=13)),
-                ("razon_social", models.CharField(max_length=255)),
-                ("domicilio", models.CharField(blank=True, max_length=255)),
-                ("punto_venta", models.IntegerField(default=1)),
-                (
-                    "ambiente",
-                    models.CharField(
-                        choices=[
-                            ("homologacion", "Homologación"),
-                            ("produccion", "Producción"),
-                        ],
-                        default="homologacion",
-                        max_length=15,
-                    ),
+                migrations.CreateModel(
+                    name="Factura",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        (
+                            "tipo",
+                            models.CharField(
+                                choices=[("C", "Factura C")], default="C", max_length=1
+                            ),
+                        ),
+                        ("punto_venta", models.IntegerField(default=1)),
+                        ("numero", models.IntegerField(blank=True, db_index=True, null=True)),
+                        ("fecha", models.DateField(auto_now_add=True)),
+                        (
+                            "neto",
+                            models.DecimalField(decimal_places=2, default=0, max_digits=12),
+                        ),
+                        (
+                            "total",
+                            models.DecimalField(decimal_places=2, default=0, max_digits=12),
+                        ),
+                        ("cae", models.CharField(blank=True, max_length=14)),
+                        ("cae_vencimiento", models.DateField(blank=True, null=True)),
+                        (
+                            "estado",
+                            models.CharField(
+                                choices=[
+                                    ("borrador", "Borrador"),
+                                    ("autorizada", "Autorizada"),
+                                    ("anulada", "Anulada"),
+                                ],
+                                default="borrador",
+                                max_length=10,
+                            ),
+                        ),
+                        ("creada", models.DateTimeField(auto_now_add=True)),
+                        (
+                            "cliente",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.PROTECT,
+                                related_name="facturas",
+                                to="clientes.cliente",
+                            ),
+                        ),
+                        (
+                            "usuario",
+                            models.ForeignKey(
+                                null=True,
+                                on_delete=django.db.models.deletion.SET_NULL,
+                                to=settings.AUTH_USER_MODEL,
+                            ),
+                        ),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_factura",
+                        "ordering": ["-creada"],
+                    },
                 ),
-                (
-                    "certificado",
-                    models.FileField(blank=True, null=True, upload_to="certs/"),
+                migrations.CreateModel(
+                    name="ItemFactura",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        ("descripcion", models.CharField(max_length=255)),
+                        ("cantidad", models.DecimalField(decimal_places=2, max_digits=10)),
+                        ("precio_unit", models.DecimalField(decimal_places=2, max_digits=10)),
+                        ("subtotal", models.DecimalField(decimal_places=2, max_digits=10)),
+                        (
+                            "factura",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                related_name="items",
+                                to="facturacion.factura",
+                            ),
+                        ),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_itemfactura",
+                    },
                 ),
-                (
-                    "clave_privada",
-                    models.FileField(blank=True, null=True, upload_to="certs/"),
-                ),
-                ("actualizado", models.DateTimeField(auto_now=True)),
             ],
-            options={
-                "db_table": "cotizaciones_configuracionafip",
-            },
         ),
-        migrations.CreateModel(
-            name="Factura",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                (
-                    "tipo",
-                    models.CharField(
-                        choices=[("C", "Factura C")], default="C", max_length=1
-                    ),
-                ),
-                ("punto_venta", models.IntegerField(default=1)),
-                ("numero", models.IntegerField(blank=True, db_index=True, null=True)),
-                ("fecha", models.DateField(auto_now_add=True)),
-                (
-                    "neto",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=12),
-                ),
-                (
-                    "total",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=12),
-                ),
-                ("cae", models.CharField(blank=True, max_length=14)),
-                ("cae_vencimiento", models.DateField(blank=True, null=True)),
-                (
-                    "estado",
-                    models.CharField(
-                        choices=[
-                            ("borrador", "Borrador"),
-                            ("autorizada", "Autorizada"),
-                            ("anulada", "Anulada"),
-                        ],
-                        default="borrador",
-                        max_length=10,
-                    ),
-                ),
-                ("creada", models.DateTimeField(auto_now_add=True)),
-                (
-                    "cliente",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.PROTECT,
-                        related_name="facturas",
-                        to="clientes.cliente",
-                    ),
-                ),
-                (
-                    "usuario",
-                    models.ForeignKey(
-                        null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
-            ],
-            options={
-                "db_table": "cotizaciones_factura",
-                "ordering": ["-creada"],
-            },
-        ),
+        # HistoricalFactura is a NEW table; create normally.
         migrations.CreateModel(
             name="HistoricalFactura",
             fields=[
@@ -213,34 +249,5 @@ class Migration(migrations.Migration):
                 "get_latest_by": ("history_date", "history_id"),
             },
             bases=(simple_history.models.HistoricalChanges, models.Model),
-        ),
-        migrations.CreateModel(
-            name="ItemFactura",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("descripcion", models.CharField(max_length=255)),
-                ("cantidad", models.DecimalField(decimal_places=2, max_digits=10)),
-                ("precio_unit", models.DecimalField(decimal_places=2, max_digits=10)),
-                ("subtotal", models.DecimalField(decimal_places=2, max_digits=10)),
-                (
-                    "factura",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="items",
-                        to="facturacion.factura",
-                    ),
-                ),
-            ],
-            options={
-                "db_table": "cotizaciones_itemfactura",
-            },
         ),
     ]

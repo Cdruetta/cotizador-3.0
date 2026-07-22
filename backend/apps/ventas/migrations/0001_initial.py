@@ -18,146 +18,349 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name="Cotizacion",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
+        # Cotizacion, CotizacionItem, Recibo, ReciboItem, Remito, RemitoItem
+        # tables already exist from the old cotizaciones app. State only.
+        migrations.SeparateDatabaseAndState(
+            state_operations=[
+                migrations.CreateModel(
+                    name="Cotizacion",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        (
+                            "numero",
+                            models.CharField(
+                                blank=True, db_index=True, max_length=20, null=True, unique=True
+                            ),
+                        ),
+                        (
+                            "tipo_documento",
+                            models.CharField(
+                                choices=[("presupuesto", "Presupuesto"), ("recibo", "Recibo")],
+                                default="presupuesto",
+                                max_length=20,
+                            ),
+                        ),
+                        ("fecha", models.DateField(auto_now_add=True)),
+                        ("observaciones", models.TextField(blank=True)),
+                        (
+                            "descuento_porcentaje",
+                            models.DecimalField(
+                                decimal_places=2,
+                                default=0.0,
+                                max_digits=5,
+                                validators=[
+                                    django.core.validators.MinValueValidator(0.0),
+                                    django.core.validators.MaxValueValidator(100.0),
+                                ],
+                            ),
+                        ),
+                        (
+                            "subtotal_bruto",
+                            models.DecimalField(decimal_places=2, default=0, max_digits=12),
+                        ),
+                        (
+                            "monto_descuento",
+                            models.DecimalField(decimal_places=2, default=0, max_digits=12),
+                        ),
+                        (
+                            "total",
+                            models.DecimalField(
+                                decimal_places=2,
+                                default=0,
+                                max_digits=12,
+                                validators=[django.core.validators.MinValueValidator(0.0)],
+                            ),
+                        ),
+                        (
+                            "estado",
+                            models.CharField(
+                                choices=[
+                                    ("borrador", "Borrador"),
+                                    ("enviada", "Enviada"),
+                                    ("aprobada", "Aprobada"),
+                                    ("rechazada", "Rechazada"),
+                                    ("facturada", "Facturada"),
+                                ],
+                                default="borrador",
+                                max_length=20,
+                            ),
+                        ),
+                        ("email_enviado", models.BooleanField(default=False)),
+                        ("created_at", models.DateTimeField(auto_now_add=True)),
+                        ("updated_at", models.DateTimeField(auto_now=True)),
+                        (
+                            "cliente",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="clientes.cliente",
+                            ),
+                        ),
+                        (
+                            "usuario",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to=settings.AUTH_USER_MODEL,
+                            ),
+                        ),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_cotizacion",
+                        "ordering": ["-fecha", "-numero"],
+                    },
                 ),
-                (
-                    "numero",
-                    models.CharField(
-                        blank=True, db_index=True, max_length=20, null=True, unique=True
-                    ),
+                migrations.CreateModel(
+                    name="CotizacionItem",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        ("cantidad", models.PositiveIntegerField(default=1)),
+                        (
+                            "precio_unitario",
+                            models.DecimalField(
+                                decimal_places=2,
+                                max_digits=10,
+                                validators=[django.core.validators.MinValueValidator(0.0)],
+                            ),
+                        ),
+                        (
+                            "subtotal",
+                            models.DecimalField(decimal_places=2, default=0, max_digits=12),
+                        ),
+                        (
+                            "cotizacion",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                related_name="items",
+                                to="ventas.cotizacion",
+                            ),
+                        ),
+                        (
+                            "producto",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="productos.producto",
+                            ),
+                        ),
+                    ],
+                    options={
+                        "verbose_name": "Item de Cotización",
+                        "db_table": "cotizaciones_cotizacionitem",
+                    },
                 ),
-                (
-                    "tipo_documento",
-                    models.CharField(
-                        choices=[("presupuesto", "Presupuesto"), ("recibo", "Recibo")],
-                        default="presupuesto",
-                        max_length=20,
-                    ),
+                migrations.CreateModel(
+                    name="Recibo",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        ("numero", models.CharField(db_index=True, max_length=50, unique=True)),
+                        ("fecha", models.DateField()),
+                        (
+                            "total",
+                            models.DecimalField(decimal_places=2, default=0, max_digits=12),
+                        ),
+                        (
+                            "forma_pago",
+                            models.CharField(
+                                choices=[
+                                    ("efectivo", "Efectivo"),
+                                    ("transferencia", "Transferencia Bancaria"),
+                                    ("cheque", "Cheque"),
+                                    ("tarjeta_debito", "Tarjeta Débito"),
+                                    ("tarjeta_credito", "Tarjeta Crédito"),
+                                    ("mercadopago", "Mercado Pago"),
+                                    ("otro", "Otro"),
+                                ],
+                                max_length=20,
+                            ),
+                        ),
+                        ("observaciones", models.TextField(blank=True, null=True)),
+                        ("created_at", models.DateTimeField(auto_now_add=True)),
+                        ("updated_at", models.DateTimeField(auto_now=True)),
+                        (
+                            "cliente",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="clientes.cliente",
+                            ),
+                        ),
+                        (
+                            "usuario",
+                            models.ForeignKey(
+                                blank=True,
+                                null=True,
+                                on_delete=django.db.models.deletion.SET_NULL,
+                                to=settings.AUTH_USER_MODEL,
+                            ),
+                        ),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_recibo",
+                        "ordering": ["-fecha", "-numero"],
+                    },
                 ),
-                ("fecha", models.DateField(auto_now_add=True)),
-                ("observaciones", models.TextField(blank=True)),
-                (
-                    "descuento_porcentaje",
-                    models.DecimalField(
-                        decimal_places=2,
-                        default=0.0,
-                        max_digits=5,
-                        validators=[
-                            django.core.validators.MinValueValidator(0.0),
-                            django.core.validators.MaxValueValidator(100.0),
-                        ],
-                    ),
+                migrations.CreateModel(
+                    name="ReciboItem",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        (
+                            "descripcion",
+                            models.CharField(blank=True, max_length=255, null=True),
+                        ),
+                        ("cantidad", models.PositiveIntegerField(default=1)),
+                        (
+                            "precio_unitario",
+                            models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                        ),
+                        (
+                            "subtotal",
+                            models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                        ),
+                        (
+                            "producto",
+                            models.ForeignKey(
+                                blank=True,
+                                null=True,
+                                on_delete=django.db.models.deletion.SET_NULL,
+                                to="productos.producto",
+                            ),
+                        ),
+                        (
+                            "recibo",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                related_name="items",
+                                to="ventas.recibo",
+                            ),
+                        ),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_reciboitem",
+                    },
                 ),
-                (
-                    "subtotal_bruto",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=12),
+                migrations.CreateModel(
+                    name="Remito",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        ("numero", models.CharField(max_length=50, unique=True)),
+                        ("fecha", models.DateField()),
+                        ("direccion_entrega", models.TextField(blank=True, null=True)),
+                        ("observaciones", models.TextField(blank=True, null=True)),
+                        (
+                            "estado",
+                            models.CharField(
+                                choices=[
+                                    ("pendiente", "Pendiente"),
+                                    ("entregado", "Entregado"),
+                                    ("cancelado", "Cancelado"),
+                                ],
+                                default="pendiente",
+                                max_length=20,
+                            ),
+                        ),
+                        ("created_at", models.DateTimeField(auto_now_add=True)),
+                        ("updated_at", models.DateTimeField(auto_now=True)),
+                        (
+                            "cliente",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                to="clientes.cliente",
+                            ),
+                        ),
+                        (
+                            "usuario",
+                            models.ForeignKey(
+                                blank=True,
+                                null=True,
+                                on_delete=django.db.models.deletion.SET_NULL,
+                                to=settings.AUTH_USER_MODEL,
+                            ),
+                        ),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_remito",
+                        "ordering": ["-fecha", "-numero"],
+                    },
                 ),
-                (
-                    "monto_descuento",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=12),
-                ),
-                (
-                    "total",
-                    models.DecimalField(
-                        decimal_places=2,
-                        default=0,
-                        max_digits=12,
-                        validators=[django.core.validators.MinValueValidator(0.0)],
-                    ),
-                ),
-                (
-                    "estado",
-                    models.CharField(
-                        choices=[
-                            ("borrador", "Borrador"),
-                            ("enviada", "Enviada"),
-                            ("aprobada", "Aprobada"),
-                            ("rechazada", "Rechazada"),
-                            ("facturada", "Facturada"),
-                        ],
-                        default="borrador",
-                        max_length=20,
-                    ),
-                ),
-                ("email_enviado", models.BooleanField(default=False)),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                (
-                    "cliente",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="clientes.cliente",
-                    ),
-                ),
-                (
-                    "usuario",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to=settings.AUTH_USER_MODEL,
-                    ),
+                migrations.CreateModel(
+                    name="RemitoItem",
+                    fields=[
+                        (
+                            "id",
+                            models.BigAutoField(
+                                auto_created=True,
+                                primary_key=True,
+                                serialize=False,
+                                verbose_name="ID",
+                            ),
+                        ),
+                        (
+                            "descripcion",
+                            models.CharField(blank=True, max_length=255, null=True),
+                        ),
+                        ("cantidad", models.PositiveIntegerField(default=1)),
+                        (
+                            "producto",
+                            models.ForeignKey(
+                                blank=True,
+                                null=True,
+                                on_delete=django.db.models.deletion.SET_NULL,
+                                to="productos.producto",
+                            ),
+                        ),
+                        (
+                            "remito",
+                            models.ForeignKey(
+                                on_delete=django.db.models.deletion.CASCADE,
+                                related_name="items",
+                                to="ventas.remito",
+                            ),
+                        ),
+                    ],
+                    options={
+                        "db_table": "cotizaciones_remitoitem",
+                    },
                 ),
             ],
-            options={
-                "db_table": "cotizaciones_cotizacion",
-                "ordering": ["-fecha", "-numero"],
-            },
         ),
-        migrations.CreateModel(
-            name="CotizacionItem",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("cantidad", models.PositiveIntegerField(default=1)),
-                (
-                    "precio_unitario",
-                    models.DecimalField(
-                        decimal_places=2,
-                        max_digits=10,
-                        validators=[django.core.validators.MinValueValidator(0.0)],
-                    ),
-                ),
-                (
-                    "subtotal",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=12),
-                ),
-                (
-                    "cotizacion",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="items",
-                        to="ventas.cotizacion",
-                    ),
-                ),
-                (
-                    "producto",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="productos.producto",
-                    ),
-                ),
-            ],
-            options={
-                "verbose_name": "Item de Cotización",
-                "db_table": "cotizaciones_cotizacionitem",
-            },
-        ),
+        # HistoricalCotizacion and HistoricalRecibo are NEW tables; create normally.
         migrations.CreateModel(
             name="HistoricalCotizacion",
             fields=[
@@ -361,201 +564,5 @@ class Migration(migrations.Migration):
                 "get_latest_by": ("history_date", "history_id"),
             },
             bases=(simple_history.models.HistoricalChanges, models.Model),
-        ),
-        migrations.CreateModel(
-            name="Recibo",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("numero", models.CharField(db_index=True, max_length=50, unique=True)),
-                ("fecha", models.DateField()),
-                (
-                    "total",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=12),
-                ),
-                (
-                    "forma_pago",
-                    models.CharField(
-                        choices=[
-                            ("efectivo", "Efectivo"),
-                            ("transferencia", "Transferencia Bancaria"),
-                            ("cheque", "Cheque"),
-                            ("tarjeta_debito", "Tarjeta Débito"),
-                            ("tarjeta_credito", "Tarjeta Crédito"),
-                            ("mercadopago", "Mercado Pago"),
-                            ("otro", "Otro"),
-                        ],
-                        max_length=20,
-                    ),
-                ),
-                ("observaciones", models.TextField(blank=True, null=True)),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                (
-                    "cliente",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="clientes.cliente",
-                    ),
-                ),
-                (
-                    "usuario",
-                    models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
-            ],
-            options={
-                "db_table": "cotizaciones_recibo",
-                "ordering": ["-fecha", "-numero"],
-            },
-        ),
-        migrations.CreateModel(
-            name="ReciboItem",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                (
-                    "descripcion",
-                    models.CharField(blank=True, max_length=255, null=True),
-                ),
-                ("cantidad", models.PositiveIntegerField(default=1)),
-                (
-                    "precio_unitario",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
-                ),
-                (
-                    "subtotal",
-                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
-                ),
-                (
-                    "producto",
-                    models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        to="productos.producto",
-                    ),
-                ),
-                (
-                    "recibo",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="items",
-                        to="ventas.recibo",
-                    ),
-                ),
-            ],
-            options={
-                "db_table": "cotizaciones_reciboitem",
-            },
-        ),
-        migrations.CreateModel(
-            name="Remito",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("numero", models.CharField(max_length=50, unique=True)),
-                ("fecha", models.DateField()),
-                ("direccion_entrega", models.TextField(blank=True, null=True)),
-                ("observaciones", models.TextField(blank=True, null=True)),
-                (
-                    "estado",
-                    models.CharField(
-                        choices=[
-                            ("pendiente", "Pendiente"),
-                            ("entregado", "Entregado"),
-                            ("cancelado", "Cancelado"),
-                        ],
-                        default="pendiente",
-                        max_length=20,
-                    ),
-                ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                (
-                    "cliente",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        to="clientes.cliente",
-                    ),
-                ),
-                (
-                    "usuario",
-                    models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
-            ],
-            options={
-                "db_table": "cotizaciones_remito",
-                "ordering": ["-fecha", "-numero"],
-            },
-        ),
-        migrations.CreateModel(
-            name="RemitoItem",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                (
-                    "descripcion",
-                    models.CharField(blank=True, max_length=255, null=True),
-                ),
-                ("cantidad", models.PositiveIntegerField(default=1)),
-                (
-                    "producto",
-                    models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        to="productos.producto",
-                    ),
-                ),
-                (
-                    "remito",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="items",
-                        to="ventas.remito",
-                    ),
-                ),
-            ],
-            options={
-                "db_table": "cotizaciones_remitoitem",
-            },
         ),
     ]
