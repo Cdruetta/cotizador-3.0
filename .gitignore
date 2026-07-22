@@ -85,6 +85,7 @@ media/
 # TESTING / COVERAGE
 # =========================================================
 htmlcov/
+coverage_report/
 .tox/
 .nox/
 .coverage
