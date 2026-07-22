@@ -190,7 +190,7 @@ def _build_elements(cotizacion):
     elements.append(Spacer(1, 24))
     elements.append(HRFlowable(width='100%', thickness=1, color=COLOR_FOOTER_LINE, spaceAfter=8))
     validez_texto = (
-        'Esta cotizaciÃ³n tiene una validez de 7 dÃ­as hÃ¡biles.'
+        'Esta cotización tiene una validez de 7 días hábiles.'
         if getattr(cotizacion, 'tipo_documento', '') != 'recibo'
         else None
     )
