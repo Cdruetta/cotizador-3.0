@@ -11,8 +11,15 @@ from drf_yasg import openapi
 
 def sentry_debug(request):
     """Endpoint de prueba para verificar que Sentry captura errores."""
-    division_por_cero = 1 / 0
-    return HttpResponse("ok")
+    import os, json
+    dsn = os.environ.get("SENTRY_DSN", "")
+    try:
+        import sentry_sdk
+        sentry_sdk.capture_message("Test desde cotizador: Sentry funciona!")
+        info = {"sentry_sdk": "ok", "dsn_configurado": bool(dsn), "mensaje_enviado": True}
+    except Exception as e:
+        info = {"sentry_sdk": "error", "dsn_configurado": bool(dsn), "error": str(e)}
+    return HttpResponse(json.dumps(info, indent=2), content_type="application/json")
 
 
 schema_permissions = (permissions.AllowAny,)
