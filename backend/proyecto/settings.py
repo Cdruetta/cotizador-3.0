@@ -29,10 +29,15 @@ except ImportError:
 if sentry_sdk:
     SENTRY_DSN = os.environ.get("SENTRY_DSN", "").strip()
     if SENTRY_DSN:
+        from sentry_sdk.integrations.django import DjangoIntegration
         sentry_sdk.init(
             dsn=SENTRY_DSN,
-            traces_sample_rate=1.0,
-            profiles_sample_rate=1.0,
+            integrations=[DjangoIntegration()],
+            traces_sample_rate=float(os.environ.get("SENTRY_TRACES_RATE", "0.25")),
+            profiles_sample_rate=float(os.environ.get("SENTRY_PROFILES_RATE", "0.1")),
+            release=os.environ.get("RENDER_GIT_COMMIT", ""),
+            environment=os.environ.get("SENTRY_ENVIRONMENT", "production"),
+            send_default_pii=True,
         )
 
 # --------------------------
