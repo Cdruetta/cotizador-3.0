@@ -2,24 +2,9 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.http import HttpResponse
 from rest_framework import permissions
-from django.conf import settings
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-
-
-def sentry_debug(request):
-    """Endpoint de prueba para verificar que Sentry captura errores."""
-    import os, json
-    dsn = os.environ.get("SENTRY_DSN", "")
-    try:
-        import sentry_sdk
-        sentry_sdk.capture_message("Test desde cotizador: Sentry funciona!")
-        info = {"sentry_sdk": "ok", "dsn_configurado": bool(dsn), "mensaje_enviado": True}
-    except Exception as e:
-        info = {"sentry_sdk": "error", "dsn_configurado": bool(dsn), "error": str(e)}
-    return HttpResponse(json.dumps(info, indent=2), content_type="application/json")
 
 
 schema_permissions = (permissions.AllowAny,)
@@ -40,7 +25,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('proyecto.urls_api')),
     path('', include('cotizaciones.urls')),
-    path('sentry-debug/', sentry_debug),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
